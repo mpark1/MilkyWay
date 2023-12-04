@@ -4,7 +4,7 @@ import {Button} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const DottedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
+const DashedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
   const plusButton = (
     <View style={styles.plusButtonContainer}>
       <AntDesign name={'pluscircle'} size={circleSize} color={'#6395E1'} />
@@ -29,7 +29,7 @@ const DottedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
   );
 };
 
-export default DottedBorderButton;
+export default DashedBorderButton;
 
 const styles = StyleSheet.create({
   plusButtonContainer: {
@@ -45,25 +45,23 @@ const styles = StyleSheet.create({
     color: '#939393',
   },
   regularContainerStyle: {
-    width: Dimensions.get('window').width * 0.93,
-    height: 90,
-    borderWidth: 2,
-    borderStyle: 'dotted',
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderStyle: 'dashed',
     borderColor: '#939393',
     alignSelf: 'center',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    marginBottom: Dimensions.get('window').height * 0.05,
   },
   thinContainerStyle: {
     width: '100%',
-    height: 55,
+    height: 50,
     borderWidth: 1,
-    borderStyle: 'dotted',
+    borderStyle: 'dashed',
     borderColor: '#939393',
     alignSelf: 'center',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    // marginBottom: Dimensions.get('window').height * 0.05,
   },
 });

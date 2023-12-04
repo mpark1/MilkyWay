@@ -5,7 +5,7 @@ import {pagination} from '../../../utils/pagination';
 
 import ShortLetterPreview from '../../../components/Letters/ShortLetterPreview';
 
-import mockData from '../../../data/familyLetters.json';
+import mockData from '../../../data/letters.json';
 import LongLetterPreview from '../../../components/Letters/LongLetterPreview';
 import {Button} from '@rneui/base';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -17,7 +17,7 @@ const Letters = ({navigation}) => {
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
 
   const renderFlatListItem = useCallback(({item}) => {
-    console.log('렌더링...', item.name);
+    // console.log('렌더링...', item.name);
     return item.content.length > 60 ? (
       <LongLetterPreview
         profilePic={item.profilePic}
@@ -46,65 +46,63 @@ const Letters = ({navigation}) => {
       </View>
     );
     return (
-      <Button
-        title={'편지쓰기'}
-        titleStyle={{
-          color: '#939393',
-        }}
-        containerStyle={{
-          width: '100%',
-          height: 50,
-          borderWidth: 1,
-          borderStyle: 'dashed',
-          borderColor: '#939393',
-          alignSelf: 'center',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-        }}
-        buttonStyle={{backgroundColor: 'transparent'}}
-        onPress={() =>
-          navigation.navigate('WriteOrEditLetter', {
-            actionType: 'write',
-            title: '',
-            relationship: '',
-            isPrivate: false,
-            message: '',
-          })
-        }
-        icon={plusButton}
-      />
+      <View
+        style={{
+          paddingHorizontal: 15,
+        }}>
+        <Button
+          title={'편지쓰기'}
+          titleStyle={{
+            color: '#939393',
+          }}
+          containerStyle={{
+            width: '100%',
+            height: 50,
+            borderWidth: 1,
+            borderStyle: 'dashed',
+            borderColor: '#939393',
+            alignSelf: 'center',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+          }}
+          buttonStyle={{backgroundColor: 'transparent'}}
+          onPress={() =>
+            navigation.navigate('WriteOrEditLetter', {
+              actionType: 'write',
+              title: '',
+              relationship: '',
+              isPrivate: false,
+              message: '',
+            })
+          }
+          icon={plusButton}
+        />
+      </View>
     );
   }, []);
+
+  const onEndReached = useCallback(() => {
+    if (!isLoadingLetters) {
+      setIsLoadingLetters(true);
+      setRenderedLetters(prev => [
+        ...prev,
+        ...pagination(mockData, pageNumber + 1, pageSize, setPageNumber),
+      ]);
+      setIsLoadingLetters(false);
+    }
+  }, [isLoadingLetters, pageNumber]);
 
   return (
     <View style={styles.flatListContainer}>
       <FlatList
+        showsVerticalScrollIndicator={false}
         onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => {
-          if (!isLoadingLetters) {
-            setIsLoadingLetters(true);
-            setRenderedLetters(prev => [
-              ...prev,
-              ...pagination(mockData, pageNumber + 1, pageSize, setPageNumber),
-            ]);
-            setIsLoadingLetters(false);
-          }
-        }}
+        onEndReachedThreshold={0.7}
+        onEndReached={onEndReached}
         data={renderedLetters}
         renderItem={renderFlatListItem}
+        ListHeaderComponent={renderWriteLetterButton}
       />
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          width: '100%',
-          backgroundColor: '#FFF',
-          paddingVertical: 10,
-          paddingHorizontal: 20,
-        }}>
-        {renderWriteLetterButton()}
-      </View>
     </View>
   );
 };
@@ -114,7 +112,8 @@ export default Letters;
 const styles = StyleSheet.create({
   flatListContainer: {
     backgroundColor: '#FFF',
-    paddingBottom: 70,
+    paddingTop: 15,
+    // paddingBottom: 70,
   },
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,

@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     containerStyle: {
       width: '100%',
       height: 55,
-      borderWidth: 2,
-      borderStyle: 'dotted',
+      borderWidth: 1,
+      borderStyle: 'dashed',
       borderColor: '#939393',
       alignSelf: 'center',
       alignItems: 'flex-start',

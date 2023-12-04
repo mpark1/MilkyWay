@@ -13,7 +13,7 @@ import globalStyle from '../../assets/styles/globalStyle';
 import PetCard from '../../components/PetCard';
 import mockData from '../../data/myMilkyWays.json';
 import {pagination} from '../../utils/pagination';
-import DottedBorderButton from '../../components/Buttons/DottedBorderButton';
+import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -69,7 +69,7 @@ const Pets = ({navigation}) => {
               />
             )}
             ListFooterComponent={() => (
-              <DottedBorderButton
+              <DashedBorderButton
                 type={'regular'}
                 title={'새로운 추모공간 만들기'}
                 circleSize={40}

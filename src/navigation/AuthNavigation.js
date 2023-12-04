@@ -4,8 +4,9 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
-import ChoosePhotoOrVideo from '../screens/AuthUser/ChoosePhotoOrVideo';
+import ChooseMedia from '../screens/AuthUser/ChooseMedia';
 import WriteOrEditLetter from '../screens/AuthUser/WriteOrEditLetter';
+import MediaPreview from '../screens/AuthUser/MediaPreview';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,9 +40,19 @@ const AuthNavigation = () => {
       />
       <Stack.Screen
         name={'ChooseMedia'}
-        component={ChoosePhotoOrVideo}
+        component={ChooseMedia}
         options={{
-          headerTitle: '앨범 게시물 등록',
+          headerTitle: '사진 / 동영상 선택',
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#000',
+        }}
+      />
+      <Stack.Screen
+        name={'MediaPreview'}
+        component={MediaPreview}
+        options={{
+          headerTitle: '캡션 작성',
           headerShadowVisible: false,
           headerBackTitleVisible: false,
           headerTintColor: '#000',
