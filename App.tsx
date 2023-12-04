@@ -1,39 +1,23 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import {
-  Pressable,
-  SafeAreaView,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {StyleSheet} from 'react-native';
+
+import {NavigationContainer} from '@react-navigation/native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler'; // for bottom sheet
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+
+import RootNavigation from './src/navigation/RootNavigation';
+import globalStyle from './src/assets/styles/globalStyle';
 
 const App = () => {
   return (
-    <SafeAreaView style={styles.backgroundWhite}>
-      <Pressable style={styles.kakaoLogin}>
-        <Image source={require('./src/assets/images/kakao_login_small.png')} />
-      </Pressable>
-    </SafeAreaView>
+    <GestureHandlerRootView style={globalStyle.flex}>
+      <BottomSheetModalProvider>
+        <RootNavigation />
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 };
 
-const styles = StyleSheet.create({
-  backgroundWhite: {
-    backgroundColor: '#FFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  kakaoLogin: {
-    marginTop: 20,
-  },
-});
+const styles = StyleSheet.create({});
 
 export default App;
