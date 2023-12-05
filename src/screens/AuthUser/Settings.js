@@ -32,23 +32,15 @@ const Settings = () => {
     const localDate = new Date(
       date.getTime() - date.getTimezoneOffset() * 60000,
     );
+
+    setBirthday(localDate);
+    setBirthdayString(localDate.toISOString().split('T')[0]);
   }, []);
 
-  // const onChangeDate = date => {
-  //   setIsPickerOpen(false);
-  //
-  //   const localDate = new Date(
-  //     date.getTime() - date.getTimezoneOffset() * 60000,
-  //   );
-  //
-  //   setBirthday(localDate);
-  //   setBirthdayString(localDate.toISOString().split('T')[0]);
-  // };
-
-  const birthdayString = '2012-02-03';
-  const birthday = new Date(birthdayString);
+  const [birthdayString, setBirthdayString] = useState('2012-02-03');
+  const [birthday, setBirthday] = useState(new Date(birthdayString));
   const deathDayString = '2023-02-03';
-  const deathDay = new Date(deathDayString);
+  const [deathDay, setDeathDay] = useState(new Date(deathDayString));
 
   const renderProfilePic = useCallback(() => {
     return (
@@ -92,13 +84,12 @@ const Settings = () => {
             open={isBirthdayPickerOpen}
             date={birthday}
             maximumDate={new Date(currentDateInString)}
-            // onConfirm={birthday => {
-            //   onChangeDate(birthday);
-            //   userObject.petBirthday = birthdayString;
-            // }}
-            // onCancel={() => {
-            //   setIsPickerOpen(false);
-            // }}
+            onConfirm={newBirthday => {
+              onChangeBirthday(newBirthday);
+            }}
+            onCancel={() => {
+              setIsBirthdayPickerOpen(false);
+            }}
           />
         </Pressable>
       </View>
