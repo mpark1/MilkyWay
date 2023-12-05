@@ -36,7 +36,7 @@ const Pet = ({navigation, route}) => {
   const renderBellEnvelopeSettingsIcons = () => {
     return (
       <View style={styles.iconsWrapper}>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('Notifications')}>
           <MaterialCommunityIcons
             name="bell-outline"
             size={24}
@@ -46,7 +46,7 @@ const Pet = ({navigation, route}) => {
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
         </Pressable>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('Settings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
         </Pressable>
       </View>

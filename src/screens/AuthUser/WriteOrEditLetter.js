@@ -1,6 +1,6 @@
 import React, {useCallback, useState, useEffect} from 'react';
 import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CheckBox} from '@rneui/themed';
 
 import globalStyle from '../../assets/styles/globalStyle';
