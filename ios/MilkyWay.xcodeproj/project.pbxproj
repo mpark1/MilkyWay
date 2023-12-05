@@ -486,7 +486,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = TP526836A8;
+				DEVELOPMENT_TEAM = 374N59P8XA;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MilkyWay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "은하수";
@@ -501,7 +501,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.animalworld.milkyway;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milkyway.zzz;
 				PRODUCT_NAME = MilkyWay;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -516,7 +516,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = TP526836A8;
+				DEVELOPMENT_TEAM = 374N59P8XA;
 				INFOPLIST_FILE = MilkyWay/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "은하수";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -530,7 +530,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.animalworld.milkyway;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milkyway.zzz;
 				PRODUCT_NAME = MilkyWay;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -606,10 +606,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
@@ -679,10 +676,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
