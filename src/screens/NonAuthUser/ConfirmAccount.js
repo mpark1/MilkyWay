@@ -3,11 +3,11 @@ import {View, Text, TextInput, StyleSheet, Alert} from 'react-native';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
-// import {Auth} from 'aws-amplify';
+import {confirmSignUp} from 'aws-amplify/auth';
 
-const ConfirmAccount = () => {
+const ConfirmAccount = ({navigation, route}) => {
   const [code, setCode] = useState('');
-
+  const {username} = route.params;
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const canGoNext = code;
@@ -15,45 +15,43 @@ const ConfirmAccount = () => {
     setCode(text.trim());
   }, []);
 
-  // async function confirmSignUp(username, code) {
-  //   if (isConfirmed || isConfirming) {
-  //     return;
-  //   }
-  //   setIsConfirming(true);
-  //   try {
-  //     await Auth.confirmSignUp(username, code);
-  //     setIsConfirmed(true);
-  //     console.log('email confirmation success');
-  //     // console.log(imageURI);
-  //     // await createProfileImageInS3(imageURI);
-  //
-  //     if (purpose === 'signUp') {
-  //       Alert.alert('이메일 인증 성공!', '', [
-  //         {text: '확인', onPress: () => navigation.navigate('CompleteSignUp')},
-  //       ]);
-  //     } else if (purpose === 'resend') {
-  //       Alert.alert('이메일 인증 성공!', '', [
-  //         {text: '로그인하기', onPress: () => navigation.navigate('SignIn')},
-  //       ]);
-  //     }
-  //   } catch (error) {
-  //     if (error.code === 'CodeMismatchException') {
-  //       Alert.alert(
-  //         '인증번호가 일치하지 않습니다. 인증번호를 확인해주세요',
-  //         '',
-  //         [{text: '확인'}],
-  //       );
-  //     } else if (error.code === 'LimitExceededException') {
-  //       Alert.alert(
-  //         '인증번호 오류 횟수를 초과하였습니다. 잠시후(정확히 몇분?) 다시 시도해주세요.',
-  //         '',
-  //         [{text: '확인'}],
-  //       );
-  //     }
-  //   } finally {
-  //     setIsConfirming(false);
-  //   }
-  // }
+  async function goNext() {
+    if (isConfirmed || isConfirming) {
+      return;
+    }
+    setIsConfirming(true);
+    try {
+      console.log('email: ', username);
+      console.log('code: ', code);
+      const {isSignUpComplete, nextStep} = await confirmSignUp({
+        username: username,
+        confirmationCode: code,
+      });
+      setIsConfirmed(true);
+      console.log('isSignUpComplete', isSignUpComplete);
+      console.log('nextStep', nextStep);
+      Alert.alert('이메일 인증 성공!', '', [
+        {text: '확인', onPress: () => navigation.navigate('Pets')},
+      ]);
+    } catch (error) {
+      console.log('error message', error);
+      if (error.name === 'CodeMismatchException') {
+        Alert.alert(
+          '인증번호가 일치하지 않습니다. 인증번호를 확인해주세요',
+          '',
+          [{text: '확인'}],
+        );
+      } else if (error.code === 'LimitExceededException') {
+        Alert.alert(
+          '인증번호 오류 횟수를 초과하였습니다. 잠시후(정확히 몇분?) 다시 시도해주세요.',
+          '',
+          [{text: '확인'}],
+        );
+      }
+    } finally {
+      setIsConfirming(false);
+    }
+  }
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
@@ -69,11 +67,7 @@ const ConfirmAccount = () => {
             returnKeyType={'send'}
           />
         </View>
-        <Button
-          // onPress={() => confirmSignUp(email, code)}
-          disabled={!canGoNext}
-          title={'확인'}
-        />
+        <Button onPress={() => goNext()} disabled={!canGoNext} title={'확인'} />
         <View style={{marginTop: 10}}>
           <Text>
             계정 인증 메일이 오지 않는다면 스팸 혹은 프로모션 메일함을

@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-milkyway-dev-114256-authRole",
+      "UnauthRoleArn": "arn:aws:iam::426712846737:role/amplify-milkyway-dev-114256-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::426712846737:role/amplify-milkyway-dev-114256-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-milkyway-dev-114256-deployment",
+      "UnauthRoleName": "amplify-milkyway-dev-114256-unauthRole",
+      "StackName": "amplify-milkyway-dev-114256",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:426712846737:stack/amplify-milkyway-dev-114256/ff9af3e0-9317-11ee-afd0-029190f1c388",
+      "AmplifyAppId": "d1g12c5o1y9f2u"
+    },
+    "categories": {
+      "auth": {
+        "milkywayb2dd3f99": {}
+      },
+      "api": {
+        "milkyway": {}
+      }
+    }
+  }
+}

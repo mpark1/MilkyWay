@@ -1,12 +1,21 @@
 import React, {useCallback, useRef, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, TextInput} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+  Alert,
+} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
+import {signUp} from 'aws-amplify/auth';
 
 const SignUp = ({navigation}) => {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,13 +41,10 @@ const SignUp = ({navigation}) => {
     setPassword(trimmedText);
   }, []);
 
-  const onChangeConfirmPW = useCallback(
-    text => {
-      const trimmedText = text.trim();
-      setConfirmPW(trimmedText);
-    },
-    [password],
-  );
+  const onChangeConfirmPW = useCallback(text => {
+    const trimmedText = text.trim();
+    setConfirmPW(trimmedText);
+  }, []);
 
   const renderNameField = () => {
     return (
@@ -93,7 +99,7 @@ const SignUp = ({navigation}) => {
               borderBottomRightRadius: 0,
             },
           ]}
-          placeholder={'*비밀번호를 입력해주세요'}
+          placeholder={'*비밀번호를 입력해주세요.'}
           placeholderTextColor={'#939393'}
           clearButtonMode={'while-editing'}
           onChangeText={onChangePW}
@@ -121,13 +127,87 @@ const SignUp = ({navigation}) => {
           textContentType={'password'}
           onChangeText={onChangeConfirmPW}
           ref={confirmPWRef}
-          value={password}
+          value={confirmPW}
           autoCapitalize={'none'}
           autoCorrect={false}
         />
       </View>
     );
   };
+
+  async function signUpButton() {
+    // 1. check email validation
+    if (
+      !/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/.test(
+        email,
+      )
+    ) {
+      setEmail('');
+      return Alert.alert('이메일', '유효한 이메일이 아닙니다.', [
+        {
+          text: '확인',
+        },
+      ]);
+    }
+    // 2. check password and confirm password (check for mismatch)
+    if (confirmPW !== password) {
+      setPassword('');
+      setConfirmPW('');
+      return Alert.alert('비밀번호', '비밀번호가 일치하지 않습니다.', [
+        {
+          text: '확인',
+        },
+      ]);
+    }
+    // 3. amplfiy 회원가입 api
+    if (!isSignUp) {
+      setIsSignUp(true);
+      try {
+        const {isSignUpComplete, userId, nextStep} = await signUp({
+          username: email,
+          password: password,
+          options: {
+            userAttributes: {
+              name,
+            },
+            // optional
+            autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
+          },
+        });
+        console.log('userID:', userId);
+        console.log('isSignUpComplete:', isSignUpComplete);
+        console.log('nextStep:', nextStep);
+        setIsSignUp(false);
+        navigation.navigate('ConfirmAccount', {username: email});
+      } catch (error) {
+        console.log('error signing up:', error.name);
+        setIsSignUp(false);
+        if (error.name === 'UsernameExistsException') {
+          Alert.alert(
+            '이미 존재하는 이메일입니다.',
+            '로그인 창으로 이동합니다',
+            [
+              {
+                text: '확인',
+                onPress: () => navigation.navigate('SignIn'),
+              },
+            ],
+          );
+        } else if (error.name === 'InvalidPasswordException') {
+          // Username should be an email.
+          Alert.alert(
+            '비밀번호 오류',
+            '비밀번호에 영문 대문자, 소문자, 숫자를 8자 이내로 입력해주세요.',
+            [
+              {
+                text: '확인',
+              },
+            ],
+          );
+        }
+      }
+    }
+  }
 
   const renderSignUpButton = () => {
     return (
@@ -138,7 +218,7 @@ const SignUp = ({navigation}) => {
         type={'outline'}
         buttonStyle={styles.signUpButton.buttonStyle}
         containerStyle={styles.signUpButton.containerStyle}
-        onPress={() => navigation.navigate('ConfirmAccount')}
+        onPress={() => signUpButton()}
       />
     );
   };
@@ -157,7 +237,9 @@ const SignUp = ({navigation}) => {
         {renderPasswordField()}
       </View>
       <View style={styles.required.container}>
-        <Text style={styles.required.text}>*필수 기입 항목입니다.</Text>
+        <Text style={styles.required.text}>
+          영문 대문자,소문자,숫자 포함 8자 이상 입력해주세요.
+        </Text>
       </View>
       {renderSignUpButton()}
     </View>
@@ -223,7 +305,7 @@ const styles = StyleSheet.create({
     containerStyle: {
       width: '100%',
       paddingHorizontal: Dimensions.get('window').width * 0.1,
-      marginVertical: 10,
+      marginVertical: 30,
       alignSelf: 'center',
     },
   },

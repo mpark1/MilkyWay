@@ -1,3 +1,5 @@
+import {Alert} from 'react-native';
+
 export function getTimeElapsed(dateTimeString) {
   const inputDate = new Date(dateTimeString);
   const currentDate = new Date();
