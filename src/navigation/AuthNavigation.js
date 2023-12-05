@@ -9,12 +9,34 @@ import WriteOrEditLetter from '../screens/AuthUser/WriteOrEditLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
 import Notifications from '../screens/AuthUser/Notifications';
+import SignUp from '../screens/NonAuthUser/SignUp';
+import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 
 const Stack = createNativeStackNavigator();
 
 const AuthNavigation = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name={'SignUp'}
+        component={SignUp}
+        options={{
+          headerTitle: '회원가입',
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#000',
+        }}
+      />
+      <Stack.Screen
+        name={'ConfirmAccount'}
+        component={ConfirmAccount}
+        options={{
+          headerTitle: '이메일 인증',
+          headerShadowVisible: false,
+          headerBackTitleVisible: false,
+          headerTintColor: '#000',
+        }}
+      />
       <Stack.Screen
         name={'BottomTabs'}
         component={BottomTabs}

@@ -13,28 +13,6 @@ import {Button, Input} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 import globalStyle from '../../assets/styles/globalStyle';
 
-// export default () => {
-//   return (
-//     <Input
-//       containerStyle={{}}
-//       disabledInputStyle={{ background: "#ddd" }}
-//       inputContainerStyle={{}}
-//       errorMessage="Oops! that's not correct."
-//       errorStyle={{}}
-//       errorProps={{}}
-//       inputStyle={{}}
-//       label="User Form"
-//       labelStyle={{}}
-//       labelProps={{}}
-//       leftIcon={<Icon name="account-outline" size={20} />}
-//       leftIconContainerStyle={{}}
-//       rightIcon={<Icon name="close" size={20} />}
-//       rightIconContainerStyle={{}}
-//       placeholder="Enter Name"
-//     />
-//   );
-// }
-
 const SignIn = () => {
   const renderEmailField = () => {
     return (
