@@ -11,12 +11,20 @@ import Settings from '../screens/AuthUser/Settings';
 import Notifications from '../screens/AuthUser/Notifications';
 import SignUp from '../screens/NonAuthUser/SignUp';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
+import SignIn from '../screens/NonAuthUser/SignIn';
 
 const Stack = createNativeStackNavigator();
 
 const AuthNavigation = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name={'SignIn'}
+        component={SignIn}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name={'SignUp'}
         component={SignUp}

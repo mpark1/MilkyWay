@@ -1,18 +1,12 @@
 import React, {useCallback, useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TextInput,
-  Alert,
-} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, TextInput} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {signUp} from 'aws-amplify/auth';
+import AlertBox from '../../components/AlertBox';
 
 const SignUp = ({navigation}) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -143,21 +137,13 @@ const SignUp = ({navigation}) => {
       )
     ) {
       setEmail('');
-      return Alert.alert('이메일', '유효한 이메일이 아닙니다.', [
-        {
-          text: '확인',
-        },
-      ]);
+      return AlertBox('유효한 이메일이 아닙니다.', '', '확인', 'none');
     }
     // 2. check password and confirm password (check for mismatch)
     if (confirmPW !== password) {
       setPassword('');
       setConfirmPW('');
-      return Alert.alert('비밀번호', '비밀번호가 일치하지 않습니다.', [
-        {
-          text: '확인',
-        },
-      ]);
+      return AlertBox('비밀번호가 일치하지 않습니다.', '', '확인', 'none');
     }
     // 3. amplfiy 회원가입 api
     if (!isSignUp) {
@@ -183,26 +169,16 @@ const SignUp = ({navigation}) => {
         console.log('error signing up:', error.name);
         setIsSignUp(false);
         if (error.name === 'UsernameExistsException') {
-          Alert.alert(
-            '이미 존재하는 이메일입니다.',
-            '로그인 창으로 이동합니다',
-            [
-              {
-                text: '확인',
-                onPress: () => navigation.navigate('SignIn'),
-              },
-            ],
+          return AlertBox('이미 존재하는 이메일입니다.', '', '확인', () =>
+            navigation.navigate('SignIn'),
           );
         } else if (error.name === 'InvalidPasswordException') {
           // Username should be an email.
-          Alert.alert(
+          return AlertBox(
             '비밀번호 오류',
             '비밀번호에 영문 대문자, 소문자, 숫자를 8자 이내로 입력해주세요.',
-            [
-              {
-                text: '확인',
-              },
-            ],
+            '확인',
+            'none',
           );
         }
       }
