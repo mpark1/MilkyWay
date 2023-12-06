@@ -13,7 +13,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import {Button, Icon, Input} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 import globalStyle from '../../assets/styles/globalStyle';
-import {signIn} from 'aws-amplify/auth';
+import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 
 const SignIn = ({navigation}) => {
@@ -31,23 +31,24 @@ const SignIn = ({navigation}) => {
 
   const canGoNext = email && password;
 
-  // const reconfirmAccount= async () => {
-  //   try {
-  //     await Auth.resendSignUp(email);
-  //     navigation.navigate('ConfirmAccount', {username: email});
-  //   } catch (error) {
-  //     console.log('error: ', error);
-  //   }
-  // };
-
   const onSubmit = useCallback(async () => {
     if (isLoggingIn) {
       return;
     }
     try {
       setIsLoggingIn(true);
-      const {isSignedIn, nextStep} = await signIn({email, password});
+      const {isSignedIn, nextStep} = await signIn({
+        username: email,
+        password: password,
+      });
       console.log('sign-in result: ', isSignedIn, nextStep);
+      // 미인증 계정 인증화면으로 보내기
+      if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
+        AlertBox('미인증 계정입니다', '', '인증하러가기', async () => {
+          await resendSignUpCode({username: email});
+          navigation.navigate('ConfirmAccount', {username: email});
+        });
+      }
     } catch (error) {
       console.log('error signing in: ', error);
       if (error.name === 'UserNotFoundException') {
@@ -68,10 +69,6 @@ const SignIn = ({navigation}) => {
           '',
           '확인',
           'none',
-        );
-      } else if (error.code === 'UserNotConfirmedException') {
-        AlertBox('인증되지 않은 계정입니다', '', '인증하러 가기', () =>
-          navigation.navigate('confirmAccount', {username: email}),
         );
       }
     } finally {
@@ -208,7 +205,8 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     fontSize: scaleFontSize(16),
-    color: '#d9d9d9',
+    color: '#000',
+    marginLeft: 10,
   },
   labelStyle: {
     fontSize: scaleFontSize(16),

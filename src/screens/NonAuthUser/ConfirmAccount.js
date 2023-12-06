@@ -1,10 +1,10 @@
 import React, {useCallback, useState} from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
 import {scaleFontSize} from '../../assets/styles/scaling';
+import {confirmSignUp, autoSignIn} from 'aws-amplify/auth';
+import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
-import {confirmSignUp} from 'aws-amplify/auth';
-import AlertBox from '../../components/AlertBox';
 
 const ConfirmAccount = ({navigation, route}) => {
   const [code, setCode] = useState('');
@@ -16,7 +16,19 @@ const ConfirmAccount = ({navigation, route}) => {
     setCode(text.trim());
   }, []);
 
-  async function goNext() {
+  async function handleAutoSignIn() {
+    try {
+      const {isSignedIn} = await autoSignIn();
+      console.log('isSignIn boolean result', isSignedIn);
+      isSignedIn
+        ? navigation.navigate('BottomTabs')
+        : navigation.navigate('SignIn');
+    } catch (error) {
+      console.log('auto signin error', error);
+    }
+  }
+
+  async function submit() {
     if (isConfirmed || isConfirming) {
       return;
     }
@@ -31,7 +43,7 @@ const ConfirmAccount = ({navigation, route}) => {
       setIsConfirmed(true);
       console.log('isSignUpComplete', isSignUpComplete);
       console.log('nextStep', nextStep);
-      AlertBox('회원가입 성공!', '', '확인', () => navigation.navigate('Pets'));
+      AlertBox('회원가입 성공!', '', '확인', () => handleAutoSignIn());
     } catch (error) {
       console.log('error message', error);
       if (error.name === 'CodeMismatchException') {
@@ -41,7 +53,7 @@ const ConfirmAccount = ({navigation, route}) => {
           '확인',
           'none',
         );
-      } else if (error.code === 'LimitExceededException') {
+      } else if (error.name === 'LimitExceededException') {
         AlertBox(
           '인증번호 오류 횟수를 초과하였습니다.',
           '잠시후(정확히 몇분?) 다시 시도해주세요.',
@@ -68,7 +80,7 @@ const ConfirmAccount = ({navigation, route}) => {
             returnKeyType={'send'}
           />
         </View>
-        <Button onPress={() => goNext()} disabled={!canGoNext} title={'확인'} />
+        <Button onPress={() => submit()} disabled={!canGoNext} title={'확인'} />
         <View style={{marginTop: 10}}>
           <Text>
             계정 인증 메일이 오지 않는다면 스팸 혹은 프로모션 메일함을

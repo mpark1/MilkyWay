@@ -43,6 +43,7 @@ const AuthNavigation = () => {
         component={ConfirmAccount}
         options={{
           headerTitle: '이메일 인증',
+          headerTitleAlign: 'center',
           headerShadowVisible: false,
           headerBackTitleVisible: false,
           headerTintColor: '#000',
