@@ -8,7 +8,7 @@ import {Button} from '@rneui/base';
 
 const ConfirmAccount = ({navigation, route}) => {
   const [code, setCode] = useState('');
-  const {username} = route.params;
+  const {username, purpose} = route.params;
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const canGoNext = code;
@@ -17,14 +17,18 @@ const ConfirmAccount = ({navigation, route}) => {
   }, []);
 
   async function handleAutoSignIn() {
-    try {
-      const {isSignedIn} = await autoSignIn();
-      console.log('isSignIn boolean result', isSignedIn);
-      isSignedIn
-        ? navigation.navigate('BottomTabs')
-        : navigation.navigate('SignIn');
-    } catch (error) {
-      console.log('auto signin error', error);
+    if (purpose === 'initialSignUp') {
+      try {
+        const {isSignedIn} = await autoSignIn();
+        console.log('isSignIn boolean result', isSignedIn);
+        isSignedIn
+          ? navigation.navigate('BottomTabs')
+          : navigation.navigate('SignIn');
+      } catch (error) {
+        console.log('auto signin error', error);
+      }
+    } else {
+      navigation.navigate('SignIn');
     }
   }
 

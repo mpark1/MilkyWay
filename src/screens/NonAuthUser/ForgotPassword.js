@@ -3,8 +3,9 @@ import {View, Alert, StyleSheet, Dimensions} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button, Input} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
+import {resetPassword} from 'aws-amplify/auth';
 
-const FindPassword = ({navigation}) => {
+const ForgotPassword = ({navigation}) => {
   const [email, setEmail] = useState('');
 
   const [isSendingConfirmationCode, setIsSendingConfirmationCode] =
@@ -18,13 +19,31 @@ const FindPassword = ({navigation}) => {
     if (!isSendingConfirmationCode) {
       setIsSendingConfirmationCode(true);
       try {
-        // TODO: 1. Call Amplify auth forgotPassword(email), 2. Handle any error, 3. If no error, navigate to ResetPassword (pass email as param)
+        const output = await resetPassword({username: email});
+        handleResetPasswordNextSteps(output);
       } catch (error) {
+        console.log(error);
       } finally {
         setIsSendingConfirmationCode(false);
       }
     }
   }, []);
+
+  function handleResetPasswordNextSteps(output) {
+    const {nextStep} = output;
+    switch (nextStep.resetPasswordStep) {
+      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
+        const codeDeliveryDetails = nextStep.codeDeliveryDetails;
+        console.log(
+          `Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`,
+        );
+        // Collect the confirmation code from the user and pass to confirmResetPassword.
+        break;
+      case 'DONE':
+        console.log('Successfully reset password.');
+        break;
+    }
+  }
 
   const renderEmailField = () => {
     return (
@@ -51,7 +70,7 @@ const FindPassword = ({navigation}) => {
         containerStyle={styles.button.containerStyle}
         buttonStyle={globalStyle.backgroundBlue}
         disabled={!email}
-        onPress={onSubmit}
+        onPress={() => onSubmit()}
       />
     );
   };
@@ -66,7 +85,7 @@ const FindPassword = ({navigation}) => {
   );
 };
 
-export default FindPassword;
+export default ForgotPassword;
 
 const styles = StyleSheet.create({
   spacer: {
@@ -82,7 +101,7 @@ const styles = StyleSheet.create({
     },
     inputStyle: {
       fontSize: scaleFontSize(16),
-      color: '#d9d9d9',
+      color: '#000',
       paddingHorizontal: 10,
     },
     labelStyle: {

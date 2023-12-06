@@ -46,7 +46,10 @@ const SignIn = ({navigation}) => {
       if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
         AlertBox('미인증 계정입니다', '', '인증하러가기', async () => {
           await resendSignUpCode({username: email});
-          navigation.navigate('ConfirmAccount', {username: email});
+          navigation.navigate('ConfirmAccount', {
+            username: email,
+            purpose: 'reconfirm',
+          });
         });
       }
     } catch (error) {
@@ -85,7 +88,7 @@ const SignIn = ({navigation}) => {
         inputStyle={styles.inputStyle}
         label="이메일*"
         labelStyle={styles.labelStyle}
-        placeholder="   이메일을 입력해주세요"
+        placeholder="이메일을 입력해주세요"
         placeholderTextColor={'#d9d9d9'}
         onSubmitEditing={() => passwordRef.current?.focus()}
         returnKeyType={'next'}
@@ -104,7 +107,7 @@ const SignIn = ({navigation}) => {
         inputStyle={styles.inputStyle}
         label="비밀번호*"
         labelStyle={styles.labelStyle}
-        placeholder="   비밀번호를 입력해주세요"
+        placeholder="비밀번호를 입력해주세요"
         placeholderTextColor={'#d9d9d9'}
         keyboardType={Platform.OS === 'android' ? 'default' : 'ascii-capable'}
         secureTextEntry={true}
@@ -177,7 +180,7 @@ const SignIn = ({navigation}) => {
         {renderPasswordField()}
         {renderAutoLogin()}
         {renderButtons()}
-        <Pressable onPress={() => navigation.navigate()}>
+        <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.findPassWordText}>비밀번호 찾기</Text>
         </Pressable>
       </View>

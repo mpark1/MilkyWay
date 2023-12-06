@@ -13,12 +13,20 @@ import SignUp from '../screens/NonAuthUser/SignUp';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 import SignIn from '../screens/NonAuthUser/SignIn';
 import {scaleFontSize} from '../assets/styles/scaling';
+import ForgotPassword from '../screens/NonAuthUser/ForgotPassword';
 
 const Stack = createNativeStackNavigator();
 
 const AuthNavigation = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerShadowVisible: false,
+        headerBackTitleVisible: false,
+        headerTitleAlign: 'center',
+        headerTitleStyle: {fontSize: scaleFontSize(22)},
+        headerTintColor: '#374957',
+      }}>
       <Stack.Screen
         name={'SignIn'}
         component={SignIn}
@@ -31,11 +39,6 @@ const AuthNavigation = () => {
         component={SignUp}
         options={{
           headerTitle: '회원가입',
-          headerShadowVisible: false,
-          headerBackTitleVisible: false,
-          headerTintColor: '#374957',
-          headerTitleAlign: 'center',
-          headerTitleStyle: {fontSize: scaleFontSize(24)},
         }}
       />
       <Stack.Screen
@@ -43,10 +46,6 @@ const AuthNavigation = () => {
         component={ConfirmAccount}
         options={{
           headerTitle: '이메일 인증',
-          headerTitleAlign: 'center',
-          headerShadowVisible: false,
-          headerBackTitleVisible: false,
-          headerTintColor: '#000',
         }}
       />
       <Stack.Screen
@@ -54,12 +53,14 @@ const AuthNavigation = () => {
         component={BottomTabs}
         options={{headerShown: false}}
       />
-      <Stack.Group
-        screenOptions={{
-          headerShadowVisible: false,
-          headerBackTitleVisible: false,
-          headerTintColor: '#000',
-        }}>
+      <Stack.Screen
+        name={'ForgotPassword'}
+        component={ForgotPassword}
+        options={{
+          headerTitle: '비밀번호찾기',
+        }}
+      />
+      <Stack.Group>
         <Stack.Screen
           name={'AddNewPet'}
           component={AddNewPet}

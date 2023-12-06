@@ -164,7 +164,10 @@ const SignUp = ({navigation}) => {
         console.log('isSignUpComplete:', isSignUpComplete);
         console.log('nextStep:', nextStep);
         setIsSignUp(false);
-        navigation.navigate('ConfirmAccount', {username: email});
+        navigation.navigate('ConfirmAccount', {
+          username: email,
+          purpose: 'initialSignUp',
+        });
       } catch (error) {
         console.log('error signing up:', error.name);
         setIsSignUp(false);

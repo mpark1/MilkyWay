@@ -38,7 +38,7 @@ const Pets = ({navigation}) => {
         resizeMode={'cover'}>
         <Pressable
           style={styles.settingsContainer}
-          onPress={() => navigation.navigate('AccountSetting')}>
+          onPress={() => navigation.navigate('AccountSettings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
           <Text style={styles.settings}>나의 계정 관리</Text>
         </Pressable>
