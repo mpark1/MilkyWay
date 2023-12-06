@@ -12,6 +12,7 @@ import Notifications from '../screens/AuthUser/Notifications';
 import SignUp from '../screens/NonAuthUser/SignUp';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 import SignIn from '../screens/NonAuthUser/SignIn';
+import {scaleFontSize} from '../assets/styles/scaling';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +33,9 @@ const AuthNavigation = () => {
           headerTitle: '회원가입',
           headerShadowVisible: false,
           headerBackTitleVisible: false,
-          headerTintColor: '#000',
+          headerTintColor: '#374957',
+          headerTitleAlign: 'center',
+          headerTitleStyle: {fontSize: scaleFontSize(24)},
         }}
       />
       <Stack.Screen

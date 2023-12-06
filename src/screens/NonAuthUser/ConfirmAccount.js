@@ -1,9 +1,10 @@
 import React, {useCallback, useState} from 'react';
-import {View, Text, TextInput, StyleSheet, Alert} from 'react-native';
+import {View, Text, TextInput, StyleSheet} from 'react-native';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {confirmSignUp} from 'aws-amplify/auth';
+import AlertBox from '../../components/AlertBox';
 
 const ConfirmAccount = ({navigation, route}) => {
   const [code, setCode] = useState('');
@@ -30,22 +31,22 @@ const ConfirmAccount = ({navigation, route}) => {
       setIsConfirmed(true);
       console.log('isSignUpComplete', isSignUpComplete);
       console.log('nextStep', nextStep);
-      Alert.alert('이메일 인증 성공!', '', [
-        {text: '확인', onPress: () => navigation.navigate('Pets')},
-      ]);
+      AlertBox('회원가입 성공!', '', '확인', () => navigation.navigate('Pets'));
     } catch (error) {
       console.log('error message', error);
       if (error.name === 'CodeMismatchException') {
-        Alert.alert(
-          '인증번호가 일치하지 않습니다. 인증번호를 확인해주세요',
-          '',
-          [{text: '확인'}],
+        AlertBox(
+          '인증번호가 일치하지 않습니다',
+          '인증번호를 다시 확인해주세요',
+          '확인',
+          'none',
         );
       } else if (error.code === 'LimitExceededException') {
-        Alert.alert(
-          '인증번호 오류 횟수를 초과하였습니다. 잠시후(정확히 몇분?) 다시 시도해주세요.',
-          '',
-          [{text: '확인'}],
+        AlertBox(
+          '인증번호 오류 횟수를 초과하였습니다.',
+          '잠시후(정확히 몇분?) 다시 시도해주세요.',
+          '확인',
+          'none',
         );
       }
     } finally {

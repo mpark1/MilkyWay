@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     height: 115,
     alignSelf: 'center',
     marginTop: Dimensions.get('window').height * 0.04,
+    marginBottom: Dimensions.get('window').height * 0.02,
   },
   profilePicPlaceholder: {
     width: 115,
@@ -264,8 +265,9 @@ const styles = StyleSheet.create({
       paddingVertical: Dimensions.get('window').height * 0.01,
     },
     text: {
-      fontSize: scaleFontSize(14),
-      color: '#000',
+      marginLeft: 5,
+      fontSize: scaleFontSize(13),
+      color: '#374957',
     },
   },
   signUpButton: {

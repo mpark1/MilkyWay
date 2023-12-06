@@ -10,15 +10,16 @@ import {
   Platform,
 } from 'react-native';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {Button, Input} from '@rneui/base';
+import {Button, Icon, Input} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 import globalStyle from '../../assets/styles/globalStyle';
+import {signIn} from 'aws-amplify/auth';
+import AlertBox from '../../components/AlertBox';
 
 const SignIn = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const passwordRef = useRef(null);
-
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const onChangeEmail = useCallback(text => {
@@ -45,26 +46,33 @@ const SignIn = ({navigation}) => {
     }
     try {
       setIsLoggingIn(true);
-      // const user = await Auth.signIn(username, password);
+      const {isSignedIn, nextStep} = await signIn({email, password});
+      console.log('sign-in result: ', isSignedIn, nextStep);
     } catch (error) {
       console.log('error signing in: ', error);
-      if (error.code === 'UserNotFoundException') {
+      if (error.name === 'UserNotFoundException') {
         // [UserNotFoundException: User does not exist.]
-        Alert.alert('존재하지 않는 계정입니다.', '회원가입을 진행해주세요.', [
-          {text: '확인'},
-        ]);
-      } else if (error.code === 'NotAuthorizedException') {
-        // [NotAuthorizedException: Incorrect username or password.]
-        Alert.alert('이메일 또는 비밀번호를 확인해주세요.', '', [
-          {text: '확인'},
-        ]);
-      } else if (error.code === 'UserNotConfirmedException') {
-        Alert.alert('인증되지 않은 계정입니다', '이메일 인증을 진행해주세요.', [
-          {
-            text: '인증하기',
-            // onPress: reconfirmAccount,
+        AlertBox(
+          '존재하지 않는 계정입니다.',
+          '회원가입을 진행해주세요.',
+          '확인',
+          () => {
+            setEmail('');
+            setPassword('');
           },
-        ]);
+        );
+      } else if (error.name === 'NotAuthorizedException') {
+        // [NotAuthorizedException: Incorrect username or password.]
+        AlertBox(
+          '이메일 또는 비밀번호를 다시 확인해주세요.',
+          '',
+          '확인',
+          'none',
+        );
+      } else if (error.code === 'UserNotConfirmedException') {
+        AlertBox('인증되지 않은 계정입니다', '', '인증하러 가기', () =>
+          navigation.navigate('confirmAccount', {username: email}),
+        );
       }
     } finally {
       setIsLoggingIn(false);
@@ -119,11 +127,28 @@ const SignIn = ({navigation}) => {
         checked={checked}
         onPress={toggleCheckbox}
         iconType="material-community"
-        checkedIcon="checkbox-outline"
-        uncheckedIcon={'checkbox-blank-outline'}
+        checkedIcon={
+          <Icon
+            name="checkbox-outline"
+            type="material-community"
+            color="#6395E1"
+            size={25}
+            iconStyle={{marginRight: -3}}
+          />
+        }
+        uncheckedIcon={
+          <Icon
+            name="checkbox-blank-outline"
+            type="material-community"
+            color="#939393"
+            size={25}
+            iconStyle={{marginRight: -3}}
+          />
+        }
       />
     );
   };
+
   const renderButtons = () => {
     return (
       <>
@@ -133,7 +158,7 @@ const SignIn = ({navigation}) => {
           containerStyle={styles.loginButton.container}
           buttonStyle={globalStyle.backgroundBlue}
           disabled={!canGoNext}
-          // onPress={}
+          onPress={() => onSubmit()}
         />
         <Button
           title={'회원가입'}
@@ -168,7 +193,7 @@ export default SignIn;
 const styles = StyleSheet.create({
   appName: {
     alignSelf: 'center',
-    fontSize: scaleFontSize(20),
+    fontSize: scaleFontSize(24),
     fontWeight: '700',
     color: '#374957',
     paddingVertical: Dimensions.get('window').height * 0.05,
@@ -201,7 +226,7 @@ const styles = StyleSheet.create({
     text: {
       fontSize: scaleFontSize(16),
       fontWeight: '400',
-      color: '#000',
+      color: '#374957',
     },
   },
   loginButton: {
