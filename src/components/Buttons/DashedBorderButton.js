@@ -46,13 +46,14 @@ const styles = StyleSheet.create({
   },
   regularContainerStyle: {
     width: '100%',
-    height: 50,
+    height: 100,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: '#939393',
     alignSelf: 'center',
     alignItems: 'flex-start',
     justifyContent: 'center',
+    marginBottom: 20,
   },
   thinContainerStyle: {
     width: '100%',

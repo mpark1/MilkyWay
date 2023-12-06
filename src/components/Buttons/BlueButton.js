@@ -3,9 +3,10 @@ import {StyleSheet} from 'react-native';
 import {Button} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
-const BlueButton = ({containerStyle, title, titleStyle, onPress}) => {
+const BlueButton = ({disabled, containerStyle, title, titleStyle, onPress}) => {
   return (
     <Button
+      disabled={disabled}
       title={title}
       titleStyle={styles.defaultTitleStyle}
       containerStyle={styles.defaultContainerStyle}

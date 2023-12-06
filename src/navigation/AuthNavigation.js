@@ -11,32 +11,33 @@ import Settings from '../screens/AuthUser/Settings';
 import Notifications from '../screens/AuthUser/Notifications';
 import SignUp from '../screens/NonAuthUser/SignUp';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
+import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 
 const Stack = createNativeStackNavigator();
 
 const AuthNavigation = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name={'SignUp'}
-        component={SignUp}
-        options={{
-          headerTitle: '회원가입',
-          headerShadowVisible: false,
-          headerBackTitleVisible: false,
-          headerTintColor: '#000',
-        }}
-      />
-      <Stack.Screen
-        name={'ConfirmAccount'}
-        component={ConfirmAccount}
-        options={{
-          headerTitle: '이메일 인증',
-          headerShadowVisible: false,
-          headerBackTitleVisible: false,
-          headerTintColor: '#000',
-        }}
-      />
+      {/*<Stack.Screen*/}
+      {/*  name={'SignUp'}*/}
+      {/*  component={SignUp}*/}
+      {/*  options={{*/}
+      {/*    headerTitle: '회원가입',*/}
+      {/*    headerShadowVisible: false,*/}
+      {/*    headerBackTitleVisible: false,*/}
+      {/*    headerTintColor: '#000',*/}
+      {/*  }}*/}
+      {/*/>*/}
+      {/*<Stack.Screen*/}
+      {/*  name={'ConfirmAccount'}*/}
+      {/*  component={ConfirmAccount}*/}
+      {/*  options={{*/}
+      {/*    headerTitle: '이메일 인증',*/}
+      {/*    headerShadowVisible: false,*/}
+      {/*    headerBackTitleVisible: false,*/}
+      {/*    headerTintColor: '#000',*/}
+      {/*  }}*/}
+      {/*/>*/}
       <Stack.Screen
         name={'BottomTabs'}
         component={BottomTabs}
@@ -53,6 +54,13 @@ const AuthNavigation = () => {
           component={AddNewPet}
           options={{
             headerTitle: '별이 된 아이',
+          }}
+        />
+        <Stack.Screen
+          name={'SetAccessLevel'}
+          component={SetAccessLevel}
+          options={{
+            headerTitle: '추모공간 접근 설정',
           }}
         />
         <Stack.Screen

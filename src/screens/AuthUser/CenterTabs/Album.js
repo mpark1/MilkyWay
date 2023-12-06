@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, ScrollView, StyleSheet, Dimensions} from 'react-native';
-import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import globalStyle from '../../../assets/styles/globalStyle';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';

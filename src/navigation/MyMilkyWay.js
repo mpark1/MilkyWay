@@ -26,7 +26,7 @@ const MyMilkyWay = () => {
       }}>
       <Stack.Screen
         options={{headerShown: false}}
-        name={'MyStars'}
+        name={'Pets'}
         component={Pets}
       />
       <Stack.Screen
