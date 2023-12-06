@@ -1,18 +1,34 @@
 import React, {useCallback, useState} from 'react';
-import {View, Alert, StyleSheet, Dimensions} from 'react-native';
+import {View, Alert, StyleSheet, Dimensions, TextInput} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button, Input} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {resetPassword} from 'aws-amplify/auth';
+import {resetPassword, confirmResetPassword} from 'aws-amplify/auth';
+import AlertBox from '../../components/AlertBox';
 
 const ForgotPassword = ({navigation}) => {
   const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [newPW, setNewPW] = useState('');
+  const [confirmNewPW, setConfirmNewPW] = useState('');
 
   const [isSendingConfirmationCode, setIsSendingConfirmationCode] =
     useState(false);
 
   const onChangeEmail = useCallback(text => {
     setEmail(text.trim());
+  }, []);
+
+  const onChangeCode = useCallback(text => {
+    setCode(text.trim());
+  }, []);
+
+  const onChangeNewPW = useCallback(text => {
+    setNewPW(text.trim());
+  }, []);
+
+  const onChangeConfirmNewPW = useCallback(text => {
+    setConfirmNewPW(text.trim());
   }, []);
 
   const onSubmit = useCallback(async () => {
@@ -42,6 +58,24 @@ const ForgotPassword = ({navigation}) => {
       case 'DONE':
         console.log('Successfully reset password.');
         break;
+    }
+  }
+
+  async function handleConfirmResetPassword() {
+    if (confirmNewPW !== newPW) {
+      setNewPW('');
+      setConfirmNewPW('');
+      return AlertBox('비밀번호가 일치하지 않습니다.', '', '확인', 'none');
+    }
+
+    try {
+      await confirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword: newPW,
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -75,11 +109,88 @@ const ForgotPassword = ({navigation}) => {
     );
   };
 
+  const renderConfirmationCodeField = () => {
+    return (
+      <View>
+        <TextInput
+          style={styles.textInput}
+          onChangeText={onChangeCode}
+          label={'인증번호*'}
+          placeholder={'인증번호를 입력해주세요'}
+          value={code}
+          keyboardType={'number-pad'}
+          returnKeyType={'send'}
+        />
+      </View>
+    );
+  };
+
+  const renderNewPWField = () => {
+    return (
+      <View>
+        <TextInput
+          style={[
+            styles.textInput,
+            {
+              borderBottomWidth: 0,
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+            },
+          ]}
+          placeholder={'*새로운 비밀번호를 설정해주세요.'}
+          placeholderTextColor={'#939393'}
+          clearButtonMode={'while-editing'}
+          onChangeText={onChangeNewPW}
+          autoCorrect={false}
+          autoCapitalize={'none'}
+          returnKeyType={'next'}
+          secureTextEntry={true}
+          textContentType={'newPassword'}
+          value={newPW}
+        />
+        <TextInput
+          style={[
+            styles.textInput,
+            {
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0,
+            },
+          ]}
+          placeholder={'*비밀번호를 한번 더 입력해주세요'}
+          placeholderTextColor={'#939393'}
+          returnKeyType={'next'}
+          secureTextEntry={true}
+          textContentType={'password'}
+          onChangeText={onChangeConfirmNewPW}
+          value={confirmNewPW}
+          autoCapitalize={'none'}
+          autoCorrect={false}
+        />
+      </View>
+    );
+  };
+
+  const renderConfirmResetPWButton = () => {
+    return (
+      <Button
+        title={'비밀번호 재설정'}
+        titleStyle={styles.button.titleStyle}
+        containerStyle={styles.button.containerStyle}
+        buttonStyle={globalStyle.backgroundBlue}
+        disabled={!(code && newPW && confirmNewPW)}
+        onPress={() => handleConfirmResetPassword()}
+      />
+    );
+  };
+
   return (
     <View style={[globalStyle.backgroundWhite, globalStyle.flex]}>
       <View style={styles.spacer}>
         {renderEmailField()}
         {renderGoNextButton()}
+        {renderConfirmationCodeField()}
+        {renderNewPWField()}
+        {renderConfirmResetPWButton()}
       </View>
     </View>
   );
@@ -122,5 +233,15 @@ const styles = StyleSheet.create({
       fontWeight: '400',
       fontSize: scaleFontSize(18),
     },
+  },
+
+  textInput: {
+    marginTop: 10,
+    padding: 10,
+    fontSize: scaleFontSize(18),
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#EEEEEE',
+    width: '100%',
   },
 });
