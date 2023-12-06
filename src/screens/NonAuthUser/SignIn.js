@@ -76,7 +76,7 @@ const SignIn = ({navigation}) => {
       <Input
         onChangeText={onChangeEmail}
         value={email}
-        inputContainerStyle={styles.inputContainerStyle}
+        inputContainerStyle={[styles.inputContainerStyle, {marginBottom: -10}]}
         inputStyle={styles.inputStyle}
         label="이메일*"
         labelStyle={styles.labelStyle}
@@ -114,7 +114,7 @@ const SignIn = ({navigation}) => {
     return (
       <CheckBox
         title={'자동 로그인'}
-        wrapperStyle={{marginLeft: -10}}
+        wrapperStyle={{marginLeft: -15}}
         textStyle={styles.checkBox.text}
         checked={checked}
         onPress={toggleCheckbox}
