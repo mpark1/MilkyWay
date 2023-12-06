@@ -11,6 +11,7 @@ const ForgotPassword = ({navigation}) => {
   const [code, setCode] = useState('');
   const [newPW, setNewPW] = useState('');
   const [confirmNewPW, setConfirmNewPW] = useState('');
+  const [step, setStep] = useState('beforeConfirmation');
 
   const [isSendingConfirmationCode, setIsSendingConfirmationCode] =
     useState(false);
@@ -31,11 +32,12 @@ const ForgotPassword = ({navigation}) => {
     setConfirmNewPW(text.trim());
   }, []);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = async () => {
     if (!isSendingConfirmationCode) {
       setIsSendingConfirmationCode(true);
       try {
         const output = await resetPassword({username: email});
+        setStep('afterConfirmation');
         handleResetPasswordNextSteps(output);
       } catch (error) {
         console.log(error);
@@ -43,7 +45,7 @@ const ForgotPassword = ({navigation}) => {
         setIsSendingConfirmationCode(false);
       }
     }
-  }, []);
+  };
 
   function handleResetPasswordNextSteps(output) {
     const {nextStep} = output;
@@ -53,7 +55,6 @@ const ForgotPassword = ({navigation}) => {
         console.log(
           `Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`,
         );
-        // Collect the confirmation code from the user and pass to confirmResetPassword.
         break;
       case 'DONE':
         console.log('Successfully reset password.');
@@ -67,15 +68,42 @@ const ForgotPassword = ({navigation}) => {
       setConfirmNewPW('');
       return AlertBox('비밀번호가 일치하지 않습니다.', '', '확인', 'none');
     }
-
     try {
       await confirmResetPassword({
         username: email,
         confirmationCode: code,
         newPassword: newPW,
       });
+      AlertBox('비밀번호 변경 성공!', '', '로그인하러 가기', () =>
+        navigation.navigate('SignIn'),
+      );
     } catch (error) {
-      console.log(error);
+      console.log('confirm reset password error: ', error);
+      if (error.name === 'CodeMismatchException') {
+        AlertBox(
+          '인증번호가 일치하지 않습니다',
+          '인증번호를 다시 확인해주세요',
+          '확인',
+          'none',
+        );
+      } else if (error.name === 'LimitExceededException') {
+        AlertBox(
+          '인증번호 오류 횟수를 초과하였습니다.',
+          '잠시후(정확히 몇분?) 다시 시도해주세요.',
+          '확인',
+          'none',
+        );
+      } else if (error.name === 'InvalidPasswordException') {
+        // Username should be an email.
+        setNewPW('');
+        setConfirmNewPW('');
+        return AlertBox(
+          '비밀번호 오류',
+          '비밀번호에 영문 대문자, 소문자, 숫자를 8자 이내로 입력해주세요.',
+          '확인',
+          'none',
+        );
+      }
     }
   }
 
@@ -120,6 +148,7 @@ const ForgotPassword = ({navigation}) => {
           value={code}
           keyboardType={'number-pad'}
           returnKeyType={'send'}
+          placeholderTextColor={'#939393'}
         />
       </View>
     );
@@ -132,7 +161,6 @@ const ForgotPassword = ({navigation}) => {
           style={[
             styles.textInput,
             {
-              borderBottomWidth: 0,
               borderBottomLeftRadius: 0,
               borderBottomRightRadius: 0,
             },
@@ -173,7 +201,7 @@ const ForgotPassword = ({navigation}) => {
   const renderConfirmResetPWButton = () => {
     return (
       <Button
-        title={'비밀번호 재설정'}
+        title={'비밀번호 설정'}
         titleStyle={styles.button.titleStyle}
         containerStyle={styles.button.containerStyle}
         buttonStyle={globalStyle.backgroundBlue}
@@ -183,14 +211,22 @@ const ForgotPassword = ({navigation}) => {
     );
   };
 
-  return (
-    <View style={[globalStyle.backgroundWhite, globalStyle.flex]}>
-      <View style={styles.spacer}>
-        {renderEmailField()}
-        {renderGoNextButton()}
+  const afterConfirmation = () => {
+    return (
+      <View>
         {renderConfirmationCodeField()}
         {renderNewPWField()}
         {renderConfirmResetPWButton()}
+      </View>
+    );
+  };
+
+  return (
+    <View style={[globalStyle.backgroundWhite, globalStyle.flex]}>
+      <View style={styles.spacer}>
+        {step === 'beforeConfirmation' && renderEmailField()}
+        {step === 'beforeConfirmation' && renderGoNextButton()}
+        {step !== 'beforeConfirmation' && afterConfirmation()}
       </View>
     </View>
   );
@@ -231,14 +267,14 @@ const styles = StyleSheet.create({
     },
     titleStyle: {
       fontWeight: '400',
-      fontSize: scaleFontSize(18),
+      fontSize: scaleFontSize(16),
     },
   },
 
   textInput: {
     marginTop: 10,
     padding: 10,
-    fontSize: scaleFontSize(18),
+    fontSize: scaleFontSize(16),
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#EEEEEE',
