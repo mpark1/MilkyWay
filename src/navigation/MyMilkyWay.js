@@ -7,6 +7,7 @@ import Pet from '../screens/AuthUser/Pet';
 
 // styles
 import {scaleFontSize} from '../assets/styles/scaling';
+import AccountSettings from '../screens/AuthUser/AccountSettings';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,13 @@ const MyMilkyWay = () => {
         options={{headerShown: false}}
         name={'MyStars'}
         component={Pets}
+      />
+      <Stack.Screen
+        name={'AccountSettings'}
+        component={AccountSettings}
+        options={{
+          headerTitle: '나의 계정 설정',
+        }}
       />
       <Stack.Screen
         name={'Pet'}
