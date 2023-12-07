@@ -13,6 +13,7 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 const ChooseMedia = ({navigation}) => {
+  const [profilePic, setProfilePic] = useState('');
   const [selectedAge, setSelectedAge] = useState(0);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
@@ -41,29 +42,18 @@ const ChooseMedia = ({navigation}) => {
   );
 
   const onResponse = res => {
-    if (res.didCancel || !res.assets) {
+    if (res.didCancel || !res) {
       return;
     }
+    const uri = res.assets[0].uri;
     bottomSheetModalRef.current?.close();
-
-    let imageList = [];
-    res.assets.map(image => {
-      imageList.push({
-        fileName: image.fileName,
-        uri: image.uri,
-        type: image.type,
-      });
-    });
-
-    navigation.navigate('MediaPreview', {imageList: imageList});
+    setProfilePic(uri);
   };
 
   const imageLibraryOption = {
-    mediaType: 'mixed',
-    // includeBase64: true,
-    // includeExtra: true,
-    selectionLimit: 10, // 사진, 영상 상관없이 10개로 설정됨
-    presentationStyle: 'fullScreen',
+    mediaType: 'photo',
+    includeBase64: true,
+    includeExtra: true,
   };
 
   const cameraOption = {
@@ -73,9 +63,9 @@ const ChooseMedia = ({navigation}) => {
     savedToPhotos: true,
   };
 
-  const onLaunchCamera = useCallback(() => {
+  const onLaunchCamera = () => {
     launchCamera(cameraOption, onResponse);
-  }, []);
+  };
 
   const onLaunchImageLibrary = () => {
     launchImageLibrary(imageLibraryOption, onResponse);

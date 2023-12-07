@@ -1,19 +1,36 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, TextInput} from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {
+  Image,
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TextInput,
+  Pressable,
+} from 'react-native';
+import {signUp} from 'aws-amplify/auth';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {Button} from '@rneui/base';
+import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {signUp} from 'aws-amplify/auth';
+
 import AlertBox from '../../components/AlertBox';
 
 const SignUp = ({navigation}) => {
+  const [profilePic, setProfilePic] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPW, setConfirmPW] = useState('');
+
+  const snapPoints = useMemo(() => ['53%'], []);
+  const bottomSheetModalRef = useRef(null);
 
   const canGoNext = name && email && password && confirmPW;
 
@@ -38,6 +55,104 @@ const SignUp = ({navigation}) => {
   const onChangeConfirmPW = useCallback(text => {
     const trimmedText = text.trim();
     setConfirmPW(trimmedText);
+  }, []);
+
+  const imageLibraryOption = {
+    mediaType: 'photo',
+    // includeBase64: true,
+    // includeExtra: true,
+    selectionLimit: 1,
+  };
+
+  const cameraOption = {
+    mediaType: 'photo',
+    // includeBase64: true,
+    // includeExtra: true,
+    savedToPhotos: true,
+  };
+
+  const onResponseFromCameraOrGallery = res => {
+    if (res.didCancel || !res) {
+      return;
+    }
+    const uri = res.assets[0].uri;
+    console.log('uri: ', uri);
+    bottomSheetModalRef.current?.close();
+    setProfilePic(uri);
+  };
+
+  const onLaunchCamera = () => {
+    launchCamera(cameraOption, onResponseFromCameraOrGallery);
+  };
+
+  const onLaunchImageLibrary = () => {
+    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
+  };
+
+  const renderProfilePicField = () => {
+    return (
+      <View style={styles.profilePicAndButtonWrapper}>
+        {profilePic ? (
+          <View style={styles.profilePicPlaceholder}>
+            <Image style={styles.profilePic} source={{uri: profilePic}} />
+          </View>
+        ) : (
+          <View style={styles.profilePicPlaceholder} />
+        )}
+        <Pressable
+          onPress={() => bottomSheetModalRef.current?.present()}
+          style={styles.addProfilePicButton}>
+          <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
+        </Pressable>
+      </View>
+    );
+  };
+
+  const renderBackdrop = useCallback(
+    props => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.2}
+        pressBehavior={'close'}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
+
+  const renderBottomSheetModalInner = useCallback(() => {
+    return (
+      <View style={styles.bottomSheet.inner}>
+        <Pressable
+          style={styles.bottomSheet.icons}
+          onPress={() => onLaunchCamera()}>
+          <Entypo name={'camera'} size={50} color={'#374957'} />
+          <Text style={{color: '#000'}}>카메라</Text>
+        </Pressable>
+        <Pressable
+          style={styles.bottomSheet.icons}
+          onPress={() => onLaunchImageLibrary()}>
+          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
+          <Text style={{color: '#000'}}>갤러리</Text>
+        </Pressable>
+      </View>
+    );
+  }, []);
+
+  const renderBottomSheetModal = useCallback(() => {
+    return (
+      <BottomSheetModal
+        handleIndicatorStyle={styles.hideBottomSheetHandle}
+        handleStyle={styles.hideBottomSheetHandle}
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        children={renderBottomSheetModalInner()}
+      />
+    );
   }, []);
 
   const renderNameField = () => {
@@ -204,12 +319,7 @@ const SignUp = ({navigation}) => {
 
   return (
     <View style={[globalStyle.backgroundWhite, globalStyle.flex]}>
-      <View style={styles.profilePicAndButtonWrapper}>
-        <View style={styles.profilePicPlaceholder} />
-        <View style={styles.addProfilePicButton}>
-          <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
-        </View>
-      </View>
+      {renderProfilePicField()}
       <View style={styles.inputFieldsContainer}>
         {renderNameField()}
         {renderEmailField()}
@@ -221,6 +331,7 @@ const SignUp = ({navigation}) => {
         </Text>
       </View>
       {renderSignUpButton()}
+      {renderBottomSheetModal()}
     </View>
   );
 };
@@ -235,6 +346,11 @@ const styles = StyleSheet.create({
     marginTop: Dimensions.get('window').height * 0.04,
     marginBottom: Dimensions.get('window').height * 0.02,
   },
+  profilePic: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 115 / 2,
+  },
   profilePicPlaceholder: {
     width: 115,
     height: 115,
@@ -242,6 +358,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
     alignSelf: 'center',
   },
+
   addProfilePicButton: {
     position: 'absolute',
     bottom: 10,
@@ -289,5 +406,21 @@ const styles = StyleSheet.create({
       marginVertical: 30,
       alignSelf: 'center',
     },
+  },
+  bottomSheet: {
+    inner: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+    },
+    icons: {
+      width: 80,
+      height: 80,
+      alignItems: 'center',
+    },
+  },
+  hideBottomSheetHandle: {
+    height: 0,
   },
 });
