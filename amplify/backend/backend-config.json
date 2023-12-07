@@ -63,5 +63,56 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
     }
+  },
+  "function": {
+    "createNewUserinDB": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "milkyway"
+        },
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput",
+            "GraphQLAPIKeyOutput"
+          ],
+          "category": "api",
+          "resourceName": "milkyway"
+        },
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "milkywayb2dd3f99"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_createNewUserinDB_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createNewUserinDB"
+        }
+      ]
+    },
+    "AMPLIFY_function_createNewUserinDB_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createNewUserinDB"
+        }
+      ]
+    }
   }
 }

@@ -4,7 +4,6 @@ import {
   View,
   Text,
   Pressable,
-  Alert,
   StyleSheet,
   Dimensions,
   Platform,
@@ -15,8 +14,12 @@ import {CheckBox} from '@rneui/themed';
 import globalStyle from '../../assets/styles/globalStyle';
 import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
+import {useDispatch} from 'react-redux';
+import {checkUser} from '../../utils/amplifyUtil';
+import {setCognitoUsername} from '../../redux/slices/User';
 
 const SignIn = ({navigation}) => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const passwordRef = useRef(null);
@@ -41,6 +44,8 @@ const SignIn = ({navigation}) => {
         username: email,
         password: password,
       });
+      const userId = checkUser();
+      dispatch(setCognitoUsername(userId));
       console.log('sign-in result: ', isSignedIn, nextStep);
       // 미인증 계정 인증화면으로 보내기
       if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {

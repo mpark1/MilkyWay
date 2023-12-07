@@ -5,10 +5,11 @@ import {confirmSignUp, autoSignIn} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
+import {useDispatch} from 'react-redux';
 
 const ConfirmAccount = ({navigation, route}) => {
-  const [code, setCode] = useState('');
   const {username, purpose} = route.params;
+  const [code, setCode] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const canGoNext = code;
@@ -47,6 +48,9 @@ const ConfirmAccount = ({navigation, route}) => {
       setIsConfirmed(true);
       console.log('isSignUpComplete', isSignUpComplete);
       console.log('nextStep', nextStep);
+      // create user
+
+      // when 확인 is selected, execute auto signin (meaning, skip the sign-in page)
       AlertBox('회원가입 성공!', '', '확인', () => handleAutoSignIn());
     } catch (error) {
       console.log('error message', error);

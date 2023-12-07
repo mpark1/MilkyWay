@@ -20,8 +20,12 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 import AlertBox from '../../components/AlertBox';
+import {useDispatch} from 'react-redux';
+import {setOwnerDetails} from '../../redux/slices/User';
 
 const SignUp = ({navigation}) => {
+  const dispatch = useDispatch();
+
   const [profilePic, setProfilePic] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
@@ -270,6 +274,7 @@ const SignUp = ({navigation}) => {
           options: {
             userAttributes: {
               name,
+              'custom:profilePic': profilePic,
             },
             // optional
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
@@ -278,6 +283,16 @@ const SignUp = ({navigation}) => {
         console.log('userID:', userId);
         console.log('isSignUpComplete:', isSignUpComplete);
         console.log('nextStep:', nextStep);
+        // after a user successfully signs up (before confirmation), save user's information in redux
+        if (isSignUpComplete) {
+          dispatch(
+            setOwnerDetails({
+              name: name,
+              email: email,
+              profilePic: profilePic,
+            }),
+          );
+        }
         setIsSignUp(false);
         navigation.navigate('ConfirmAccount', {
           username: email,

@@ -1,45 +1,31 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-import {getCurrentUser, fetchAuthSession} from 'aws-amplify/auth';
 
 // navigators
 import AuthNavigation from './AuthNavigation';
-import {setUser} from '../redux/slices/User';
+import {setCognitoUsername, setCognitoUserToNull} from '../redux/slices/User';
 import NonAuthNavigation from './NonAuthNavigation';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
+import {checkUser} from '../utils/amplifyUtil';
 
-const RootNavigation = () => {
+export default function RootNavigation() {
   const dispatch = useDispatch();
   const loggedInUserId = useSelector(state => state.user.cognitoUsername); //userID
+  console.log('user cognitousername: ', loggedInUserId);
 
   useEffect(() => {
-    async function checkUser() {
-      const {userId} = await getCurrentUser();
-
-      if (!userId) {
-        dispatch(setUser(null));
+    if (!loggedInUserId) {
+      const response = checkUser();
+      if (response) {
+        dispatch(setCognitoUsername(response));
       } else {
-        console.log('userId from getCurrentUser', userId);
-        dispatch(setUser(userId));
+        dispatch(setCognitoUserToNull());
       }
     }
+  }, [dispatch]);
 
-    async function currentSession() {
-      try {
-        const {accessToken, idToken} = (await fetchAuthSession()).tokens ?? {};
-        console.log('accessToken: ', accessToken);
-        console.log('idToken: ', idToken);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    checkUser();
-    currentSession();
-  }, []);
-
-  if (loggedInUserId === undefined) {
+  if (loggedInUserId === '') {
     return (
       <View style={styles.activityIndicatorContainer}>
         <ActivityIndicator />
@@ -51,9 +37,7 @@ const RootNavigation = () => {
       {loggedInUserId ? <AuthNavigation /> : <NonAuthNavigation />}
     </NavigationContainer>
   );
-};
-
-export default RootNavigation;
+}
 
 const styles = StyleSheet.create({
   activityIndicatorContainer: {

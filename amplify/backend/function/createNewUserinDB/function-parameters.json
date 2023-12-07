@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "api": {
+      "milkyway": [
+        "Mutation"
+      ]
+    },
+    "auth": {
+      "milkywayb2dd3f99": [
+        "create"
+      ]
+    },
+    "storage": {
+      "User:@model(appsync)": [
+        "create"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}

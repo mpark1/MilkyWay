@@ -17,6 +17,12 @@
       },
       "api": {
         "milkyway": {}
+      },
+      "function": {
+        "createNewUserinDB": {
+          "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",
+          "s3Key": "amplify-builds/createNewUserinDB-5866564c764f47626375-build.zip"
+        }
       }
     }
   }
