@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingVertical: 10,
     paddingHorizontal: 25,
-    // width: 116,
   },
   defaultContainerStyle: {
     borderRadius: 10,
