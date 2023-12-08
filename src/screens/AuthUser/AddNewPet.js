@@ -20,19 +20,38 @@ import {
   cameraOption,
   imageLibraryOption,
 } from '../../constants/imagePickerOptions';
-import CustomDatePicker from '../../components/CustomDatePicker';
+import DatePicker from 'react-native-date-picker';
+import {getCurrentDate} from '../../utils/utils';
 
 const AddNewPet = () => {
   const [profilePic, setProfilePic] = useState('');
   const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
+  const currentDateInString = getCurrentDate();
+  const onChangeDate = useCallback((date, option) => {
+    option === 'birthday'
+      ? setIsBirthdayPickerOpen(false)
+      : setIsDeathDayPickerOpen(false);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+
+    const localDateString = localDate.toISOString().split('T')[0];
+
+    option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
+    option === 'birthday'
+      ? setBirthdayString(localDateString)
+      : setDeathDayString(localDateString);
+  }, []);
 
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
   const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
+
   const [birthdayString, setBirthdayString] = useState('YYYY-MM-DD');
-  const [birthday, setBirthday] = useState(new Date(birthdayString));
   const [deathDayString, setDeathDayString] = useState('YYYY-MM-DD');
-  const [deathDay, setDeathDay] = useState(new Date(deathDayString));
+
+  const [birthday, setBirthday] = useState(new Date(currentDateInString));
+  const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
 
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
@@ -111,18 +130,23 @@ const AddNewPet = () => {
   };
   const renderDatePicker = option => {
     return (
-      <CustomDatePicker
-        option={option}
-        birthday={birthday}
-        setBirthday={setBirthday}
-        setBirthdayString={setBirthdayString}
-        isBirthdayPickerOpen={isBirthdayPickerOpen}
-        setIsBirthdayPickerOpen={setIsBirthdayPickerOpen}
-        deathDay={deathDay}
-        setDeathDay={setDeathDay}
-        setDeathDayString={setDeathDayString}
-        isDeathDayPickerOpen={isDeathDayPickerOpen}
-        setIsDeathDayPickerOpen={setIsDeathDayPickerOpen}
+      <DatePicker
+        locale={'ko_KR'}
+        modal
+        mode={'date'}
+        open={
+          option === 'birthday' ? isBirthdayPickerOpen : isDeathDayPickerOpen
+        }
+        date={option === 'birthday' ? birthday : deathDay}
+        maximumDate={new Date(currentDateInString)}
+        onConfirm={newDate => {
+          onChangeDate(newDate, option);
+        }}
+        onCancel={() => {
+          option === 'birthday'
+            ? setIsBirthdayPickerOpen(false)
+            : setIsDeathDayPickerOpen(false);
+        }}
       />
     );
   };
@@ -167,7 +191,7 @@ const AddNewPet = () => {
             style={styles.textInput}
             onPress={() => setIsDeathDayPickerOpen(true)}>
             <Text style={styles.datePlaceholder}>{deathDayString}</Text>
-            {renderDatePicker('birthday')}
+            {renderDatePicker('deathDay')}
           </Pressable>
         </View>
       </View>
