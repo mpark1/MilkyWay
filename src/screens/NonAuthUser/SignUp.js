@@ -22,6 +22,11 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
 import {setOwnerDetails} from '../../redux/slices/User';
+import Backdrop from '../../components/Backdrop';
+import {
+  cameraOption,
+  imageLibraryOption,
+} from '../../constants/imagePickerOptions';
 
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
@@ -61,20 +66,6 @@ const SignUp = ({navigation}) => {
     setConfirmPW(trimmedText);
   }, []);
 
-  const imageLibraryOption = {
-    mediaType: 'photo',
-    // includeBase64: true,
-    // includeExtra: true,
-    selectionLimit: 1,
-  };
-
-  const cameraOption = {
-    mediaType: 'photo',
-    // includeBase64: true,
-    // includeExtra: true,
-    savedToPhotos: true,
-  };
-
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
       return;
@@ -113,15 +104,7 @@ const SignUp = ({navigation}) => {
   };
 
   const renderBackdrop = useCallback(
-    props => (
-      <BottomSheetBackdrop
-        {...props}
-        opacity={0.2}
-        pressBehavior={'close'}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
+    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
     [],
   );
 
