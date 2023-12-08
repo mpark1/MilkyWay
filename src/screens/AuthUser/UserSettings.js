@@ -41,7 +41,7 @@ const UserSettings = ({navigation, route}) => {
     if (res.didCancel || !res) {
       return;
     }
-    const uri = res.assets.uri;
+    const uri = res.assets[0].uri;
     console.log('uri: ', uri);
     bottomSheetModalRef.current?.close();
     setProfilePic(uri);
