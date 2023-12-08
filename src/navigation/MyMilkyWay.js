@@ -8,6 +8,8 @@ import Pet from '../screens/AuthUser/Pet';
 // styles
 import {scaleFontSize} from '../assets/styles/scaling';
 import UserSettings from '../screens/AuthUser/UserSettings';
+import ChangePassword from '../screens/AuthUser/ChangePassword';
+import SignOutButton from '../components/SignOutButton';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,7 +36,15 @@ const MyMilkyWay = () => {
         name={'UserSettings'}
         component={UserSettings}
         options={{
-          headerTitle: '나의 계정 설정',
+          headerTitle: '나의 계정',
+          headerRight: () => <SignOutButton />,
+        }}
+      />
+      <Stack.Screen
+        name={'ChangePassword'}
+        component={ChangePassword}
+        options={{
+          headerTitle: '비밀번호 변경',
         }}
       />
       <Stack.Screen

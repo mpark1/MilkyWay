@@ -12,6 +12,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 2;
@@ -47,34 +48,16 @@ const GuestBook = ({navigation}) => {
   };
 
   const renderLeaveMessageButton = useCallback(() => {
-    const plusButton = (
-      <View style={styles.plusButtonContainer}>
-        <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
-      </View>
-    );
     return (
       <View
         style={{
           paddingHorizontal: 15,
         }}>
-        <Button
+        <DashedBorderButton
+          type={'thin'}
           title={'추모 메세지 쓰기'}
-          titleStyle={{
-            color: '#939393',
-          }}
-          containerStyle={{
-            width: '100%',
-            height: 50,
-            borderWidth: 1,
-            borderStyle: 'dashed',
-            borderColor: '#939393',
-            alignSelf: 'center',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-          }}
-          buttonStyle={{backgroundColor: 'transparent'}}
+          titleColor={'gray'}
           onPress={() => bottomSheetModalRef.current?.present()}
-          icon={plusButton}
         />
       </View>
     );

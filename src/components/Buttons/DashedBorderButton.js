@@ -15,14 +15,14 @@ const DashedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
     <Button
       title={title}
       titleStyle={
-        titleColor === 'white' ? styles.whiteTitleStyle : styles.blackTitleStyle
+        titleColor === 'white' ? styles.whiteTitleStyle : styles.grayTitleStyle
       }
       containerStyle={
         type === 'regular'
           ? styles.regularContainerStyle
           : styles.thinContainerStyle
       }
-      buttonStyle={styles.buttonColor}
+      buttonStyle={styles.transparent}
       onPress={onPress}
       icon={plusButton}
     />
@@ -36,17 +36,17 @@ const styles = StyleSheet.create({
     marginLeft: Dimensions.get('window').width * 0.03,
     marginRight: Dimensions.get('window').width * 0.07,
   },
-  buttonColor: {
+  transparent: {
     backgroundColor: 'transparent',
   },
   whiteTitleStyle: {fontWeight: 'bold', fontSize: scaleFontSize(18)},
-  blackTitleStyle: {
+  grayTitleStyle: {
     fontSize: scaleFontSize(18),
     color: '#939393',
   },
   regularContainerStyle: {
     width: '100%',
-    height: 50,
+    height: 100,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: '#939393',
