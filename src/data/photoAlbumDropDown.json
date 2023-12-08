@@ -1,0 +1,5 @@
+[{label: '유아기', value: 0},
+{label: '청소년기', value: 1},
+{label: '장년기', value: 2},
+{label: '노년기', value: 3},
+{label: '관련없음', value: -1}]

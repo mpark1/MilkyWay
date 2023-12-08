@@ -22,11 +22,28 @@ import {
 } from '../../constants/imagePickerOptions';
 import DatePicker from 'react-native-date-picker';
 import {getCurrentDate} from '../../utils/utils';
+import DropDownPicker from 'react-native-dropdown-picker';
+import PetTypes from '../../data/PetTypes.json';
+import deathCauses from '../../data/deathCauses.json';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import BlueButton from '../../components/Buttons/BlueButton';
 
 const AddNewPet = () => {
   const [profilePic, setProfilePic] = useState('');
-  const snapPoints = useMemo(() => ['53%'], []);
+  const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
+  const [value, setValue] = useState(null);
+  const petOptions = Object.keys(PetTypes).map(key => ({
+    label: key,
+    value: key,
+  }));
+  const [value2, setValue2] = useState(null);
+  const deathOptions = deathCauses.map(item => ({
+    label: item,
+    value: item,
+  }));
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
   const currentDateInString = getCurrentDate();
   const onChangeDate = useCallback((date, option) => {
     option === 'birthday'
@@ -123,7 +140,8 @@ const AddNewPet = () => {
         <Pressable
           onPress={() => bottomSheetModalRef.current?.present()}
           style={styles.addProfilePicButton}>
-          <AntDesign name={'pluscircle'} size={35} color={'#6395E1'} />
+          <View style={styles.addProfilePicButton} />
+          <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
         </Pressable>
       </View>
     );
@@ -153,13 +171,14 @@ const AddNewPet = () => {
 
   const renderNameField = () => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.04}}>
+      <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.label}>이름*</Text>
           <TextInput
             style={styles.textInput}
             placeholder={'이름을 입력해주세요'}
             placeholderTextColor={'#939393'}
+            autoCorrect={false}
           />
         </View>
       </View>
@@ -168,7 +187,7 @@ const AddNewPet = () => {
 
   const renderBirthdayField = () => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.04}}>
+      <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.label}>생일*</Text>
           <Pressable
@@ -184,7 +203,7 @@ const AddNewPet = () => {
 
   const renderDeathDayField = () => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.03}}>
+      <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.label}>기일*</Text>
           <Pressable
@@ -203,11 +222,64 @@ const AddNewPet = () => {
       <View>
         <Text style={styles.label}>멀리 떠나는 아이에게 전하는 인사말</Text>
         <TextInput
+          style={styles.lastWord}
           placeholder={
             '예: 천사같은 마루 이제 편히 잠들기를.... (최대 30자 이내)'
           }
+          autoCorrect={false}
           placeholderTextColor={'#d9d9d9'}
         />
+      </View>
+    );
+  };
+  const renderPetTypeField = () => {
+    return (
+      <View style={styles.containerForInput}>
+        <View style={styles.animalType}>
+          <Text style={styles.label}>동물종류*</Text>
+          <DropDownPicker
+            containerStyle={styles.dropDownPicker.containerStyle}
+            style={styles.dropDownPicker.borderStyle}
+            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
+            textStyle={{fontSize: scaleFontSize(18)}}
+            multiple={false}
+            placeholderStyle={styles.dropDownPicker.placeholder}
+            items={petOptions}
+            placeholder={'동물 종류를 선택해 주세요'}
+            setValue={setValue}
+            value={value}
+            open={open}
+            setOpen={setOpen}
+            zIndex={3000}
+            zIndexInverse={1000}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  const renderDeathCausesField = () => {
+    return (
+      <View style={styles.containerForInput}>
+        <View style={styles.animalType}>
+          <Text style={styles.label}>별이된 이유*</Text>
+          <DropDownPicker
+            containerStyle={styles.dropDownPicker.containerStyle}
+            style={styles.dropDownPicker.borderStyle}
+            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
+            textStyle={{fontSize: scaleFontSize(18)}}
+            multiple={false}
+            placeholderStyle={styles.dropDownPicker.placeholder}
+            items={deathOptions}
+            placeholder={'별이된 이유를 알려주세요'}
+            setValue={setValue2}
+            value={value2}
+            open={open2}
+            setOpen={setOpen2}
+            zIndex={2000}
+            zIndexInverse={2000}
+          />
+        </View>
       </View>
     );
   };
@@ -220,7 +292,12 @@ const AddNewPet = () => {
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
+        {renderPetTypeField()}
+        {renderDeathCausesField()}
         {renderLastWordField()}
+        <View style={styles.blueButton}>
+          <BlueButton title={'등록하기'} />
+        </View>
       </View>
       {renderBottomSheetModal()}
     </View>
@@ -231,53 +308,63 @@ export default AddNewPet;
 
 const styles = StyleSheet.create({
   profilePicAndButtonWrapper: {
-    width: 160,
-    height: 160,
+    width: 140,
+    height: 140,
     alignSelf: 'center',
   },
+  containerForInput: {
+    marginBottom: Dimensions.get('window').height * 0.025,
+  },
   profilePicPlaceholder: {
-    width: 152,
-    height: 152,
-    borderRadius: 152 / 2,
+    width: 130,
+    height: 130,
+    borderRadius: 130 / 2,
     backgroundColor: '#EEEEEE',
     alignSelf: 'center',
   },
-  profilePic: {width: '100%', height: '100%', borderRadius: 115 / 2},
+  profilePic: {width: '100%', height: '100%', borderRadius: 130 / 2},
   addProfilePicButton: {
     position: 'absolute',
     bottom: 10,
     right: 10,
+    backgroundColor: 'white',
+    borderRadius: 30,
   },
   inputFieldsContainer: {
-    width: '95%',
-    marginVertical: 20,
+    width: '90%',
+    marginVertical: 18,
     alignSelf: 'center',
   },
   flexDirectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   label: {
     fontSize: scaleFontSize(18),
-    paddingRight: 30,
+    paddingRight: 20,
     color: '#000',
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: '#d9d9d9',
-    flex: 1,
+    color: '#000',
+    borderColor: '#939393',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flex: 0.8,
     borderRadius: 5,
-    padding: 10,
-    fontSize: scaleFontSize(16),
+    padding: 8,
+    fontSize: scaleFontSize(18),
     textAlign: 'center',
+    alignSelf: 'flex-end',
   },
   datePlaceholder: {
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     color: '#939393',
     textAlign: 'center',
   },
   lastWord: {
-    textInput: {},
+    marginTop: 10,
+    fontSize: scaleFontSize(18),
+    color: '#939393',
   },
   bottomSheet: {
     inner: {
@@ -294,5 +381,29 @@ const styles = StyleSheet.create({
   },
   hideBottomSheetHandle: {
     height: 0,
+  },
+  animalType: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropDownPicker: {
+    containerStyle: {
+      width: '65%',
+      maxHeight: 40,
+      backgroundColor: '#fff',
+    },
+    borderStyle: {
+      borderRadius: 5,
+      borderColor: '#d9d9d9',
+      minHeight: 40,
+      padding: 8,
+      fontSize: scaleFontSize(18),
+    },
+    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+  },
+  blueButton: {
+    marginVertical: Dimensions.get('window').height * 0.06,
+    alignSelf: 'center',
   },
 });

@@ -11,19 +11,14 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
+import petAge from '../../data/photoAlbumDropDown.json';
 
 const ChooseMedia = ({navigation}) => {
   const [profilePic, setProfilePic] = useState('');
   const [selectedAge, setSelectedAge] = useState(0);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    {label: '유아기', value: 0},
-    {label: '청소년기', value: 1},
-    {label: '장년기', value: 2},
-    {label: '노년기', value: 3},
-    {label: '관련없음', value: -1},
-  ]);
+  const [items, setItems] = useState(petAge);
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
