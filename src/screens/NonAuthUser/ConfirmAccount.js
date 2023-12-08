@@ -6,8 +6,11 @@ import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {useDispatch} from 'react-redux';
+import {checkUser} from '../../utils/amplifyUtil';
+import {setCognitoUsername} from '../../redux/slices/User';
 
 const ConfirmAccount = ({navigation, route}) => {
+  const dispatch = useDispatch();
   const {username, purpose} = route.params;
   const [code, setCode] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
@@ -18,13 +21,18 @@ const ConfirmAccount = ({navigation, route}) => {
   }, []);
 
   async function handleAutoSignIn() {
+    let response;
     if (purpose === 'initialSignUp') {
       try {
         const {isSignedIn} = await autoSignIn();
         console.log('isSignIn boolean result', isSignedIn);
-        isSignedIn
-          ? navigation.navigate('BottomTabs')
-          : navigation.navigate('SignIn');
+        if (isSignedIn) {
+          response = await checkUser();
+          console.log('in confirm account page, response: ', response);
+          dispatch(setCognitoUsername(response));
+        } else {
+          navigation.navigate('SignIn');
+        }
       } catch (error) {
         console.log('auto signin error', error);
       }
@@ -48,8 +56,6 @@ const ConfirmAccount = ({navigation, route}) => {
       setIsConfirmed(true);
       console.log('isSignUpComplete', isSignUpComplete);
       console.log('nextStep', nextStep);
-      // create user
-
       // when 확인 is selected, execute auto signin (meaning, skip the sign-in page)
       AlertBox('회원가입 성공!', '', '확인', () => handleAutoSignIn());
     } catch (error) {

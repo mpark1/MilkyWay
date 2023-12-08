@@ -11,21 +11,27 @@ import {checkUser} from '../utils/amplifyUtil';
 
 export default function RootNavigation() {
   const dispatch = useDispatch();
-  const loggedInUserId = useSelector(state => state.user.cognitoUsername); //userID
+  let loggedInUserId = useSelector(state => state.user.cognitoUsername); //userID
   console.log('user cognitousername: ', loggedInUserId);
 
   useEffect(() => {
-    if (!loggedInUserId) {
-      const response = checkUser();
+    let response = null;
+    const executeCheckUser = async () => {
+      response = await checkUser();
+      console.log(
+        'insdie useEffect, root navigation page, after checkuser function',
+        response,
+      );
       if (response) {
         dispatch(setCognitoUsername(response));
       } else {
         dispatch(setCognitoUserToNull());
       }
-    }
+    };
+    executeCheckUser();
   }, [dispatch]);
 
-  if (loggedInUserId === '') {
+  if (loggedInUserId === undefined) {
     return (
       <View style={styles.activityIndicatorContainer}>
         <ActivityIndicator />

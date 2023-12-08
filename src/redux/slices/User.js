@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-  cognitoUsername: '',
+  cognitoUsername: undefined,
   profilePic: '',
   email: '',
   name: '',

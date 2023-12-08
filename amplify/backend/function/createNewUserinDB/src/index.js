@@ -31,8 +31,10 @@ exports.handler = async (event, context) => {
   try {
     // Put the user data into DynamoDB
     await dynamodb.putItem(userParams).promise();
-    console.log('User data added to DynamoDB successfully.');
+    //return {response: 'User data added to DynamoDB successfully.'};
+    return event;
   } catch (error) {
-    console.error('Error adding user data to DynamoDB:', error);
+    //return {response: 'Error adding user data to DynamoDB'};
+    return event;
   }
 };

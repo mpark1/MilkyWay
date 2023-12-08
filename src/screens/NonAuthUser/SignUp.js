@@ -280,9 +280,6 @@ const SignUp = ({navigation}) => {
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
           },
         });
-        console.log('userID:', userId);
-        console.log('isSignUpComplete:', isSignUpComplete);
-        console.log('nextStep:', nextStep);
         // after a user successfully signs up (before confirmation), save user's information in redux
         if (isSignUpComplete) {
           dispatch(
