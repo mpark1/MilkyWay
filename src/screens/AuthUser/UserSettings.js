@@ -15,11 +15,13 @@ import {
   imageLibraryOption,
 } from '../../constants/imagePickerOptions';
 import {Button} from '@rneui/base';
+import {deleteUser} from 'aws-amplify/auth';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 import Backdrop from '../../components/Backdrop';
+import AlertBox from '../../components/AlertBox';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -54,6 +56,14 @@ const UserSettings = ({navigation, route}) => {
   const onLaunchImageLibrary = () => {
     launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
   };
+
+  async function handleDeleteUser() {
+    try {
+      await deleteUser();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const renderProfilePicField = () => {
     return (
@@ -177,7 +187,14 @@ const UserSettings = ({navigation, route}) => {
     return (
       <Pressable
         style={styles.changePWButton.container}
-        // onPress={}
+        onPress={() =>
+          AlertBox(
+            '회원탈퇴',
+            '회원탈퇴에 동의할 경우 회원님의 정보는 모두 삭제되고 복구가 불가능합니다. 탈퇴를 계속 진행 하시겠습니까?',
+            '탈퇴동의',
+            handleDeleteUser(),
+          )
+        }
       >
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>
           회원탈퇴
