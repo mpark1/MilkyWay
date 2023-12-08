@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   FlatList,
   ImageBackground,
+  Pressable,
 } from 'react-native';
 
 import globalStyle from '../../assets/styles/globalStyle';
@@ -35,10 +36,12 @@ const Pets = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <View style={styles.settingsContainer}>
+        <Pressable
+          style={styles.settingsContainer}
+          onPress={() => navigation.navigate('UserSettings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
           <Text style={styles.settings}>나의 계정 관리</Text>
-        </View>
+        </Pressable>
         <View style={styles.flatListContainer}>
           <FlatList
             onMomentumScrollBegin={() => setIsLoadingPets(false)}
