@@ -12,10 +12,10 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-import globalStyle from '../../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../../assets/styles/scaling';
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
 
-import BlueButton from '../../../components/Buttons/BlueButton';
+import BlueButton from '../../components/Buttons/BlueButton';
 
 const MediaPreview = ({navigation, route}) => {
   const {mediaType, imageList: initialImageList} = route.params;

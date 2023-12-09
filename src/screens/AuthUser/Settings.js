@@ -28,7 +28,6 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 import {getCurrentDate} from '../../utils/utils';
-import BlueButton from '../../components/Buttons/BlueButton';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Backdrop from '../../components/Backdrop';
 import Entypo from 'react-native-vector-icons/Entypo';
