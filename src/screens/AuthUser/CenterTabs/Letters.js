@@ -1,14 +1,11 @@
 import React, {useCallback, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, Dimensions} from 'react-native';
+import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 
-import {pagination} from '../../../utils/pagination';
-
-import ShortLetterPreview from '../../../components/Letters/ShortLetterPreview';
-
-import mockData from '../../../data/letters.json';
-import LongLetterPreview from '../../../components/Letters/LongLetterPreview';
-import {Button} from '@rneui/base';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import ShortLetterPreview from '../../../../components/Letters/ShortLetterPreview';
+import LongLetterPreview from '../../../../components/Letters/LongLetterPreview';
+import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
+import mockData from '../../../../data/letters.json';
+import {pagination} from '../../../../utils/pagination';
 
 const Letters = ({navigation}) => {
   const pageSize = 2;
@@ -17,7 +14,6 @@ const Letters = ({navigation}) => {
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
 
   const renderFlatListItem = useCallback(({item}) => {
-    // console.log('렌더링...', item.name);
     return item.content.length > 60 ? (
       <LongLetterPreview
         profilePic={item.profilePic}
@@ -40,32 +36,16 @@ const Letters = ({navigation}) => {
   }, []);
 
   const renderWriteLetterButton = useCallback(() => {
-    const plusButton = (
-      <View style={styles.plusButtonContainer}>
-        <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
-      </View>
-    );
     return (
       <View
         style={{
           paddingHorizontal: 15,
         }}>
-        <Button
+        <DashedBorderButton
+          type={'thin'}
           title={'편지쓰기'}
-          titleStyle={{
-            color: '#939393',
-          }}
-          containerStyle={{
-            width: '100%',
-            height: 50,
-            borderWidth: 1,
-            borderStyle: 'dashed',
-            borderColor: '#939393',
-            alignSelf: 'center',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-          }}
-          buttonStyle={{backgroundColor: 'transparent'}}
+          titleColor={'gray'}
+          circleSize={30}
           onPress={() =>
             navigation.navigate('WriteOrEditLetter', {
               actionType: 'write',
@@ -75,7 +55,6 @@ const Letters = ({navigation}) => {
               message: '',
             })
           }
-          icon={plusButton}
         />
       </View>
     );
@@ -113,7 +92,6 @@ const styles = StyleSheet.create({
   flatListContainer: {
     backgroundColor: '#FFF',
     paddingTop: 15,
-    // paddingBottom: 70,
   },
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,
