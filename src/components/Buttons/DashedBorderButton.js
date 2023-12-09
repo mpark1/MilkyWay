@@ -22,7 +22,7 @@ const DashedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
           ? styles.regularContainerStyle
           : styles.thinContainerStyle
       }
-      buttonStyle={styles.transparent}
+      buttonStyle={styles.buttonColor}
       onPress={onPress}
       icon={plusButton}
     />
@@ -36,12 +36,12 @@ const styles = StyleSheet.create({
     marginLeft: Dimensions.get('window').width * 0.03,
     marginRight: Dimensions.get('window').width * 0.07,
   },
-  transparent: {
+  buttonColor: {
     backgroundColor: 'transparent',
   },
   whiteTitleStyle: {fontWeight: 'bold', fontSize: scaleFontSize(18)},
   grayTitleStyle: {
-    fontSize: scaleFontSize(18),
+    fontSize: scaleFontSize(20),
     color: '#939393',
   },
   regularContainerStyle: {
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'flex-start',
     justifyContent: 'center',
+    marginBottom: 20,
   },
   thinContainerStyle: {
     width: '100%',
