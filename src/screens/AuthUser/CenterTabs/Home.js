@@ -12,7 +12,7 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Home = ({navigation, route}) => {
-  const lastWord = route.param;
+  const {lastWord} = route.params;
   const renderLastWord = () => {
     return (
       <View style={styles.lastWordCard}>
