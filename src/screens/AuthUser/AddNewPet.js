@@ -7,6 +7,7 @@ import {
   Pressable,
   Dimensions,
   Image,
+  ScrollView,
 } from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -27,6 +28,7 @@ import PetTypes from '../../data/PetTypes.json';
 import deathCauses from '../../data/deathCauses.json';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import BlueButton from '../../components/Buttons/BlueButton';
+import {Button} from '@rneui/base';
 
 const AddNewPet = () => {
   const [profilePic, setProfilePic] = useState('');
@@ -70,6 +72,7 @@ const AddNewPet = () => {
   const [birthday, setBirthday] = useState(new Date(currentDateInString));
   const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
 
+  const canGoNext = value && value2 && birthday && deathDay;
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
       return;
@@ -223,11 +226,10 @@ const AddNewPet = () => {
         <Text style={styles.label}>멀리 떠나는 아이에게 전하는 인사말</Text>
         <TextInput
           style={styles.lastWord}
-          placeholder={
-            '예: 천사같은 마루 이제 편히 잠들기를.... (최대 30자 이내)'
-          }
+          placeholder={'예: 천사같은 아이, 편히 잠들기를 (25자이내)'}
           autoCorrect={false}
           placeholderTextColor={'#d9d9d9'}
+          maxLength={25}
         />
       </View>
     );
@@ -251,7 +253,7 @@ const AddNewPet = () => {
             open={open}
             setOpen={setOpen}
             zIndex={3000}
-            zIndexInverse={1000}
+            listMode="SCROLLVIEW"
           />
         </View>
       </View>
@@ -260,7 +262,7 @@ const AddNewPet = () => {
 
   const renderDeathCausesField = () => {
     return (
-      <View style={styles.containerForInput}>
+      <View style={styles.containerForInput2}>
         <View style={styles.animalType}>
           <Text style={styles.label}>별이된 이유*</Text>
           <DropDownPicker
@@ -276,8 +278,9 @@ const AddNewPet = () => {
             value={value2}
             open={open2}
             setOpen={setOpen2}
-            zIndex={2000}
-            zIndexInverse={2000}
+            zIndex={1000}
+            listMode="SCROLLVIEW"
+            dropDownDirection="BOTTOM"
           />
         </View>
       </View>
@@ -285,7 +288,7 @@ const AddNewPet = () => {
   };
 
   return (
-    <View
+    <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite, {padding: 20}]}>
       {renderProfilePicField()}
       <View style={styles.inputFieldsContainer}>
@@ -295,12 +298,20 @@ const AddNewPet = () => {
         {renderPetTypeField()}
         {renderDeathCausesField()}
         {renderLastWordField()}
+        <Text style={{paddingTop: 8}}>*필수기입 항목</Text>
         <View style={styles.blueButton}>
-          <BlueButton title={'등록하기'} />
+          <Button
+            disabled={!canGoNext}
+            title={'등록하기'}
+            titleStyle={styles.submitButton.titleStyle}
+            containerStyle={styles.submitButton.containerStyle}
+            buttonStyle={globalStyle.backgroundBlue}
+            //onPress={onSubmit}
+          />
         </View>
       </View>
       {renderBottomSheetModal()}
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -308,21 +319,26 @@ export default AddNewPet;
 
 const styles = StyleSheet.create({
   profilePicAndButtonWrapper: {
-    width: 140,
-    height: 140,
+    width: 130,
+    height: 130,
     alignSelf: 'center',
   },
   containerForInput: {
     marginBottom: Dimensions.get('window').height * 0.025,
+    zIndex: 3000,
+  },
+  containerForInput2: {
+    marginBottom: Dimensions.get('window').height * 0.025,
+    zIndex: 2000,
   },
   profilePicPlaceholder: {
-    width: 130,
-    height: 130,
-    borderRadius: 130 / 2,
+    width: 120,
+    height: 120,
+    borderRadius: 120 / 2,
     backgroundColor: '#EEEEEE',
     alignSelf: 'center',
   },
-  profilePic: {width: '100%', height: '100%', borderRadius: 130 / 2},
+  profilePic: {width: '100%', height: '100%', borderRadius: 120 / 2},
   addProfilePicButton: {
     position: 'absolute',
     bottom: 10,
@@ -350,8 +366,7 @@ const styles = StyleSheet.create({
     borderColor: '#939393',
     borderBottomWidth: StyleSheet.hairlineWidth,
     flex: 0.8,
-    borderRadius: 5,
-    padding: 8,
+    padding: 6,
     fontSize: scaleFontSize(18),
     textAlign: 'center',
     alignSelf: 'flex-end',
@@ -363,8 +378,11 @@ const styles = StyleSheet.create({
   },
   lastWord: {
     marginTop: 10,
+    marginBottom: 2,
     fontSize: scaleFontSize(18),
     color: '#939393',
+    borderColor: '#939393',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   bottomSheet: {
     inner: {
@@ -403,7 +421,19 @@ const styles = StyleSheet.create({
     placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
   },
   blueButton: {
-    marginVertical: Dimensions.get('window').height * 0.06,
+    marginVertical: Dimensions.get('window').height * 0.03,
     alignSelf: 'center',
+  },
+  submitButton: {
+    titleStyle: {
+      fontSize: scaleFontSize(16),
+      color: '#FFF',
+      fontWeight: '700',
+      paddingVertical: 5,
+      paddingHorizontal: 25,
+    },
+    containerStyle: {
+      borderRadius: 10,
+    },
   },
 });
