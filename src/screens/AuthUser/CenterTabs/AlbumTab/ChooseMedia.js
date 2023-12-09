@@ -9,8 +9,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import globalStyle from '../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../assets/styles/scaling';
+import globalStyle from '../../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../../assets/styles/scaling';
 
 const ChooseMedia = ({navigation}) => {
   const [selectedAge, setSelectedAge] = useState(0);

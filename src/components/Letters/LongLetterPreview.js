@@ -1,13 +1,10 @@
 import React, {useState} from 'react';
-import {
-  StyleSheet,
-  Dimensions,
-  View,
-  Text,
-  Image,
-  Pressable,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, View, Text, Image, Pressable, Alert} from 'react-native';
+import {useNavigation} from '@react-navigation/core';
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 const LongLetterPreview = ({
@@ -19,10 +16,25 @@ const LongLetterPreview = ({
   profilePic,
   name,
 }) => {
+  const navigation = useNavigation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const onDeleteLetter = () => {
+    Alert.alert(
+      '편지를 삭제하시겠습니까?',
+      '삭제된 편지는 복구가 불가능합니다.',
+      [
+        {text: '취소'},
+        {
+          text: '삭제',
+          // onPress: updateLetterStateToDeleted, // async function
+        },
+      ],
+    );
   };
 
   return (
@@ -30,10 +42,7 @@ const LongLetterPreview = ({
       <Text style={styles.title}>{title}</Text>
       <View style={styles.flexDirectionRow}>
         <View style={styles.profilePicContainer}>
-          <Image
-            style={styles.profilePic}
-            source={require('../../assets/images/milkyWayBackgroundImage.png')}
-          />
+          <Image style={styles.profilePic} source={{uri: profilePic}} />
         </View>
         <View
           style={
@@ -54,17 +63,51 @@ const LongLetterPreview = ({
             {isExpanded ? (
               <>
                 <Text style={styles.content}>{content}</Text>
-                <Pressable style={styles.moreButton} onPress={toggleExpanded}>
-                  <Text style={styles.moreButtonTitle}>닫기</Text>
-                </Pressable>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '35%',
+                    alignSelf: 'flex-end',
+                    marginTop: 5,
+                  }}>
+                  <View style={styles.editAndDeleteContainer}>
+                    <Pressable
+                      onPress={() =>
+                        navigation.navigate('WriteOrEditLetter', {
+                          actionType: 'edit',
+                          title: title,
+                          relationship: relationship,
+                          isPrivate: true,
+                          message: content,
+                        })
+                      }>
+                      <Ionicons
+                        name={'pencil-outline'}
+                        color={'#373737'}
+                        size={18}
+                      />
+                    </Pressable>
+                    <Pressable onPress={() => onDeleteLetter()}>
+                      <EvilIcons name={'trash'} color={'#373737'} size={24} />
+                    </Pressable>
+                  </View>
+
+                  <Pressable onPress={toggleExpanded}>
+                    <Text style={styles.seeLess.title}>닫기</Text>
+                  </Pressable>
+                </View>
               </>
             ) : (
               <>
                 <Text style={styles.content}>
                   {content.substring(0, 58)}...
                 </Text>
-                <Pressable style={styles.moreButton} onPress={toggleExpanded}>
-                  <Text style={styles.moreButtonTitle}>더보기</Text>
+                <Pressable
+                  style={styles.seeMore.container}
+                  onPress={toggleExpanded}>
+                  <Text style={styles.seeMore.title}>더보기</Text>
                 </Pressable>
               </>
             )}
@@ -82,13 +125,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#D9D9D9',
     paddingHorizontal: 20,
-    paddingTop: 17,
-    paddingBottom: 10,
+    paddingVertical: 13,
   },
   title: {
     color: '#000',
     fontSize: scaleFontSize(18),
     fontWeight: 'bold',
+    paddingBottom: 7,
   },
   flexDirectionRow: {
     flexDirection: 'row',
@@ -96,7 +139,7 @@ const styles = StyleSheet.create({
   profilePicContainer: {
     height: 80,
     width: 80,
-    marginTop: 10,
+    marginTop: 8,
   },
   profilePic: {
     width: '100%',
@@ -131,23 +174,29 @@ const styles = StyleSheet.create({
     fontSize: scaleFontSize(16),
     lineHeight: scaleFontSize(24),
   },
-  moreButton: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-  },
-  moreButtonTitle: {
-    color: '#939393',
-    fontSize: scaleFontSize(16),
-    lineHeight: scaleFontSize(24),
+  seeMore: {
+    container: {
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+    },
+    title: {
+      color: '#939393',
+      fontSize: scaleFontSize(16),
+      lineHeight: scaleFontSize(24),
+    },
   },
   editAndDeleteContainer: {
     flexDirection: 'row',
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    width: 45,
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: 45,
+  },
+  seeLess: {
+    title: {
+      color: '#939393',
+      fontSize: scaleFontSize(16),
+      lineHeight: scaleFontSize(24),
+    },
   },
 });

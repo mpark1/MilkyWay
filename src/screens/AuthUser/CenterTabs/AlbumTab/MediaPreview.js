@@ -7,8 +7,8 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import globalStyle from '../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../assets/styles/scaling';
+import globalStyle from '../../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../../assets/styles/scaling';
 import {Input} from '@rneui/base';
 
 const MediaPreview = ({navigation, route}) => {

@@ -1,15 +1,16 @@
 import React, {useCallback, useMemo, useRef} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {Button} from '@rneui/base';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 
-import globalStyle from '../../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../../assets/styles/scaling';
+import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
+
+import globalStyle from '../../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../../assets/styles/scaling';
 
 const Home = ({navigation, route}) => {
   const {lastWord} = route.params;
@@ -22,25 +23,19 @@ const Home = ({navigation, route}) => {
     );
   };
 
-  const renderDottedBorderButton = () => {
-    const plusButton = (
-      <View style={styles.dottedBorderButton.plusButtonContainer}>
-        <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
-      </View>
-    );
+  const renderDottedBorderButton = useCallback(() => {
     return (
       <View style={{paddingVertical: 20}}>
-        <Button
+        <DashedBorderButton
+          type={'thin'}
           title={'추모의 메세지를 입력해주세요'}
-          titleStyle={styles.dottedBorderButton.titleStyle}
-          containerStyle={styles.dottedBorderButton.containerStyle}
-          buttonStyle={styles.dottedBorderButton.buttonColor}
+          titleColor={'gray'}
+          circleSize={30}
           onPress={() => bottomSheetModalRef.current?.present()}
-          icon={plusButton}
         />
       </View>
     );
-  };
+  }, []);
 
   const renderBackdrop = useCallback(
     props => (

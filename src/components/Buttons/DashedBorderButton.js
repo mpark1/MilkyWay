@@ -15,7 +15,7 @@ const DashedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
     <Button
       title={title}
       titleStyle={
-        titleColor === 'white' ? styles.whiteTitleStyle : styles.blackTitleStyle
+        titleColor === 'white' ? styles.whiteTitleStyle : styles.grayTitleStyle
       }
       containerStyle={
         type === 'regular'
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   whiteTitleStyle: {fontWeight: 'bold', fontSize: scaleFontSize(18)},
-  blackTitleStyle: {
-    fontSize: scaleFontSize(18),
+  grayTitleStyle: {
+    fontSize: scaleFontSize(20),
     color: '#939393',
   },
   regularContainerStyle: {

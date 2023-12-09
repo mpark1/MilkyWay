@@ -3,10 +3,10 @@ import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CheckBox} from '@rneui/themed';
 
-import globalStyle from '../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../assets/styles/scaling';
+import globalStyle from '../../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../../assets/styles/scaling';
 import {Button} from '@rneui/base';
-import BlueButton from '../../components/Buttons/BlueButton';
+import BlueButton from '../../../../components/Buttons/BlueButton';
 
 const WriteOrEditLetter = ({navigation, route}) => {
   const {actionType, title, relationship, isPrivate, message} = route.params;

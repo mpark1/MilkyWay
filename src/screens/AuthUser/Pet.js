@@ -10,10 +10,10 @@ import {
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import Home from './CenterTabs/Home';
-import Letters from './CenterTabs/Letters';
-import Album from './CenterTabs/Album';
-import GuestBook from './CenterTabs/GuestBook';
+import Home from './CenterTabs/HomeTab/Home';
+import Letters from './CenterTabs/LettersTab/Letters';
+import Album from './CenterTabs/AlbumTab/Album';
+import GuestBook from './CenterTabs/GuestBookTab/GuestBook';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
