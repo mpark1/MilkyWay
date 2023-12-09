@@ -316,7 +316,7 @@ const Settings = () => {
             right={true}
             center={true}
             textStyle={styles.accessLevelField.checkBox.text}
-            title="전채공개"
+            title="전체공개"
             checkedIcon={
               <Icon
                 name="checkbox-marked"
