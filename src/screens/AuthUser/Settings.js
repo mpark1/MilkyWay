@@ -358,6 +358,28 @@ const Settings = () => {
     );
   };
 
+const onCloseMemorialSpace = () => {
+    Alert.alert(
+      '추모공간을 삭제하시겠습니까?',
+      '삭제된 추모공간은 복구가 불가능합니다.',
+      [
+        {text: '취소'},
+        {
+          text: '삭제',
+          // onPress:
+        },
+      ],
+    );
+  };
+
+  const renderCloseMemorialSpace = () => {
+    return (
+      <Pressable onPress={() => onCloseMemorialSpace()}>
+        <Text style={styles.closeMemorialSpace}>추모공간 삭제</Text>
+      </Pressable>
+    );
+  };
+
   return (
     <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite]}>
@@ -372,6 +394,7 @@ const Settings = () => {
           {renderAccessLevelField()}
         </View>
         {renderSubmitButton()}
+        {renderCloseMemorialSpace()}
       </View>
     </KeyboardAwareScrollView>
   );
@@ -505,5 +528,10 @@ const styles = StyleSheet.create({
     containerStyle: {
       borderRadius: 10,
     },
+  },
+   closeMemorialSpace: {
+    fontSize: scaleFontSize(16),
+    color: '#939393',
+    paddingVertical: 17,
   },
 });
