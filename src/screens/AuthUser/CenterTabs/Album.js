@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, ScrollView, StyleSheet, Dimensions} from 'react-native';
-import globalStyle from '../../../../assets/styles/globalStyle';
-import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
+import globalStyle from '../../../assets/styles/globalStyle';
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 
 const Album = ({navigation}) => {
   const renderDottedBorderButton = () => {
