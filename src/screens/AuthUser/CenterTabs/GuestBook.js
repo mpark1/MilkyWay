@@ -1,18 +1,17 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {View, Text, Dimensions, StyleSheet, FlatList} from 'react-native';
-import {pagination} from '../../../utils/pagination';
-import mockData from '../../../data/guestBook.json';
-import ShortGuestBookMessage from '../../../components/ShortGuestBookMessage';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import {View, Dimensions, StyleSheet, FlatList} from 'react-native';
+import {pagination} from '../../../../utils/pagination';
+import mockData from '../../../../data/guestBook.json';
+import ShortGuestBookMessage from '../../../../components/ShortGuestBookMessage';
 import {Button} from '@rneui/base';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import {scaleFontSize} from '../../../assets/styles/scaling';
-import globalStyle from '../../../assets/styles/globalStyle';
-import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
+import {scaleFontSize} from '../../../../assets/styles/scaling';
+import globalStyle from '../../../../assets/styles/globalStyle';
+import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 2;
@@ -57,6 +56,7 @@ const GuestBook = ({navigation}) => {
           type={'thin'}
           title={'추모 메세지 쓰기'}
           titleColor={'gray'}
+          circleSize={30}
           onPress={() => bottomSheetModalRef.current?.present()}
         />
       </View>
