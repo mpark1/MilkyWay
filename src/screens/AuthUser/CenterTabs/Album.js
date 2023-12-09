@@ -1,9 +1,7 @@
 import React from 'react';
 import {View, ScrollView, StyleSheet, Dimensions} from 'react-native';
-import globalStyle from '../../../assets/styles/globalStyle';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {Button} from '@rneui/base';
-import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
+import globalStyle from '../../../../assets/styles/globalStyle';
+import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
 
 const Album = ({navigation}) => {
   const renderDottedBorderButton = () => {
@@ -15,7 +13,6 @@ const Album = ({navigation}) => {
         <DashedBorderButton
           title={'추억 등록하기'}
           titleColor={'gray'}
-          type={'thin'}
           circleSize={30}
           onPress={() => navigation.navigate('ChooseMedia')}
         />
