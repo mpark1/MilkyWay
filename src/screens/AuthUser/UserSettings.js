@@ -15,6 +15,7 @@ import {
   imageLibraryOption,
 } from '../../constants/imagePickerOptions';
 import {Button} from '@rneui/base';
+// import {deleteUser} from 'aws-amplify/auth';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
@@ -24,6 +25,7 @@ import Backdrop from '../../components/Backdrop';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AlertBox from '../../components/AlertBox';
 
 const UserSettings = ({navigation, route}) => {
   const [profilePic, setProfilePic] = useState('');
@@ -41,7 +43,7 @@ const UserSettings = ({navigation, route}) => {
     if (res.didCancel || !res) {
       return;
     }
-    const uri = res.assets.uri;
+    const uri = res.assets[0].uri;
     console.log('uri: ', uri);
     bottomSheetModalRef.current?.close();
     setProfilePic(uri);
@@ -54,6 +56,14 @@ const UserSettings = ({navigation, route}) => {
   const onLaunchImageLibrary = () => {
     launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
   };
+
+  async function handleDeleteUser() {
+    try {
+      await deleteUser();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const renderProfilePicField = () => {
     return (
@@ -176,7 +186,14 @@ const UserSettings = ({navigation, route}) => {
     return (
       <Pressable
         style={styles.changePWButton.container}
-        // onPress={}
+        // onPress={() =>
+        //   AlertBox(
+        //     '회원탈퇴',
+        //     '회원탈퇴에 동의할 경우 회원님의 정보는 모두 삭제되고 복구가 불가능합니다. 탈퇴를 계속 진행 하시겠습니까?',
+        //     '탈퇴동의',
+        //     handleDeleteUser(),
+        //   )
+        // }
       >
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>
           회원탈퇴
@@ -280,10 +297,10 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     titleStyle: {
-      fontSize: scaleFontSize(16),
+      fontSize: scaleFontSize(18),
       color: '#FFF',
-      fontWeight: '700',
-      paddingVertical: 5,
+      fontWeight: 'bold',
+      paddingVertical: 3,
       paddingHorizontal: 25,
     },
     containerStyle: {

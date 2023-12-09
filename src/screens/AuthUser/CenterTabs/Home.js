@@ -12,7 +12,7 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Home = ({navigation, route}) => {
-  const lastWord = route.param;
+  const {lastWord} = route.params;
   const renderLastWord = () => {
     return (
       <View style={styles.lastWordCard}>
@@ -90,7 +90,7 @@ const Home = ({navigation, route}) => {
           placeholder={
             '추모의 메세지를 입력해주세요. (아래 예시글)\n\n사랑하는 [이름]이 세상을 떠났습니다. [이름]은 태어난지 1주일만에 저희 집에 와서 저희와는 가족같이 지냈습니다. 솔직히 아직도 [이름]이 별이 되었다는게 믿어지지 않습니다. ' +
             '짧다면 짧고 길다면 긴 10년동안 가족같이 지내던 아이가 갑자기 없으니 너무 허전해요. ' +
-            '같이 슬퍼해 주시고 애도해 주세요. [이름]이 좋은 곳에 갈 수 있게, 저희가 [이름]을 잘 보내줄 수 있게'
+            '[이름]이 좋은 곳에 갈 수 있게, 저희가 [이름]을 잘 보내줄 수 있게 같이 슬퍼해 주시고 애도해 주세요. '
           }
           placeholderTextColor={'#939393'}
           textAlign={'left'}

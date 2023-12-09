@@ -12,6 +12,8 @@ import Notifications from '../screens/AuthUser/Notifications';
 import SignUp from '../screens/NonAuthUser/SignUp';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
+import UserSettings from '../screens/AuthUser/UserSettings';
+import ChangePassword from '../screens/AuthUser/ChangePassword';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +51,20 @@ const AuthNavigation = () => {
           headerBackTitleVisible: false,
           headerTintColor: '#000',
         }}>
+        <Stack.Screen
+          name={'UserSettings'}
+          component={UserSettings}
+          options={{
+            headerTitle: '나의 계정',
+          }}
+        />
+        <Stack.Screen
+          name={'ChangePassword'}
+          component={ChangePassword}
+          options={{
+            headerTitle: '비밀번호 변경',
+          }}
+        />
         <Stack.Screen
           name={'AddNewPet'}
           component={AddNewPet}

@@ -55,14 +55,14 @@ const Pet = ({navigation, route}) => {
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      <View style={styles.backgroundImageContainer}>
+      <Pressable style={styles.backgroundImageContainer}>
         <Image
           source={require('../../assets/images/milkyWayBackgroundImage.png')}
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
         {renderBellEnvelopeSettingsIcons()}
-      </View>
+      </Pressable>
       <View style={styles.profileContainer}>
         <PetProfile name={name} birthday={birthday} deathDay={deathDay} />
       </View>
@@ -86,7 +86,7 @@ const Pet = ({navigation, route}) => {
           name={'홈'}
           component={Home}
           initialParams={{
-            lastWord: lastWord,
+            lastWord: '천사같은 마루 이제 편히 잠들길.....',
           }}
         />
         <centerTab.Screen name={'가족의 편지'} component={Letters} />
