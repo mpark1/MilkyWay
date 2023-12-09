@@ -24,8 +24,11 @@ const ChooseMedia = ({navigation}) => {
     {label: '관련없음', value: -1},
   ]);
 
+  const mediaTypeRef = useRef(mediaType);
+
   useEffect(() => {
     console.log('Media Type Updated:', mediaType);
+    mediaTypeRef.current = mediaType;
   }, [mediaType]);
 
   const snapPoints = useMemo(() => ['25%'], []);
@@ -45,23 +48,25 @@ const ChooseMedia = ({navigation}) => {
   );
 
   const onLaunchGallery = () => {
-    let imageList = [];
+    let mediaList = [];
+
+    console.log('media type inside onLaunchGallery: ', mediaTypeRef.current);
 
     ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaType === 'photo' ? 10 : 1,
-      mediaType: mediaType,
+      maxFiles: mediaTypeRef.current === 'photo' ? 10 : 1,
+      mediaType: mediaTypeRef.current,
     })
       .then(response => {
-        response.map(image => {
-          imageList.push({
-            uri: image.sourceURL,
+        response.map(media => {
+          mediaList.push({
+            uri: media.sourceURL,
           });
         });
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
           mediaType: mediaType,
-          imageList: imageList,
+          mediaList: mediaList,
         });
       })
       .catch(e => console.log('Error: ', e.message));
@@ -257,3 +262,4 @@ const styles = StyleSheet.create({
     },
   },
 });
+
