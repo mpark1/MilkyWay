@@ -1,9 +1,9 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {View, Text, StyleSheet, Dimensions, Pressable} from 'react-native';
 import {Button} from '@rneui/base';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -13,9 +13,9 @@ import globalStyle from '../../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../../assets/styles/scaling';
 
 const ChooseMedia = ({navigation}) => {
-  const [selectedAge, setSelectedAge] = useState(0);
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
+  const [mediaType, setMediaType] = useState('');
+  const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
+  const [selectedAge, setSelectedAge] = useState(-2);
   const [items, setItems] = useState([
     {label: '유아기', value: 0},
     {label: '청소년기', value: 1},
@@ -23,6 +23,10 @@ const ChooseMedia = ({navigation}) => {
     {label: '노년기', value: 3},
     {label: '관련없음', value: -1},
   ]);
+
+  useEffect(() => {
+    console.log('Media Type Updated:', mediaType);
+  }, [mediaType]);
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -40,45 +44,31 @@ const ChooseMedia = ({navigation}) => {
     [],
   );
 
-  const onResponse = res => {
-    if (res.didCancel || !res.assets) {
-      return;
-    }
-    bottomSheetModalRef.current?.close();
-
+  const onLaunchGallery = () => {
     let imageList = [];
-    res.assets.map(image => {
-      imageList.push({
-        fileName: image.fileName,
-        uri: image.uri,
-        type: image.type,
-      });
-    });
 
-    navigation.navigate('MediaPreview', {imageList: imageList});
+    ImagePicker.openPicker({
+      multiple: true,
+      maxFiles: mediaType === 'photo' ? 10 : 1,
+      mediaType: mediaType,
+    })
+      .then(response => {
+        response.map(image => {
+          imageList.push({
+            uri: image.sourceURL,
+          });
+        });
+        bottomSheetModalRef.current?.close();
+        navigation.navigate('MediaPreview', {
+          mediaType: mediaType,
+          imageList: imageList,
+        });
+      })
+      .catch(e => console.log('Error: ', e.message));
   };
 
-  const imageLibraryOption = {
-    mediaType: 'mixed',
-    // includeBase64: true,
-    // includeExtra: true,
-    selectionLimit: 10, // 사진, 영상 상관없이 10개로 설정됨
-    presentationStyle: 'fullScreen',
-  };
-
-  const cameraOption = {
-    mediaType: 'photo',
-    includeBase64: true,
-    includeExtra: true,
-    savedToPhotos: true,
-  };
-
-  const onLaunchCamera = useCallback(() => {
-    launchCamera(cameraOption, onResponse);
-  }, []);
-
-  const onLaunchImageLibrary = () => {
-    launchImageLibrary(imageLibraryOption, onResponse);
+  const onLaunchCamera = () => {
+    ImagePicker.openCamera({});
   };
 
   const renderBottomSheetModalInner = useCallback(() => {
@@ -86,13 +76,14 @@ const ChooseMedia = ({navigation}) => {
       <View style={styles.bottomSheet.inner}>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
+          // onPress={()=>onLaunchCamera()}
+        >
           <Entypo name={'camera'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>카메라</Text>
         </Pressable>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchImageLibrary()}>
+          onPress={() => onLaunchGallery()}>
           <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>갤러리</Text>
         </Pressable>
@@ -115,7 +106,7 @@ const ChooseMedia = ({navigation}) => {
     );
   }, []);
 
-  const renderSelectMediaButton = useCallback(() => {
+  const renderSelectPhotoButton = () => {
     const plusButton = (
       <View style={styles.plusButtonContainer}>
         <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
@@ -130,15 +121,18 @@ const ChooseMedia = ({navigation}) => {
           }}
           containerStyle={styles.dashedBorderButton.container}
           buttonStyle={{backgroundColor: 'transparent'}}
-          onPress={() => bottomSheetModalRef.current?.present()}
+          onPress={() => {
+            setMediaType('photo');
+            bottomSheetModalRef.current?.present();
+          }}
           icon={plusButton}
         />
         <Text style={styles.dashedBorderButton.guide}>(최대 10장)</Text>
       </View>
     );
-  }, []);
+  };
 
-  const renderSelectVideoButton = useCallback(() => {
+  const renderSelectVideoButton = () => {
     const plusButton = (
       <View style={styles.plusButtonContainer}>
         <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
@@ -156,12 +150,15 @@ const ChooseMedia = ({navigation}) => {
             {paddingBottom: 10, marginVertical: 15},
           ]}
           buttonStyle={{backgroundColor: 'transparent'}}
-          onPress={() => bottomSheetModalRef.current?.present()}
+          onPress={() => {
+            setMediaType('video');
+            bottomSheetModalRef.current?.present();
+          }}
           icon={plusButton}
         />
       </View>
     );
-  }, []);
+  };
 
   return (
     <View
@@ -175,15 +172,15 @@ const ChooseMedia = ({navigation}) => {
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'연령을 선택해주세요'}
-          setValue={setValue}
-          value={value}
+          setValue={setSelectedAge}
+          value={selectedAge}
           items={items}
-          open={open}
-          setOpen={setOpen}
+          open={isDropDownPickerOpen}
+          setOpen={setIsDropDownPickerOpen}
         />
       </View>
       <Text style={[styles.label, {marginBottom: 10}]}>사진 / 영상</Text>
-      {renderSelectMediaButton()}
+      {renderSelectPhotoButton()}
       {renderSelectVideoButton()}
       {renderBottomSheetModal()}
     </View>

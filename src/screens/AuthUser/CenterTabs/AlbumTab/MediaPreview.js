@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -6,58 +6,107 @@ import {
   FlatList,
   Image,
   Dimensions,
+  Pressable,
+  TextInput,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
 import globalStyle from '../../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../../assets/styles/scaling';
-import {Input} from '@rneui/base';
+
+import BlueButton from '../../../../components/Buttons/BlueButton';
 
 const MediaPreview = ({navigation, route}) => {
-  const {imageList} = route.params;
-  console.log('imageList:', imageList);
+  const {mediaType, imageList: initialImageList} = route.params;
+  const [imageList, setImageList] = useState(initialImageList);
+  console.log('mediaType: ', mediaType);
+  console.log('imageList: ', imageList);
 
-  return (
-    <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      <View style={styles.spacer}>
-        <Text style={styles.label}>사진</Text>
-        <View style={styles.flatListContainer}>
-          <FlatList
-            numColumns={3}
-            data={imageList}
-            renderItem={({item}) => {
-              return (
-                <View
-                  style={{
-                    width: Dimensions.get('window').width * 0.3,
-                    height: Dimensions.get('window').width * 0.3,
-                    padding: 5,
-                    paddingLeft: 0,
-                  }}>
-                  <Image
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                    }}
-                    resizeMode={'cover'}
-                    source={{uri: item.uri}}
-                  />
-                </View>
-              );
-            }}
-          />
-        </View>
-        <Input
-          label={'스토리'}
-          labelStyle={styles.label}
-          style={styles.textInput}
-          placeholder={'사진을 보면 떠오르는 추억이 있나요? (최대 300자)'}
+  const handleRemoveItem = index => {
+    const updatedList = [...imageList];
+    updatedList.splice(index, 1);
+    setImageList(updatedList);
+  };
+
+  const renderFlatList = useCallback(() => {
+    return (
+      <FlatList
+        scrollEnabled={false}
+        numColumns={2}
+        data={imageList}
+        renderItem={({item, index}) => {
+          return (
+            <View style={styles.imageContainer}>
+              <Image
+                style={styles.image}
+                resizeMode={'cover'}
+                source={{uri: item.uri}}
+              />
+              <Pressable
+                style={styles.closeCircle}
+                onPress={() => handleRemoveItem(index)}>
+                <AntDesign name="closecircle" size={20} color={'#6395E1'} />
+              </Pressable>
+            </View>
+          );
+        }}
+      />
+    );
+  }, [imageList]);
+
+  const renderStoryField = () => {
+    return (
+      <View>
+        <Text style={[styles.label, {paddingBottom: 16}]}>스토리</Text>
+        <TextInput
+          style={styles.story.textInput}
+          placeholder={
+            '사진을 보면 떠오르는 추억이 있나요? (최대 300자)\n\n예: [이름]을 처음 봤을 때. 수건에 살포시 쌓여 있던 너에게 첫눈에 반했어.'
+          }
           placeholderTextColor={'#939393'}
           multiline={true}
           autoCorrect={false}
           autoCapitalize={'none'}
-          containerStyle={styles.textInput.containerStyle}
+          clearButtonMode={'while-editing'}
+          maxLength={300}
         />
       </View>
-    </View>
+    );
+  };
+
+  const renderSubmitButton = () => {
+    return (
+      <View style={styles.submitButton}>
+        <BlueButton
+          title={'등록하기'}
+          disabled={imageList.length === 0}
+          // onPress={}
+        />
+      </View>
+    );
+  };
+
+  return (
+    <KeyboardAwareScrollView
+      style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+      <View style={styles.spacer}>
+        <Text style={styles.label}>
+          {mediaType === 'photo' ? '사진' : '영상'}
+        </Text>
+        <View style={styles.flatListContainer}>
+          {imageList.length > 0 ? (
+            renderFlatList()
+          ) : (
+            <Text style={styles.noImagesOrVideo}>
+              이전 화면으로 돌아가 사진이나 영상을 추가해주세요.
+            </Text>
+          )}
+        </View>
+        {renderStoryField()}
+        {renderSubmitButton()}
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -75,18 +124,44 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: Dimensions.get('window').height * 0.03,
   },
-  textInput: {
+  imageContainer: {
+    width: Dimensions.get('window').width * 0.42,
+    height: Dimensions.get('window').width * 0.42,
+    marginRight: 13,
+    marginVertical: 13 / 2,
+  },
+  image: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.2,
-    borderWidth: 1,
+    height: '100%',
     borderRadius: 5,
-    borderColor: '#d9d9d9',
-    padding: 10,
-    containerStyle: {
-      margin: 0,
-      paddingLeft: 0,
-      paddingRight: 0,
-      paddingBottom: 0,
+  },
+  closeCircle: {
+    position: 'absolute',
+    right: -7,
+    top: -7,
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+  },
+  noImagesOrVideo: {
+    fontSize: scaleFontSize(16),
+    color: '#939393',
+    fontWeight: '500',
+  },
+  story: {
+    textInput: {
+      width: '100%',
+      height: Dimensions.get('window').height * 0.2,
+      borderWidth: 1,
+      borderRadius: 5,
+      borderColor: '#d9d9d9',
+      paddingHorizontal: 10,
+      fontSize: scaleFontSize(16),
+      lineHeight: scaleFontSize(24),
+      color: '#000',
     },
+  },
+  submitButton: {
+    alignSelf: 'center',
+    marginVertical: Dimensions.get('window').height * 0.03,
   },
 });
