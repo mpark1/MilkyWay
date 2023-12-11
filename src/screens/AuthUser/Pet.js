@@ -86,7 +86,7 @@ const Pet = ({navigation, route}) => {
           name={'홈'}
           component={Home}
           initialParams={{
-            lastWord: '천사같은 마루 이제 편히 잠들길.....',
+            lastWord: lastWord,
           }}
         />
         <centerTab.Screen name={'가족의 편지'} component={Letters} />
