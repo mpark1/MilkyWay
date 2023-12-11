@@ -127,7 +127,7 @@ const UserSettings = ({navigation, route}) => {
     return (
       <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
-          <Text style={styles.label}>닉네임</Text>
+          <Text style={styles.label}>이름</Text>
           <TextInput
             style={styles.textInput}
             placeholder={'회원 이름'}
@@ -194,8 +194,7 @@ const UserSettings = ({navigation, route}) => {
             '탈퇴동의',
             handleDeleteUser(),
           )
-        }
-      >
+        }>
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>
           회원탈퇴
         </Text>
