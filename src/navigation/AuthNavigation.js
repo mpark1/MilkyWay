@@ -4,6 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
+import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 import ChooseMedia from '../screens/AuthUser/ChooseMedia';
 import WriteOrEditLetter from '../screens/AuthUser/WriteOrEditLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
@@ -35,6 +36,13 @@ const AuthNavigation = () => {
           component={AddNewPet}
           options={{
             headerTitle: '별이 된 아이',
+          }}
+        />
+        <Stack.Screen
+          name={'SetAccessLevel'}
+          component={SetAccessLevel}
+          options={{
+            headerTitle: '추모공간 접근 설정',
           }}
         />
         <Stack.Screen
