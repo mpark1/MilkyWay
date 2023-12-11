@@ -9,8 +9,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import globalStyle from '../../../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../../../assets/styles/scaling';
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
 
 const ChooseMedia = ({navigation}) => {
   const [mediaType, setMediaType] = useState('');
@@ -24,8 +24,11 @@ const ChooseMedia = ({navigation}) => {
     {label: '관련없음', value: -1},
   ]);
 
+  const mediaTypeRef = useRef(mediaType);
+
   useEffect(() => {
     console.log('Media Type Updated:', mediaType);
+    mediaTypeRef.current = mediaType;
   }, [mediaType]);
 
   const snapPoints = useMemo(() => ['25%'], []);
@@ -45,30 +48,47 @@ const ChooseMedia = ({navigation}) => {
   );
 
   const onLaunchGallery = () => {
-    let imageList = [];
+    let mediaList = [];
+
+    console.log('media type inside onLaunchGallery: ', mediaTypeRef.current);
 
     ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaType === 'photo' ? 10 : 1,
-      mediaType: mediaType,
+      maxFiles: mediaTypeRef.current === 'photo' ? 10 : 1,
+      mediaType: mediaTypeRef.current,
     })
       .then(response => {
-        response.map(image => {
-          imageList.push({
-            uri: image.sourceURL,
+        response.map(media => {
+          mediaList.push({
+            uri: media.sourceURL,
           });
         });
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
-          mediaType: mediaType,
-          imageList: imageList,
+          mediaType: mediaTypeRef.current,
+          mediaList: mediaList,
         });
       })
       .catch(e => console.log('Error: ', e.message));
   };
 
   const onLaunchCamera = () => {
-    ImagePicker.openCamera({});
+    let singleMedia = [];
+    ImagePicker.openCamera({
+      // width:300,
+      // height:400,
+      mediaType: mediaTypeRef.current,
+      cropping: mediaTypeRef.current === 'photo', // cropping은 사진만 가능하게 (안드로이드에서 영상 크롭 안됨)
+    })
+      .then(response => {
+        singleMedia.push(response);
+        bottomSheetModalRef.current?.close();
+        navigation.navigate('MediaPreview', {
+          mediaType: mediaTypeRef.current,
+          mediaList: singleMedia,
+        });
+      })
+      .catch(e => console.log('Error: ', e.message));
   };
 
   const renderBottomSheetModalInner = useCallback(() => {
@@ -76,8 +96,7 @@ const ChooseMedia = ({navigation}) => {
       <View style={styles.bottomSheet.inner}>
         <Pressable
           style={styles.bottomSheet.icons}
-          // onPress={()=>onLaunchCamera()}
-        >
+          onPress={() => onLaunchCamera()}>
           <Entypo name={'camera'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>카메라</Text>
         </Pressable>

@@ -1,11 +1,11 @@
 import React, {useCallback, useState} from 'react';
 import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 
-import ShortLetterPreview from '../../../../components/Letters/ShortLetterPreview';
-import LongLetterPreview from '../../../../components/Letters/LongLetterPreview';
-import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
-import mockData from '../../../../data/letters.json';
-import {pagination} from '../../../../utils/pagination';
+import ShortLetterPreview from '../../../components/Letters/ShortLetterPreview';
+import LongLetterPreview from '../../../components/Letters/LongLetterPreview';
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
+import mockData from '../../../data/letters.json';
+import {pagination} from '../../../utils/pagination';
 
 const Letters = ({navigation}) => {
   const pageSize = 2;

@@ -1,17 +1,17 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {View, Dimensions, StyleSheet, FlatList} from 'react-native';
-import {pagination} from '../../../../utils/pagination';
-import mockData from '../../../../data/guestBook.json';
-import ShortGuestBookMessage from '../../../../components/ShortGuestBookMessage';
+import {pagination} from '../../../utils/pagination';
+import mockData from '../../../data/guestBook.json';
+import ShortGuestBookMessage from '../../../components/ShortGuestBookMessage';
 import {Button} from '@rneui/base';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import {scaleFontSize} from '../../../../assets/styles/scaling';
-import globalStyle from '../../../../assets/styles/globalStyle';
-import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
+import {scaleFontSize} from '../../../assets/styles/scaling';
+import globalStyle from '../../../assets/styles/globalStyle';
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 2;

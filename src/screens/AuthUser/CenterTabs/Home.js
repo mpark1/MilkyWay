@@ -7,10 +7,10 @@ import {
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 
-import DashedBorderButton from '../../../../components/Buttons/DashedBorderButton';
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 
-import globalStyle from '../../../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../../../assets/styles/scaling';
+import globalStyle from '../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Home = ({navigation, route}) => {
   const {lastWord} = route.params;

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -7,33 +7,48 @@ import {
   Pressable,
   Dimensions,
   Alert,
+  Image,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DatePicker from 'react-native-date-picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-
-import BlueButton from '../../components/Buttons/BlueButton';
+import Backdrop from '../../components/Backdrop';
 import {getCurrentDate, isValidBirthdayDeathDay} from '../../utils/utils';
 
-const AddNewPet = ({navigation}) => {
-  const [name, setName] = useState('');
-  const [lastWord, setLastWord] = useState('');
+import {
+  cameraOption,
+  imageLibraryOption,
+} from '../../constants/imagePickerOptions';
 
+import PetTypes from '../../data/PetTypes.json';
+import deathCauses from '../../data/deathCauses.json';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {Button} from '@rneui/base';
+
+const AddNewPet = () => {
+  const [profilePic, setProfilePic] = useState('');
+  const snapPoints = useMemo(() => ['30%'], []);
+  const bottomSheetModalRef = useRef(null);
+  const [value, setValue] = useState(null);
+  const petOptions = Object.keys(PetTypes).map(key => ({
+    label: key,
+    value: key,
+  }));
+  const [value2, setValue2] = useState(null);
+  const deathOptions = deathCauses.map(item => ({
+    label: item,
+    value: item,
+  }));
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
   const currentDateInString = getCurrentDate();
-  const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
-  const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
-
-  const onChangeName = useCallback(text => {
-    const trimmedText = text.trim();
-    setName(trimmedText);
-  }, []);
-
-  const onChangeLastWord = useCallback(text => {
-    setLastWord(text);
-  }, []);
 
   const onChangeDate = useCallback((date, option) => {
     option === 'birthday'
@@ -51,32 +66,92 @@ const AddNewPet = ({navigation}) => {
       : setDeathDayString(localDateString);
   }, []);
 
-  const [birthdayString, setBirthdayString] = useState('YYYY-MM-DD');
-  const [birthday, setBirthday] = useState(new Date());
-  const [deathDayString, setDeathDayString] = useState('YYYY-MM-DD');
-  const [deathDay, setDeathDay] = useState(new Date());
+  const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
+  const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
 
-  const renderNameField = () => {
+  const [birthdayString, setBirthdayString] = useState('YYYY-MM-DD');
+  const [deathDayString, setDeathDayString] = useState('YYYY-MM-DD');
+
+  const [birthday, setBirthday] = useState(new Date(currentDateInString));
+  const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
+
+  const canGoNext = value && value2 && birthday && deathDay;
+  const onResponseFromCameraOrGallery = res => {
+    if (res.didCancel || !res) {
+      return;
+    }
+    const uri = res.assets[0].uri;
+    console.log('uri: ', uri);
+    bottomSheetModalRef.current?.close();
+    setProfilePic(uri);
+  };
+
+  const onLaunchCamera = () => {
+    launchCamera(cameraOption, onResponseFromCameraOrGallery);
+  };
+
+  const onLaunchImageLibrary = () => {
+    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
+  };
+
+  const renderBackdrop = useCallback(
+    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
+    [],
+  );
+
+  const renderBottomSheetModalInner = useCallback(() => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.04}}>
-        <View style={styles.flexDirectionRow}>
-          <Text style={styles.label}>이름*</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder={'이름을 입력해주세요'}
-            placeholderTextColor={'#939393'}
-            onChangeText={onChangeName}
-            autoCorrect={false}
-            autoCapitalize={'none'}
-            value={name}
-            blurOnSubmit={true}
-            clearButtonMode={'while-editing'}
-          />
-        </View>
+      <View style={styles.bottomSheet.inner}>
+        <Pressable
+          style={styles.bottomSheet.icons}
+          onPress={() => onLaunchCamera()}>
+          <Entypo name={'camera'} size={50} color={'#374957'} />
+          <Text style={{color: '#000'}}>카메라</Text>
+        </Pressable>
+        <Pressable
+          style={styles.bottomSheet.icons}
+          onPress={() => onLaunchImageLibrary()}>
+          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
+          <Text style={{color: '#000'}}>갤러리</Text>
+        </Pressable>
+      </View>
+    );
+  }, []);
+
+  const renderBottomSheetModal = useCallback(() => {
+    return (
+      <BottomSheetModal
+        handleIndicatorStyle={styles.hideBottomSheetHandle}
+        handleStyle={styles.hideBottomSheetHandle}
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        children={renderBottomSheetModalInner()}
+      />
+    );
+  }, []);
+
+  const renderProfilePicField = () => {
+    return (
+      <View style={styles.profilePicAndButtonWrapper}>
+        {profilePic ? (
+          <View style={styles.profilePicPlaceholder}>
+            <Image style={styles.profilePic} source={{uri: profilePic}} />
+          </View>
+        ) : (
+          <View style={styles.profilePicPlaceholder} />
+        )}
+        <Pressable
+          onPress={() => bottomSheetModalRef.current?.present()}
+          style={styles.addProfilePicButton}>
+          <View style={styles.addProfilePicButton} />
+          <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
+        </Pressable>
       </View>
     );
   };
-
   const renderDatePicker = option => {
     return (
       <DatePicker
@@ -100,9 +175,25 @@ const AddNewPet = ({navigation}) => {
     );
   };
 
+  const renderNameField = () => {
+    return (
+      <View style={styles.containerForInput}>
+        <View style={styles.flexDirectionRow}>
+          <Text style={styles.label}>이름*</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder={'이름을 입력해주세요'}
+            placeholderTextColor={'#939393'}
+            autoCorrect={false}
+          />
+        </View>
+      </View>
+    );
+  };
+
   const renderBirthdayField = () => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.04}}>
+      <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.label}>생일*</Text>
           <Pressable
@@ -118,7 +209,7 @@ const AddNewPet = ({navigation}) => {
 
   const renderDeathDayField = () => {
     return (
-      <View style={{marginBottom: Dimensions.get('window').height * 0.03}}>
+      <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.label}>기일*</Text>
           <Pressable
@@ -137,63 +228,92 @@ const AddNewPet = ({navigation}) => {
       <View>
         <Text style={styles.label}>멀리 떠나는 아이에게 전하는 인사말</Text>
         <TextInput
-          style={styles.lastWord.textInput}
-          placeholder={'예: 천사같은 마루 이제 편히 잠들기를.... (최대 30자)'}
-          placeholderTextColor={'#939393'}
-          multiline={true}
-          textAlign={'left'}
-          textAlignVertical={'top'}
-          maxLength={30}
+          style={styles.lastWord}
+          placeholder={'예: 천사같은 아이, 편히 잠들기를 (25자이내)'}
           autoCorrect={false}
-          autoCapitalize={'none'}
-          blurOnSubmit={true}
-          clearButtonMode={'while-editing'}
-          onChangeText={onChangeLastWord}
-          value={lastWord}
+          placeholderTextColor={'#d9d9d9'}
+          maxLength={25}
         />
       </View>
     );
   };
+  const renderPetTypeField = () => {
+    return (
+      <View style={styles.containerForInput}>
+        <View style={styles.animalType}>
+          <Text style={styles.label}>동물종류*</Text>
+          <DropDownPicker
+            containerStyle={styles.dropDownPicker.containerStyle}
+            style={styles.dropDownPicker.borderStyle}
+            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
+            textStyle={{fontSize: scaleFontSize(18)}}
+            multiple={false}
+            placeholderStyle={styles.dropDownPicker.placeholder}
+            items={petOptions}
+            placeholder={'동물 종류를 선택해 주세요'}
+            setValue={setValue}
+            value={value}
+            open={open}
+            setOpen={setOpen}
+            zIndex={3000}
+            listMode="SCROLLVIEW"
+          />
+        </View>
+      </View>
+    );
+  };
 
-  const goNext = useCallback(() => {
-    if (birthdayString > deathDayString) {
-      return Alert.alert('생일과 기일을 다시 한번 확인해주세요', '', [
-        {
-          text: '확인',
-        },
-      ]);
-    }
-    navigation.navigate('SetAccessLevel', {
-      name: name,
-      birthday: birthdayString,
-      deathDay: deathDayString,
-      lastWord: lastWord,
-    });
-  }, [birthdayString, deathDayString, name, lastWord]);
-
-  const canGoNext =
-    name && birthdayString !== 'YYYY-MM-DD' && deathDayString !== 'YYYY-MM-DD';
+  const renderDeathCausesField = () => {
+    return (
+      <View style={styles.containerForInput2}>
+        <View style={styles.animalType}>
+          <Text style={styles.label}>별이된 이유*</Text>
+          <DropDownPicker
+            containerStyle={styles.dropDownPicker.containerStyle}
+            style={styles.dropDownPicker.borderStyle}
+            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
+            textStyle={{fontSize: scaleFontSize(18)}}
+            multiple={false}
+            placeholderStyle={styles.dropDownPicker.placeholder}
+            items={deathOptions}
+            placeholder={'별이된 이유를 알려주세요'}
+            setValue={setValue2}
+            value={value2}
+            open={open2}
+            setOpen={setOpen2}
+            zIndex={1000}
+            listMode="SCROLLVIEW"
+            dropDownDirection="BOTTOM"
+          />
+        </View>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite, {padding: 20}]}>
-      <View style={styles.profilePicAndButtonWrapper}>
-        <View style={styles.profilePicPlaceholder} />
-        <View style={styles.addProfilePicButton}>
-          <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
-        </View>
-      </View>
-
+      {renderProfilePicField()}
       <View style={styles.inputFieldsContainer}>
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
+        {renderPetTypeField()}
+        {renderDeathCausesField()}
         {renderLastWordField()}
-        <Text style={styles.requiredText}>*필수 기입 항목입니다.</Text>
+        <Text style={{paddingTop: 8}}>*필수기입 항목</Text>
+        <View style={styles.blueButton}>
+          <Button
+            disabled={!canGoNext}
+            title={'등록하기'}
+            titleStyle={styles.submitButton.titleStyle}
+            containerStyle={styles.submitButton.containerStyle}
+            buttonStyle={globalStyle.backgroundBlue}
+            //onPress={onSubmit}
+          />
+        </View>
       </View>
-      <View style={styles.blueButtonContainer}>
-        <BlueButton disabled={!canGoNext} title={'다음'} onPress={goNext} />
-      </View>
+      {renderBottomSheetModal()}
     </KeyboardAwareScrollView>
   );
 };
@@ -202,67 +322,121 @@ export default AddNewPet;
 
 const styles = StyleSheet.create({
   profilePicAndButtonWrapper: {
-    width: Dimensions.get('window').width * 0.36,
-    height: Dimensions.get('window').width * 0.36,
+    width: 130,
+    height: 130,
     alignSelf: 'center',
   },
+  containerForInput: {
+    marginBottom: Dimensions.get('window').height * 0.025,
+    zIndex: 3000,
+  },
+  containerForInput2: {
+    marginBottom: Dimensions.get('window').height * 0.025,
+    zIndex: 2000,
+  },
   profilePicPlaceholder: {
-    width: Dimensions.get('window').width * 0.35,
-    height: Dimensions.get('window').width * 0.35,
-    borderRadius: (Dimensions.get('window').width * 0.35) / 2,
+    width: 120,
+    height: 120,
+    borderRadius: 120 / 2,
     backgroundColor: '#EEEEEE',
     alignSelf: 'center',
   },
+  profilePic: {width: '100%', height: '100%', borderRadius: 120 / 2},
   addProfilePicButton: {
     position: 'absolute',
-    bottom: 0,
-    right: Dimensions.get('window').width * 0.02,
+    bottom: 10,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 30,
   },
   inputFieldsContainer: {
-    width: '95%',
-    marginVertical: Dimensions.get('window').height * 0.05,
+    width: '90%',
+    marginVertical: 18,
     alignSelf: 'center',
   },
   flexDirectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   label: {
     fontSize: scaleFontSize(18),
-    paddingRight: 30,
+    paddingRight: 20,
     color: '#000',
   },
   textInput: {
-    borderWidth: 1,
-    borderColor: '#d9d9d9',
-    flex: 1,
-    borderRadius: 5,
-    padding: 10,
-    fontSize: scaleFontSize(16),
+    color: '#000',
+    borderColor: '#939393',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flex: 0.8,
+    padding: 6,
+    fontSize: scaleFontSize(18),
     textAlign: 'center',
+    alignSelf: 'flex-end',
   },
   datePlaceholder: {
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     color: '#939393',
     textAlign: 'center',
   },
   lastWord: {
-    textInput: {
-      paddingHorizontal: 10,
-      paddingVertical: 3,
-      borderWidth: 1,
-      borderColor: '#d9d9d9',
-      borderRadius: 5,
-      height: Dimensions.get('window').height * 0.08,
-      marginVertical: Dimensions.get('window').height * 0.01,
-      fontSize: scaleFontSize(16),
-      lineHeight: scaleFontSize(20),
+    marginTop: 10,
+    marginBottom: 2,
+    fontSize: scaleFontSize(18),
+    color: '#939393',
+    borderColor: '#939393',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  bottomSheet: {
+    inner: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+    },
+    icons: {
+      width: 80,
+      height: 80,
+      alignItems: 'center',
     },
   },
-  requiredText: {},
-  blueButtonContainer: {
-    width: Dimensions.get('window').width * 0.27,
+  hideBottomSheetHandle: {
+    height: 0,
+  },
+  animalType: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropDownPicker: {
+    containerStyle: {
+      width: '65%',
+      maxHeight: 40,
+      backgroundColor: '#fff',
+    },
+    borderStyle: {
+      borderRadius: 5,
+      borderColor: '#d9d9d9',
+      minHeight: 40,
+      padding: 8,
+      fontSize: scaleFontSize(18),
+    },
+    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+  },
+  blueButton: {
+    marginVertical: Dimensions.get('window').height * 0.03,
     alignSelf: 'center',
-    paddingVertical: Dimensions.get('window').height * 0.006,
+  },
+  submitButton: {
+    titleStyle: {
+      fontSize: scaleFontSize(16),
+      color: '#FFF',
+      fontWeight: '700',
+      paddingVertical: 5,
+      paddingHorizontal: 25,
+    },
+    containerStyle: {
+      borderRadius: 10,
+    },
   },
 });

@@ -12,21 +12,21 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-import globalStyle from '../../../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../../../assets/styles/scaling';
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
 
-import BlueButton from '../../../../components/Buttons/BlueButton';
+import BlueButton from '../../components/Buttons/BlueButton';
 
 const MediaPreview = ({navigation, route}) => {
-  const {mediaType, imageList: initialImageList} = route.params;
-  const [imageList, setImageList] = useState(initialImageList);
+  const {mediaType, mediaList: initialMediaList} = route.params;
+  const [mediaList, setMediaList] = useState(initialMediaList);
   console.log('mediaType: ', mediaType);
-  console.log('imageList: ', imageList);
+  console.log('imageList: ', mediaList);
 
   const handleRemoveItem = index => {
-    const updatedList = [...imageList];
+    const updatedList = [...mediaList];
     updatedList.splice(index, 1);
-    setImageList(updatedList);
+    setMediaList(updatedList);
   };
 
   const renderFlatList = useCallback(() => {
@@ -34,7 +34,7 @@ const MediaPreview = ({navigation, route}) => {
       <FlatList
         scrollEnabled={false}
         numColumns={2}
-        data={imageList}
+        data={mediaList}
         renderItem={({item, index}) => {
           return (
             <View style={styles.imageContainer}>
@@ -53,7 +53,7 @@ const MediaPreview = ({navigation, route}) => {
         }}
       />
     );
-  }, [imageList]);
+  }, [mediaList]);
 
   const renderStoryField = () => {
     return (
@@ -80,7 +80,7 @@ const MediaPreview = ({navigation, route}) => {
       <View style={styles.submitButton}>
         <BlueButton
           title={'등록하기'}
-          disabled={imageList.length === 0}
+          disabled={mediaList.length === 0}
           // onPress={}
         />
       </View>
@@ -95,7 +95,7 @@ const MediaPreview = ({navigation, route}) => {
           {mediaType === 'photo' ? '사진' : '영상'}
         </Text>
         <View style={styles.flatListContainer}>
-          {imageList.length > 0 ? (
+          {mediaList.length > 0 ? (
             renderFlatList()
           ) : (
             <Text style={styles.noImagesOrVideo}>
