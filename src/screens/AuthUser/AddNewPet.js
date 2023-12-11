@@ -7,7 +7,6 @@ import {
   Pressable,
   Dimensions,
   Image,
-  ScrollView,
 } from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -27,8 +26,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import PetTypes from '../../data/PetTypes.json';
 import deathCauses from '../../data/deathCauses.json';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import BlueButton from '../../components/Buttons/BlueButton';
 import {Button} from '@rneui/base';
+import AlertBox from '../../components/AlertBox';
 
 const AddNewPet = () => {
   const [profilePic, setProfilePic] = useState('');
@@ -47,32 +46,24 @@ const AddNewPet = () => {
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const currentDateInString = getCurrentDate();
-  const onChangeDate = useCallback((date, option) => {
-    option === 'birthday'
-      ? setIsBirthdayPickerOpen(false)
-      : setIsDeathDayPickerOpen(false);
-    const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
-    );
-
-    const localDateString = localDate.toISOString().split('T')[0];
-
-    option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
-    option === 'birthday'
-      ? setBirthdayString(localDateString)
-      : setDeathDayString(localDateString);
-  }, []);
 
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
   const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
 
-  const [birthdayString, setBirthdayString] = useState('YYYY-MM-DD');
-  const [deathDayString, setDeathDayString] = useState('YYYY-MM-DD');
+  const [birthdayString, setBirthdayString] = useState('1920-01-01');
+  const [deathDayString, setDeathDayString] = useState(currentDateInString + 1);
 
   const [birthday, setBirthday] = useState(new Date(currentDateInString));
   const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
 
-  const canGoNext = value && value2 && birthday && deathDay;
+  const [petName, setPetName] = useState('');
+
+  const canGoNext =
+    petName &&
+    value &&
+    value2 &&
+    birthdayString !== 'YYYY-MM-DD' &&
+    deathDayString !== 'YYYY-MM-DD';
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
       return;
@@ -149,6 +140,23 @@ const AddNewPet = () => {
       </View>
     );
   };
+
+  const onChangeDate = (date, option) => {
+    option === 'birthday'
+      ? setIsBirthdayPickerOpen(false)
+      : setIsDeathDayPickerOpen(false);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+
+    const localDateString = localDate.toISOString().split('T')[0];
+
+    option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
+    option === 'birthday'
+      ? setBirthdayString(localDateString)
+      : setDeathDayString(localDateString);
+  };
+
   const renderDatePicker = option => {
     return (
       <DatePicker
@@ -159,7 +167,16 @@ const AddNewPet = () => {
           option === 'birthday' ? isBirthdayPickerOpen : isDeathDayPickerOpen
         }
         date={option === 'birthday' ? birthday : deathDay}
-        maximumDate={new Date(currentDateInString)}
+        maximumDate={
+          option === 'birthday'
+            ? new Date(deathDayString)
+            : new Date(currentDateInString)
+        }
+        minimumDate={
+          option === 'deathDay'
+            ? new Date(birthdayString)
+            : new Date('1920-01-01')
+        }
         onConfirm={newDate => {
           onChangeDate(newDate, option);
         }}
@@ -182,6 +199,9 @@ const AddNewPet = () => {
             placeholder={'이름을 입력해주세요'}
             placeholderTextColor={'#939393'}
             autoCorrect={false}
+            onChangeText={text => {
+              setPetName(text);
+            }}
           />
         </View>
       </View>
@@ -196,7 +216,12 @@ const AddNewPet = () => {
           <Pressable
             style={styles.textInput}
             onPress={() => setIsBirthdayPickerOpen(true)}>
-            <Text style={styles.datePlaceholder}>{birthdayString}</Text>
+            <Text style={styles.datePlaceholder}>
+              {' '}
+              {birthdayString !== '1920-01-01'
+                ? birthdayString
+                : '날짜를 선택해 주세요'}
+            </Text>
             {renderDatePicker('birthday')}
           </Pressable>
         </View>
@@ -212,7 +237,12 @@ const AddNewPet = () => {
           <Pressable
             style={styles.textInput}
             onPress={() => setIsDeathDayPickerOpen(true)}>
-            <Text style={styles.datePlaceholder}>{deathDayString}</Text>
+            <Text style={styles.datePlaceholder}>
+              {' '}
+              {deathDayString !== currentDateInString + 1
+                ? deathDayString
+                : '날짜를 선택해 주세요'}
+            </Text>
             {renderDatePicker('deathDay')}
           </Pressable>
         </View>
@@ -306,7 +336,7 @@ const AddNewPet = () => {
             titleStyle={styles.submitButton.titleStyle}
             containerStyle={styles.submitButton.containerStyle}
             buttonStyle={globalStyle.backgroundBlue}
-            //onPress={onSubmit}
+            //onPress={navigation.navigate("")}
           />
         </View>
       </View>
