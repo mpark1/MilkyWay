@@ -28,7 +28,6 @@ const PetPage = ({navigation}) => {
   const [petInfo, setPetInfo] = useState({});
   const userID = useSelector(state => state.user.cognitoUsername);
   const petID = useSelector(state => state.user.currentPetID);
-  const pageSize = 3;
 
   useEffect(() => {
     const fetchPet = async () => {
@@ -47,7 +46,7 @@ const PetPage = ({navigation}) => {
       }
     };
     fetchPet().then(response => setPetInfo(response));
-  }, []);
+  }, [petID]);
 
   const renderBellEnvelopeSettingsIcons = () => {
     return (

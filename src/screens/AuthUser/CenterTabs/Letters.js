@@ -4,7 +4,6 @@ import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 import ShortLetterPreview from '../../../components/Letters/ShortLetterPreview';
 import LongLetterPreview from '../../../components/Letters/LongLetterPreview';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-import mockData from '../../../data/letters.json';
 import {pagination} from '../../../utils/pagination';
 import {useSelector} from 'react-redux';
 import {generateClient} from 'aws-amplify/api';
@@ -13,10 +12,13 @@ import {listLetters} from '../../../graphql/queries';
 const Letters = ({navigation}) => {
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
-  const [nextToken, setNextToken] = useState('');
-  const [letters, setLetters] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [renderedLetters, setRenderedLetters] = useState(mockData.slice(0, 2));
+  // const [nextToken, setNextToken] = useState('');
+  const [lettersData, setLettersData] = useState({
+    letters: [],
+    nextToken: null,
+  });
+  // const [pageNumber, setPageNumber] = useState(1);
+  // const [renderedLetters, setRenderedLetters] = useState([]);
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
 
   const fetchLetters = async () => {
@@ -24,41 +26,46 @@ const Letters = ({navigation}) => {
       const client = generateClient();
       const response = await client.graphql({
         query: listLetters,
-        variables: {petID: petID, limit: pageSize, nextToken: nextToken},
+        variables: {
+          petID: petID,
+          limit: pageSize,
+          nextToken: lettersData.nextToken,
+        },
         authMode: 'userPool',
       });
-      const {items, nextToken} = response.data.listLetters;
-      console.log('letters and nextToken from db: ', items, nextToken);
-      // set retrieved letters and nextToken
-      setNextToken(nextToken);
-      setLetters(items);
+      console.log('response from fetch Letters: ', response.data.listLetters);
+      const {items, nextToken: newNextToken} = response.data.listLetters;
+      setLettersData(prev => ({
+        letters: [...prev.letters, ...items],
+        nextToken: newNextToken,
+      }));
     } catch (error) {
-      console.log('error for getting pets from db: ', error);
+      console.log('error for getting letters from db: ', error);
     }
   };
 
   useEffect(() => {
     fetchLetters();
-  }, [petID]);
+  }, []);
 
   const renderFlatListItem = useCallback(({item}) => {
     return item.content.length > 60 ? (
       <LongLetterPreview
-        profilePic={item.profilePic}
+        // profilePic={item.profilePic}
         title={item.title}
         relationship={item.relationship}
-        name={item.name}
+        name={'이름'}
         content={item.content}
-        timestamp={item.timestamp}
+        timestamp={item.createdAt}
       />
     ) : (
       <ShortLetterPreview
-        profilePic={item.profilePic}
+        // profilePic={item.profilePic}
         title={item.title}
         relationship={item.relationship}
-        name={item.name}
+        name={'이름'}
         content={item.content}
-        timestamp={item.timestamp}
+        timestamp={item.createdAt}
       />
     );
   }, []);
@@ -92,13 +99,14 @@ const Letters = ({navigation}) => {
     if (!isLoadingLetters) {
       setIsLoadingLetters(true);
       await fetchLetters();
-      setRenderedLetters(prev => [
-        ...prev,
-        ...pagination(mockData, pageNumber + 1, pageSize, setPageNumber),
-      ]);
+      // setRenderedLetters(prev => [
+      //   ...prev,
+      //   ...pagination(mockData, pageNumber + 1, pageSize),
+      // ]);
+      // setPageNumber(prevPage => prevPage + 1);
       setIsLoadingLetters(false);
     }
-  }, [isLoadingLetters, pageNumber]);
+  }, [isLoadingLetters]);
 
   return (
     <View style={styles.flatListContainer}>
@@ -107,7 +115,7 @@ const Letters = ({navigation}) => {
         onMomentumScrollBegin={() => setIsLoadingLetters(false)}
         onEndReachedThreshold={0.7}
         onEndReached={onEndReached}
-        data={renderedLetters}
+        data={lettersData.letters}
         renderItem={renderFlatListItem}
         ListHeaderComponent={renderWriteLetterButton}
       />
