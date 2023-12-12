@@ -12,27 +12,25 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
+import ages from '../../data/ages.json';
+
 const ChooseMedia = ({navigation}) => {
   const [mediaType, setMediaType] = useState('');
-  const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const [selectedAge, setSelectedAge] = useState(-2);
-  const [items, setItems] = useState([
-    {label: '유아기', value: 0},
-    {label: '청소년기', value: 1},
-    {label: '장년기', value: 2},
-    {label: '노년기', value: 3},
-    {label: '관련없음', value: -1},
-  ]);
-
   const mediaTypeRef = useRef(mediaType);
-
-  useEffect(() => {
-    console.log('Media Type Updated:', mediaType);
-    mediaTypeRef.current = mediaType;
-  }, [mediaType]);
+  const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
+  const [age, setAge] = useState('');
+  const ageOptions = ages.map(item => ({
+    label: item,
+    value: item,
+  }));
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
+
+  useEffect(() => {
+    // console.log('Media Type Updated:', mediaType);
+    mediaTypeRef.current = mediaType;
+  }, [mediaType]);
 
   const renderBackdrop = useCallback(
     props => (
@@ -54,11 +52,12 @@ const ChooseMedia = ({navigation}) => {
 
     ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaTypeRef.current === 'photo' ? 10 : 1,
+      maxFiles: mediaTypeRef.current === 'photo' ? 4 : 1,
       mediaType: mediaTypeRef.current,
+      cropping: true,
     })
       .then(response => {
-        response.map(media => {
+        response.forEach(media => {
           mediaList.push({
             uri: media.sourceURL,
           });
@@ -67,6 +66,7 @@ const ChooseMedia = ({navigation}) => {
         navigation.navigate('MediaPreview', {
           mediaType: mediaTypeRef.current,
           mediaList: mediaList,
+          age: age,
         });
       })
       .catch(e => console.log('Error: ', e.message));
@@ -86,6 +86,7 @@ const ChooseMedia = ({navigation}) => {
         navigation.navigate('MediaPreview', {
           mediaType: mediaTypeRef.current,
           mediaList: singleMedia,
+          age: age,
         });
       })
       .catch(e => console.log('Error: ', e.message));
@@ -146,7 +147,7 @@ const ChooseMedia = ({navigation}) => {
           }}
           icon={plusButton}
         />
-        <Text style={styles.dashedBorderButton.guide}>(최대 10장)</Text>
+        <Text style={styles.dashedBorderButton.guide}>(최대 4장)</Text>
       </View>
     );
   };
@@ -191,9 +192,9 @@ const ChooseMedia = ({navigation}) => {
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'연령을 선택해주세요'}
-          setValue={setSelectedAge}
-          value={selectedAge}
-          items={items}
+          items={ageOptions}
+          setValue={setAge}
+          value={age}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
         />
