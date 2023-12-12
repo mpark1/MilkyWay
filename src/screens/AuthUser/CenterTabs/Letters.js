@@ -10,7 +10,7 @@ import {generateClient} from 'aws-amplify/api';
 import {listLetters} from '../../../graphql/queries';
 
 const Letters = ({navigation}) => {
-  const pageSize = 3;
+  const pageSize = 4;
   const petID = useSelector(state => state.user.currentPetID);
   // const [nextToken, setNextToken] = useState('');
   const [lettersData, setLettersData] = useState({
@@ -95,7 +95,7 @@ const Letters = ({navigation}) => {
     );
   }, []);
 
-  const onEndReached = useCallback(async () => {
+  const onEndReached = async () => {
     if (!isLoadingLetters) {
       setIsLoadingLetters(true);
       await fetchLetters();
@@ -106,14 +106,14 @@ const Letters = ({navigation}) => {
       // setPageNumber(prevPage => prevPage + 1);
       setIsLoadingLetters(false);
     }
-  }, [isLoadingLetters]);
+  };
 
   return (
     <View style={styles.flatListContainer}>
       <FlatList
         showsVerticalScrollIndicator={false}
         onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-        onEndReachedThreshold={0.7}
+        onEndReachedThreshold={0.8}
         onEndReached={onEndReached}
         data={lettersData.letters}
         renderItem={renderFlatListItem}

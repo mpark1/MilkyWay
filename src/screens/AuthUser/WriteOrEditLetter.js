@@ -8,7 +8,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import {Button} from '@rneui/base';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {generateClient} from 'aws-amplify/api';
-import {createLetter} from '../../graphql/mutations';
+import {createLetter, updateLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
 import AlertBox from '../../components/AlertBox';
 
@@ -142,7 +142,7 @@ const WriteOrEditLetter = ({navigation, route}) => {
     );
   }, [actionType, message]);
 
-  const uploadLettertoDB = async () => {
+  const uploadLettertoDB = async mutationQuery => {
     console.log('print petID before uploading letter to db: ', petID);
     console.log('checkbox before uploading to db: ', checked);
     const newLetterInput = {
@@ -158,7 +158,7 @@ const WriteOrEditLetter = ({navigation, route}) => {
         setIsCallingAPI(true);
         const client = generateClient();
         const response = await client.graphql({
-          query: createLetter,
+          query: mutationQuery,
           variables: {input: newLetterInput},
           authMode: 'userPool',
         });
@@ -175,7 +175,11 @@ const WriteOrEditLetter = ({navigation, route}) => {
   };
 
   const onSubmit = () => {
-    uploadLettertoDB();
+    if (actionType === 'write') {
+      uploadLettertoDB(createLetter);
+    } else {
+      uploadLettertoDB(updateLetter);
+    }
   };
 
   return (

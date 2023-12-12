@@ -97,6 +97,7 @@ const PetPage = ({navigation}) => {
             width: Dimensions.get('window').width * 0.25,
             paddingHorizontal: 0,
           },
+          lazy: true,
         }}>
         <centerTab.Screen
           name={'홈'}
