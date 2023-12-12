@@ -10,24 +10,19 @@ import {
 import {scaleFontSize} from '../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/core';
+import {useDispatch} from 'react-redux';
+import {setCurrentPetID} from '../redux/slices/User';
 
-const PetCard = ({profilePic, name, birthday, deathDay, lastWord}) => {
+const PetCard = ({petID, profilePic, name, birthday, deathDay, lastWord}) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   return (
     <Pressable
-      onPress={() =>
-        navigation.navigate('Pet', {
-          petID: 'Pet#1234',
-          profilePic: 'profilePic uri',
-          name: name,
-          birthday: birthday,
-          deathDay: deathDay,
-          lastWord: lastWord,
-          authorID: 'User#1111',
-          access: 'all',
-        })
-      }>
+      onPress={() => {
+        dispatch(setCurrentPetID(petID));
+        navigation.navigate('PetPage');
+      }}>
       <View style={styles.lowOpacityCard} />
       <View
         style={{
@@ -40,7 +35,7 @@ const PetCard = ({profilePic, name, birthday, deathDay, lastWord}) => {
         <View style={styles.profilePicContainer}>
           <Image
             style={styles.profilePic}
-            source={require('../assets/images/cat.jpeg')}
+            source={{uri: profilePic}}
             resizeMode={'cover'}
           />
         </View>

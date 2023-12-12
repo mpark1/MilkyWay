@@ -29,6 +29,6 @@ export default SignOutButton;
 const styles = StyleSheet.create({
   text: {
     fontSize: scaleFontSize(18),
-    color: '#FA3B3B',
+    color: '#6395E1',
   },
 });

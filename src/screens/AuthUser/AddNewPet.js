@@ -28,8 +28,11 @@ import deathCauses from '../../data/deathCauses.json';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Button} from '@rneui/base';
 import AlertBox from '../../components/AlertBox';
+import {useDispatch} from 'react-redux';
+import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
-const AddNewPet = () => {
+const AddNewPet = ({navigation}) => {
+  const dispatch = useDispatch();
   const [profilePic, setProfilePic] = useState('');
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -57,6 +60,7 @@ const AddNewPet = () => {
   const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
 
   const [petName, setPetName] = useState('');
+  const [lastWord, setLastWord] = useState('');
 
   const canGoNext =
     petName &&
@@ -260,6 +264,7 @@ const AddNewPet = () => {
           autoCorrect={false}
           placeholderTextColor={'#d9d9d9'}
           maxLength={25}
+          onChangeText={text => setLastWord(text)}
         />
       </View>
     );
@@ -317,6 +322,20 @@ const AddNewPet = () => {
     );
   };
 
+  const onSubmit = () => {
+    const petDetails = {
+      name: petName,
+      birthday: birthdayString,
+      deathDay: deathDayString,
+      petType: value,
+      profilePic: profilePic,
+      deathCause: value2,
+      lastWord: lastWord,
+    };
+    dispatch(setNewPetGeneralInfo(petDetails));
+    navigation.navigate('SetAccessLevel');
+  };
+
   return (
     <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite, {padding: 20}]}>
@@ -332,11 +351,11 @@ const AddNewPet = () => {
         <View style={styles.blueButton}>
           <Button
             disabled={!canGoNext}
-            title={'등록하기'}
+            title={'계속하기'}
             titleStyle={styles.submitButton.titleStyle}
             containerStyle={styles.submitButton.containerStyle}
             buttonStyle={globalStyle.backgroundBlue}
-            //onPress={navigation.navigate("")}
+            onPress={() => onSubmit()}
           />
         </View>
       </View>

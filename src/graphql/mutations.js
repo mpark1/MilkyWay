@@ -9,15 +9,15 @@ export const createPet = /* GraphQL */ `
     createPet(input: $input, condition: $condition) {
       id
       SK
-      entity
       profilePic
       name
       birthday
       deathDay
       lastWord
       accessLevel
-      introductionMsg
       state
+      deathCause
+      petType
       managerID
       createdAt
       updatedAt
@@ -34,16 +34,61 @@ export const updatePet = /* GraphQL */ `
     updatePet(input: $input, condition: $condition) {
       id
       SK
-      entity
       profilePic
       name
       birthday
       deathDay
       lastWord
       accessLevel
-      introductionMsg
       state
+      deathCause
+      petType
       managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const createPetIntroduction = /* GraphQL */ `
+  mutation CreatePetIntroduction(
+    $input: CreatePetIntroductionInput!
+    $condition: ModelPetIntroductionConditionInput
+  ) {
+    createPetIntroduction(input: $input, condition: $condition) {
+      petID
+      introductionMsg
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const updatePetIntroduction = /* GraphQL */ `
+  mutation UpdatePetIntroduction(
+    $input: UpdatePetIntroductionInput!
+    $condition: ModelPetIntroductionConditionInput
+  ) {
+    updatePetIntroduction(input: $input, condition: $condition) {
+      petID
+      introductionMsg
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deletePetIntroduction = /* GraphQL */ `
+  mutation DeletePetIntroduction(
+    $input: DeletePetIntroductionInput!
+    $condition: ModelPetIntroductionConditionInput
+  ) {
+    deletePetIntroduction(input: $input, condition: $condition) {
+      petID
+      introductionMsg
       createdAt
       updatedAt
       owner
@@ -131,12 +176,10 @@ export const createLetter = /* GraphQL */ `
     createLetter(input: $input, condition: $condition) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -148,6 +191,7 @@ export const createLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename
@@ -162,12 +206,10 @@ export const updateLetter = /* GraphQL */ `
     updateLetter(input: $input, condition: $condition) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -179,6 +221,7 @@ export const updateLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename
@@ -193,12 +236,10 @@ export const deleteLetter = /* GraphQL */ `
     deleteLetter(input: $input, condition: $condition) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -210,6 +251,7 @@ export const deleteLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename

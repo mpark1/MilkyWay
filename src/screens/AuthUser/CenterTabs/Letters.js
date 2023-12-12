@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 
 import ShortLetterPreview from '../../../components/Letters/ShortLetterPreview';
@@ -6,12 +6,40 @@ import LongLetterPreview from '../../../components/Letters/LongLetterPreview';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import mockData from '../../../data/letters.json';
 import {pagination} from '../../../utils/pagination';
+import {useSelector} from 'react-redux';
+import {generateClient} from 'aws-amplify/api';
+import {listLetters} from '../../../graphql/queries';
 
 const Letters = ({navigation}) => {
-  const pageSize = 2;
+  const pageSize = 3;
+  const petID = useSelector(state => state.user.currentPetID);
+  const [nextToken, setNextToken] = useState('');
+  const [letters, setLetters] = useState([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [renderedLetters, setRenderedLetters] = useState(mockData.slice(0, 2));
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
+
+  const fetchLetters = async () => {
+    try {
+      const client = generateClient();
+      const response = await client.graphql({
+        query: listLetters,
+        variables: {petID: petID, limit: pageSize, nextToken: nextToken},
+        authMode: 'userPool',
+      });
+      const {items, nextToken} = response.data.listLetters;
+      console.log('letters and nextToken from db: ', items, nextToken);
+      // set retrieved letters and nextToken
+      setNextToken(nextToken);
+      setLetters(items);
+    } catch (error) {
+      console.log('error for getting pets from db: ', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLetters();
+  }, [petID]);
 
   const renderFlatListItem = useCallback(({item}) => {
     return item.content.length > 60 ? (
@@ -60,9 +88,10 @@ const Letters = ({navigation}) => {
     );
   }, []);
 
-  const onEndReached = useCallback(() => {
+  const onEndReached = useCallback(async () => {
     if (!isLoadingLetters) {
       setIsLoadingLetters(true);
+      await fetchLetters();
       setRenderedLetters(prev => [
         ...prev,
         ...pagination(mockData, pageNumber + 1, pageSize, setPageNumber),

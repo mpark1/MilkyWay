@@ -5,6 +5,7 @@ const initialState = {
   profilePic: '',
   email: '',
   name: '',
+  currentPetID: '',
 };
 
 const User = createSlice({
@@ -18,9 +19,12 @@ const User = createSlice({
       state.cognitoUsername = null;
     },
     setOwnerDetails: (state, action) => {
-      state.profilePic = action.profilePic;
-      state.email = action.email;
-      state.name = action.name;
+      state.profilePic = action.payload.profilePic;
+      state.email = action.payload.email;
+      state.name = action.payload.name;
+    },
+    setCurrentPetID: (state, action) => {
+      state.currentPetID = action.payload;
     },
     signoutUser: state => {
       return {
@@ -38,5 +42,6 @@ export const {
   setOwnerDetails,
   setCognitoUserToNull,
   signoutUser,
+  setCurrentPetID,
 } = User.actions;
 export default User.reducer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -18,20 +18,36 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {generateClient} from 'aws-amplify/api';
+import {getPet, listLetters} from '../../graphql/queries';
+import {useDispatch, useSelector} from 'react-redux';
 
 const centerTab = createMaterialTopTabNavigator();
 
-const Pet = ({navigation, route}) => {
-  const {
-    petID,
-    profilePic,
-    name,
-    birthday,
-    deathDay,
-    lastWord,
-    authorID,
-    access,
-  } = route.params;
+const PetPage = ({navigation}) => {
+  const [petInfo, setPetInfo] = useState({});
+  const userID = useSelector(state => state.user.cognitoUsername);
+  const petID = useSelector(state => state.user.currentPetID);
+  const pageSize = 3;
+
+  useEffect(() => {
+    const fetchPet = async () => {
+      try {
+        const client = generateClient();
+        const response = await client.graphql({
+          query: getPet,
+          variables: {id: petID, SK: userID},
+          authMode: 'userPool',
+        });
+        const petData = response.data.getPet;
+        console.log('get selected pet data from db: ', petData);
+        return petData;
+      } catch (error) {
+        console.log('error for getting pet data from db: ', error);
+      }
+    };
+    fetchPet().then(response => setPetInfo(response));
+  }, []);
 
   const renderBellEnvelopeSettingsIcons = () => {
     return (
@@ -64,14 +80,15 @@ const Pet = ({navigation, route}) => {
         {renderBellEnvelopeSettingsIcons()}
       </View>
       <View style={styles.profileContainer}>
-        <PetProfile name={name} birthday={birthday} deathDay={deathDay} />
+        <PetProfile
+          name={petInfo.name}
+          birthday={petInfo.birthday}
+          deathDay={petInfo.deathDay}
+        />
       </View>
 
       <View style={styles.profilePicContainer}>
-        <Image
-          style={styles.profilePic}
-          source={require('../../assets/images/cat.jpeg')}
-        />
+        <Image style={styles.profilePic} source={{uri: petInfo.profilePic}} />
       </View>
       <centerTab.Navigator
         screenOptions={{
@@ -86,7 +103,8 @@ const Pet = ({navigation, route}) => {
           name={'홈'}
           component={Home}
           initialParams={{
-            lastWord: lastWord,
+            petID: petInfo.id,
+            lastWord: petInfo.lastWord,
           }}
         />
         <centerTab.Screen name={'가족의 편지'} component={Letters} />
@@ -97,7 +115,7 @@ const Pet = ({navigation, route}) => {
   );
 };
 
-export default Pet;
+export default PetPage;
 
 const styles = StyleSheet.create({
   backgroundImageContainer: {

@@ -17,16 +17,27 @@ type Pet @model (mutations: {create: "createPet", update: "updatePet"})
 {
     id: ID! @primaryKey(sortKeyFields: ["SK"])
     SK: String!
-    entity: String!
     profilePic: String
     name: String @index(name: "byName", queryField: "petByName", sortKeyFields: ["id"])
     birthday: String
     deathDay: String
     lastWord: String
     accessLevel: String @index (name: "byAccessLevel", queryField: "petsByAccessLevel")
-    introductionMsg: String
     state: petState
+    deathCause: String
+    petType: String
     managerID: ID! @index(name: "byUser", queryField: "petsByUser")
+}
+
+type PetIntroduction @model (queries: {get: "getIntroductionMessage"})
+@auth(
+    rules: [
+        { allow: owner},
+        { allow: private, operations: [read]}
+    ])
+{
+    petID: ID! @primaryKey
+    introductionMsg: String!
 }
 
 type PetFamily @model (queries: {get: "getPetFamily"},
@@ -74,12 +85,10 @@ type Letter @model
 {
     id: ID!
     petID: ID! @primaryKey(sortKeyFields:["createdAt", "id"])
-    entity: String!
     title: String!
     relationship: String!
-    createdAt: String!
-    updatedAt: String!
     content: String!
+    createdAt: String!
     author: User @hasOne
     accessLevel: letterAccessLevel!
 }

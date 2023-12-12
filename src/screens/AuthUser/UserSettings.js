@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     titleStyle: {
-      fontSize: scaleFontSize(16),
+      fontSize: scaleFontSize(18),
       color: '#FFF',
       fontWeight: '700',
       paddingVertical: 5,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
       alignSelf: 'center',
     },
     title: {
-      paddingTop: Dimensions.get('window').height * 0.03,
+      paddingTop: Dimensions.get('window').height * 0.015,
       fontSize: scaleFontSize(18),
       color: '#6395E1',
     },

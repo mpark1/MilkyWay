@@ -6,15 +6,15 @@ export const getPet = /* GraphQL */ `
     getPet(id: $id, SK: $SK) {
       id
       SK
-      entity
       profilePic
       name
       birthday
       deathDay
       lastWord
       accessLevel
-      introductionMsg
       state
+      deathCause
+      petType
       managerID
       createdAt
       updatedAt
@@ -43,15 +43,15 @@ export const listPets = /* GraphQL */ `
       items {
         id
         SK
-        entity
         profilePic
         name
         birthday
         deathDay
         lastWord
         accessLevel
-        introductionMsg
         state
+        deathCause
+        petType
         managerID
         createdAt
         updatedAt
@@ -83,15 +83,15 @@ export const petByName = /* GraphQL */ `
       items {
         id
         SK
-        entity
         profilePic
         name
         birthday
         deathDay
         lastWord
         accessLevel
-        introductionMsg
         state
+        deathCause
+        petType
         managerID
         createdAt
         updatedAt
@@ -121,15 +121,15 @@ export const petsByAccessLevel = /* GraphQL */ `
       items {
         id
         SK
-        entity
         profilePic
         name
         birthday
         deathDay
         lastWord
         accessLevel
-        introductionMsg
         state
+        deathCause
+        petType
         managerID
         createdAt
         updatedAt
@@ -159,15 +159,15 @@ export const petsByUser = /* GraphQL */ `
       items {
         id
         SK
-        entity
         profilePic
         name
         birthday
         deathDay
         lastWord
         accessLevel
-        introductionMsg
         state
+        deathCause
+        petType
         managerID
         createdAt
         updatedAt
@@ -175,6 +175,18 @@ export const petsByUser = /* GraphQL */ `
         __typename
       }
       nextToken
+      __typename
+    }
+  }
+`;
+export const getIntroductionMessage = /* GraphQL */ `
+  query GetIntroductionMessage($petID: ID!) {
+    getIntroductionMessage(petID: $petID) {
+      petID
+      introductionMsg
+      createdAt
+      updatedAt
+      owner
       __typename
     }
   }
@@ -214,12 +226,10 @@ export const getLetter = /* GraphQL */ `
     getLetter(petID: $petID, createdAt: $createdAt, id: $id) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -231,6 +241,7 @@ export const getLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename
@@ -257,13 +268,12 @@ export const listLetters = /* GraphQL */ `
       items {
         id
         petID
-        entity
         title
         relationship
-        createdAt
-        updatedAt
         content
+        createdAt
         accessLevel
+        updatedAt
         letterAuthorId
         owner
         __typename

@@ -9,15 +9,15 @@ export const onCreatePet = /* GraphQL */ `
     onCreatePet(filter: $filter, owner: $owner) {
       id
       SK
-      entity
       profilePic
       name
       birthday
       deathDay
       lastWord
       accessLevel
-      introductionMsg
       state
+      deathCause
+      petType
       managerID
       createdAt
       updatedAt
@@ -34,16 +34,61 @@ export const onUpdatePet = /* GraphQL */ `
     onUpdatePet(filter: $filter, owner: $owner) {
       id
       SK
-      entity
       profilePic
       name
       birthday
       deathDay
       lastWord
       accessLevel
-      introductionMsg
       state
+      deathCause
+      petType
       managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onCreatePetIntroduction = /* GraphQL */ `
+  subscription OnCreatePetIntroduction(
+    $filter: ModelSubscriptionPetIntroductionFilterInput
+    $owner: String
+  ) {
+    onCreatePetIntroduction(filter: $filter, owner: $owner) {
+      petID
+      introductionMsg
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onUpdatePetIntroduction = /* GraphQL */ `
+  subscription OnUpdatePetIntroduction(
+    $filter: ModelSubscriptionPetIntroductionFilterInput
+    $owner: String
+  ) {
+    onUpdatePetIntroduction(filter: $filter, owner: $owner) {
+      petID
+      introductionMsg
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeletePetIntroduction = /* GraphQL */ `
+  subscription OnDeletePetIntroduction(
+    $filter: ModelSubscriptionPetIntroductionFilterInput
+    $owner: String
+  ) {
+    onDeletePetIntroduction(filter: $filter, owner: $owner) {
+      petID
+      introductionMsg
       createdAt
       updatedAt
       owner
@@ -89,12 +134,10 @@ export const onCreateLetter = /* GraphQL */ `
     onCreateLetter(filter: $filter, owner: $owner) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -106,6 +149,7 @@ export const onCreateLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename
@@ -120,12 +164,10 @@ export const onUpdateLetter = /* GraphQL */ `
     onUpdateLetter(filter: $filter, owner: $owner) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -137,6 +179,7 @@ export const onUpdateLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename
@@ -151,12 +194,10 @@ export const onDeleteLetter = /* GraphQL */ `
     onDeleteLetter(filter: $filter, owner: $owner) {
       id
       petID
-      entity
       title
       relationship
-      createdAt
-      updatedAt
       content
+      createdAt
       author {
         id
         profilePic
@@ -168,6 +209,7 @@ export const onDeleteLetter = /* GraphQL */ `
         __typename
       }
       accessLevel
+      updatedAt
       letterAuthorId
       owner
       __typename

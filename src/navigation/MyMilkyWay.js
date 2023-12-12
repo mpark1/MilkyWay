@@ -3,7 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 // screens
 import Pets from '../screens/AuthUser/Pets';
-import Pet from '../screens/AuthUser/Pet';
+import PetPage from '../screens/AuthUser/PetPage';
 
 // styles
 import {scaleFontSize} from '../assets/styles/scaling';
@@ -29,8 +29,9 @@ const MyMilkyWay = () => {
       }}>
       <Stack.Screen
         options={{headerShown: false}}
-        name={'MyStars'}
+        name={'Pets'}
         component={Pets}
+        initialParams={{fetchAgain: false}}
       />
       <Stack.Screen
         name={'UserSettings'}
@@ -48,8 +49,8 @@ const MyMilkyWay = () => {
         }}
       />
       <Stack.Screen
-        name={'Pet'}
-        component={Pet}
+        name={'PetPage'}
+        component={PetPage}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

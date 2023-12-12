@@ -7,14 +7,19 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {Button} from '@rneui/base';
 import BlueButton from '../../components/Buttons/BlueButton';
+import {generateClient} from 'aws-amplify/api';
+import {createLetter} from '../../graphql/mutations';
+import {useSelector} from 'react-redux';
+import AlertBox from '../../components/AlertBox';
 
 const WriteOrEditLetter = ({navigation, route}) => {
   const {actionType, title, relationship, isPrivate, message} = route.params;
-
+  const petID = useSelector(state => state.user.currentPetID);
   const [newTitle, setNewTitle] = useState('');
   const [newRelationship, setNewRelationship] = useState('');
   const [newMessage, setNewMessage] = useState('');
-
+  const userID = useSelector(state => state.user.cognitoUsername);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
   // check box
   const [checked, setChecked] = useState(
     actionType === 'edit' ? isPrivate : false,
@@ -27,7 +32,7 @@ const WriteOrEditLetter = ({navigation, route}) => {
         ? {headerTitle: '편지 작성하기'}
         : {headerTitle: '편지 수정하기'},
     );
-  }, []);
+  }, [actionType, navigation]);
 
   const renderTitleField = useCallback(() => {
     return (
@@ -48,7 +53,7 @@ const WriteOrEditLetter = ({navigation, route}) => {
         />
       </View>
     );
-  }, []);
+  }, [title, actionType]);
 
   const renderRelationshipField = useCallback(() => {
     return (
@@ -79,7 +84,7 @@ const WriteOrEditLetter = ({navigation, route}) => {
         </View>
       </View>
     );
-  }, []);
+  }, [actionType, relationship]);
 
   const renderAccessLevelField = useCallback(() => {
     return (
@@ -135,7 +140,43 @@ const WriteOrEditLetter = ({navigation, route}) => {
         />
       </View>
     );
-  }, []);
+  }, [actionType, message]);
+
+  const uploadLettertoDB = async () => {
+    console.log('print petID before uploading letter to db: ', petID);
+    console.log('checkbox before uploading to db: ', checked);
+    const newLetterInput = {
+      petID: petID,
+      title: newTitle,
+      relationship: newRelationship,
+      content: newMessage,
+      accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
+      letterAuthorId: userID,
+    };
+    try {
+      if (!isCallingAPI) {
+        setIsCallingAPI(true);
+        const client = generateClient();
+        const response = await client.graphql({
+          query: createLetter,
+          variables: {input: newLetterInput},
+          authMode: 'userPool',
+        });
+        AlertBox('편지가 성공적으로 등록되었습니다.', '', '확인', () => {
+          navigation.pop();
+        });
+        console.log('response for uploading a new letter to db: ', response);
+      }
+    } catch (error) {
+      console.log('error for uploading letter to db: ', error);
+    } finally {
+      setIsCallingAPI(false);
+    }
+  };
+
+  const onSubmit = () => {
+    uploadLettertoDB();
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -146,7 +187,10 @@ const WriteOrEditLetter = ({navigation, route}) => {
         {renderAccessLevelField()}
         {renderMessageField()}
         <View style={styles.blueButton}>
-          <BlueButton title={actionType === 'edit' ? '수정하기' : '등록하기'} />
+          <BlueButton
+            title={actionType === 'edit' ? '수정하기' : '등록하기'}
+            onPress={() => onSubmit()}
+          />
         </View>
       </View>
     </KeyboardAwareScrollView>

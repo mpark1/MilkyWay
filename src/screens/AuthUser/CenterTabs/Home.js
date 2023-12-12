@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {Button} from '@rneui/base';
 import {
@@ -11,9 +11,19 @@ import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import {generateClient} from 'aws-amplify/api';
+import {createPet} from '../../../graphql/mutations';
 
 const Home = ({navigation, route}) => {
-  const {lastWord} = route.params;
+  const {lastWord, petID} = route.params;
+  const [introductionMsg, setIntroductionMsg] = useState('');
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
+
+  const onChangeIntroductionMsg = useCallback(text => {
+    const trimmedText = text.trim();
+    setIntroductionMsg(trimmedText);
+  }, []);
+
   const renderLastWord = () => {
     return (
       <View style={styles.lastWordCard}>
@@ -64,15 +74,38 @@ const Home = ({navigation, route}) => {
     );
   };
 
+  // const uploadMessageToDb = () => {
+  //   const newPetDetails = {
+  //     SK: 'introduction#
+  //     entity: 'Introduction',
+  //     introductionMsg: introductionMsg,
+  //   };
+  //   try {
+  //     if (!isCallingAPI) {
+  //       setIsCallingAPI(true);
+  //       const client = generateClient();
+  //       const response = await client.graphql({
+  //         query: createPet,
+  //         variables: {input: newPetDetails},
+  //         authMode: 'userPool',
+  //       });
+  //       setPetID(response.data.createPet.id);
+  //       console.log('response for adding new pet to db: ', response);
+  //     }
+  //   } catch (error) {
+  //     console.log('error for adding new pet to db: ', error);
+  //   } finally {
+  //     setIsCallingAPI(false);
+  //   }
+  // };
   const renderBottomSheetSubmitButton = () => {
-    // TODO: onPress 하면 DB에 추모메세지 생성
     return (
       <Button
         title={'완료'}
         titleStyle={styles.submit}
         containerStyle={styles.submitButton}
         buttonStyle={globalStyle.backgroundBlue}
-        // onPress={}
+        // onPress={uploadMessageToDb}
       />
     );
   };
@@ -87,6 +120,7 @@ const Home = ({navigation, route}) => {
             '짧다면 짧고 길다면 긴 10년동안 가족같이 지내던 아이가 갑자기 없으니 너무 허전해요. ' +
             '[이름]이 좋은 곳에 갈 수 있게, 저희가 [이름]을 잘 보내줄 수 있게 같이 슬퍼해 주시고 애도해 주세요. '
           }
+          onChangeText={onChangeIntroductionMsg}
           placeholderTextColor={'#939393'}
           textAlign={'left'}
           textAlignVertical={'top'}
