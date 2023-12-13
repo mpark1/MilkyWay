@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Pressable} from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
 
-const MoreLessComponent = ({truncatedText, fullText}) => {
+const MoreLessComponent = ({truncatedText, fullText, item}) => {
   const [more, setMore] = useState(false);
   return (
     <View style={styles.container}>
@@ -13,7 +13,7 @@ const MoreLessComponent = ({truncatedText, fullText}) => {
 
       {more && (
         <View style={styles.editAndDeleteContainer}>
-          <EditOrDeleteButtons />
+          <EditOrDeleteButtons item={item} />
         </View>
       )}
       <Pressable

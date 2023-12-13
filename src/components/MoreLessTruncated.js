@@ -10,7 +10,11 @@ const MoreLessTruncated = ({item, linesToTruncate}) => {
 
   const renderText = () => {
     return clippedText ? (
-      <MoreLessComponent truncatedText={clippedText} fullText={content} />
+      <MoreLessComponent
+        truncatedText={clippedText}
+        fullText={content}
+        item={item}
+      />
     ) : (
       <>
         <Text
@@ -33,14 +37,14 @@ const MoreLessTruncated = ({item, linesToTruncate}) => {
           {content}
         </Text>
         <View style={styles.editAndDeleteContainer}>
-          <EditOrDeleteButtons />
+          <EditOrDeleteButtons item={item} />
         </View>
       </>
     );
   };
   return (
     <View style={styles.letter}>
-      <Text style={styles.title}>잘가 나의 아기천사...</Text>
+      <Text style={styles.title}>{title}</Text>
       <View style={styles.flexDirectionRow}>
         <View style={styles.profilePicContainer}>
           <Image

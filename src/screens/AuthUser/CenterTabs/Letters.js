@@ -3,20 +3,17 @@ import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import {useSelector} from 'react-redux';
-import {generateClient} from 'aws-amplify/api';
 import {listLetters} from '../../../graphql/queries';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
+import {queryListItemsByPetIDPagination} from '../../../utils/amplifyUtil';
 
 const Letters = ({navigation}) => {
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
-  // const [nextToken, setNextToken] = useState('');
   const [lettersData, setLettersData] = useState({
     letters: [],
     nextToken: null,
   });
-  // const [pageNumber, setPageNumber] = useState(1);
-  // const [renderedLetters, setRenderedLetters] = useState([]);
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
 
   useEffect(() => {
@@ -24,31 +21,20 @@ const Letters = ({navigation}) => {
   }, [petID]);
 
   const fetchLetters = async () => {
-    if (!isLoadingLetters) {
-      setIsLoadingLetters(true);
-      try {
-        const client = generateClient();
-        const response = await client.graphql({
-          query: listLetters,
-          variables: {
-            petID: petID,
-            limit: pageSize,
-            nextToken: lettersData.nextToken,
-          },
-          authMode: 'userPool',
-        });
-        console.log('response from fetch Letters: ', response.data.listLetters);
-        const {items, nextToken: newNextToken} = response.data.listLetters;
-        setLettersData(prev => ({
-          letters: [...prev.letters, ...items],
-          nextToken: newNextToken,
-        }));
-      } catch (error) {
-        console.log('error for getting letters from db: ', error);
-      } finally {
-        setIsLoadingLetters(false);
-      }
-    }
+    queryListItemsByPetIDPagination(
+      isLoadingLetters,
+      setIsLoadingLetters,
+      listLetters,
+      pageSize,
+      petID,
+      lettersData.nextToken,
+    ).then(data => {
+      const {items, nextToken: newNextToken} = data.listLetters;
+      setLettersData(prev => ({
+        letters: [...prev.letters, ...items],
+        nextToken: newNextToken,
+      }));
+    });
   };
 
   const renderFlatListItem = useCallback(({item}) => {
@@ -66,15 +52,7 @@ const Letters = ({navigation}) => {
           title={'편지쓰기'}
           titleColor={'gray'}
           circleSize={30}
-          onPress={() =>
-            navigation.navigate('WriteOrEditLetter', {
-              actionType: 'write',
-              title: '',
-              relationship: '',
-              isPrivate: false,
-              message: '',
-            })
-          }
+          onPress={() => navigation.navigate('WriteLetter')}
         />
       </View>
     );

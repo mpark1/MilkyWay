@@ -6,6 +6,7 @@ import {
   Dimensions,
   Image,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
@@ -18,9 +19,9 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {generateClient} from 'aws-amplify/api';
-import {getPet, listLetters} from '../../graphql/queries';
+import {getPet} from '../../graphql/queries';
 import {useDispatch, useSelector} from 'react-redux';
+import {querySingleItem} from '../../utils/amplifyUtil';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -30,22 +31,9 @@ const PetPage = ({navigation}) => {
   const petID = useSelector(state => state.user.currentPetID);
 
   useEffect(() => {
-    const fetchPet = async () => {
-      try {
-        const client = generateClient();
-        const response = await client.graphql({
-          query: getPet,
-          variables: {id: petID, SK: userID},
-          authMode: 'userPool',
-        });
-        const petData = response.data.getPet;
-        console.log('get selected pet data from db: ', petData);
-        return petData;
-      } catch (error) {
-        console.log('error for getting pet data from db: ', error);
-      }
-    };
-    fetchPet().then(response => setPetInfo(response));
+    querySingleItem(getPet, {id: petID, SK: userID}).then(response =>
+      setPetInfo(response.getPet),
+    );
   }, [petID]);
 
   const renderBellEnvelopeSettingsIcons = () => {
@@ -89,28 +77,32 @@ const PetPage = ({navigation}) => {
       <View style={styles.profilePicContainer}>
         <Image style={styles.profilePic} source={{uri: petInfo.profilePic}} />
       </View>
-      <centerTab.Navigator
-        screenOptions={{
-          tabBarLabelStyle: {fontSize: scaleFontSize(18)},
-          tabBarIndicatorStyle: {backgroundColor: '#6395E1'},
-          tabBarItemStyle: {
-            width: Dimensions.get('window').width * 0.25,
-            paddingHorizontal: 0,
-          },
-          lazy: true,
-        }}>
-        <centerTab.Screen
-          name={'홈'}
-          component={Home}
-          initialParams={{
-            petID: petInfo.id,
-            lastWord: petInfo.lastWord,
-          }}
-        />
-        <centerTab.Screen name={'가족의 편지'} component={Letters} />
-        <centerTab.Screen name={'앨범'} component={Album} />
-        <centerTab.Screen name={'방명록'} component={GuestBook} />
-      </centerTab.Navigator>
+      {petInfo.id ? (
+        <centerTab.Navigator
+          screenOptions={{
+            tabBarLabelStyle: {fontSize: scaleFontSize(18)},
+            tabBarIndicatorStyle: {backgroundColor: '#6395E1'},
+            tabBarItemStyle: {
+              width: Dimensions.get('window').width * 0.25,
+              paddingHorizontal: 0,
+            },
+            lazy: true,
+          }}>
+          <centerTab.Screen
+            name={'홈'}
+            component={Home}
+            initialParams={{
+              petID: petInfo.id,
+              lastWord: petInfo.lastWord,
+            }}
+          />
+          <centerTab.Screen name={'가족의 편지'} component={Letters} />
+          <centerTab.Screen name={'앨범'} component={Album} />
+          <centerTab.Screen name={'방명록'} component={GuestBook} />
+        </centerTab.Navigator>
+      ) : (
+        <ActivityIndicator size="large" color="#0000ff" />
+      )}
     </View>
   );
 };

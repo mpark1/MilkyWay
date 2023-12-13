@@ -6,12 +6,13 @@ import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 import ChooseMedia from '../screens/AuthUser/ChooseMedia';
-import WriteOrEditLetter from '../screens/AuthUser/WriteOrEditLetter';
+import WriteLetter from '../screens/AuthUser/WriteLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
 import Notifications from '../screens/AuthUser/Notifications';
 
 import {scaleFontSize} from '../assets/styles/scaling';
+import EditLetter from '../screens/AuthUser/EditLetter';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,8 +61,15 @@ const AuthNavigation = () => {
           }}
         />
         <Stack.Screen
-          name={'WriteOrEditLetter'}
-          component={WriteOrEditLetter}
+          name={'WriteLetter'}
+          component={WriteLetter}
+          options={{
+            headerTitle: '편지쓰기',
+          }}
+        />
+        <Stack.Screen
+          name={'EditLetter'}
+          component={EditLetter}
           options={{
             headerTitle: '편지수정',
           }}

@@ -1,19 +1,16 @@
-import React, {useCallback, useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CheckBox} from '@rneui/themed';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {Button} from '@rneui/base';
 import BlueButton from '../../components/Buttons/BlueButton';
-import {generateClient} from 'aws-amplify/api';
-import {createLetter, updateLetter} from '../../graphql/mutations';
+import {createLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
-import AlertBox from '../../components/AlertBox';
+import {createUpdateItem} from '../../utils/amplifyUtil';
 
-const WriteOrEditLetter = ({navigation, route}) => {
-  const {actionType, title, relationship, isPrivate, message} = route.params;
+const WriteLetter = ({navigation}) => {
   const petID = useSelector(state => state.user.currentPetID);
   const [newTitle, setNewTitle] = useState('');
   const [newRelationship, setNewRelationship] = useState('');
@@ -21,29 +18,17 @@ const WriteOrEditLetter = ({navigation, route}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   // check box
-  const [checked, setChecked] = useState(
-    actionType === 'edit' ? isPrivate : false,
-  );
+  const [checked, setChecked] = useState(false);
   const toggleCheckbox = () => setChecked(!checked);
 
-  useEffect(() => {
-    navigation.setOptions(
-      actionType === 'write'
-        ? {headerTitle: '편지 작성하기'}
-        : {headerTitle: '편지 수정하기'},
-    );
-  }, [actionType, navigation]);
-
-  const renderTitleField = useCallback(() => {
+  const renderTitleField = () => {
     return (
       <View style={styles.inputField.container}>
         <Text style={styles.inputField.label}>제목</Text>
         <TextInput
           style={styles.inputField.textInput}
-          placeholderTextColor={actionType === 'write' ? '#939393' : '#000'}
-          placeholder={
-            actionType === 'write' ? '제목을 입력하세요 (최대 20자)' : title
-          }
+          placeholderTextColor={'#939393'}
+          placeholder={'제목을 입력하세요 (최대 20자)'}
           clearButtonMode={'while-editing'}
           autoCapitalize={'none'}
           autoCorrect={false}
@@ -53,9 +38,9 @@ const WriteOrEditLetter = ({navigation, route}) => {
         />
       </View>
     );
-  }, [title, actionType]);
+  };
 
-  const renderRelationshipField = useCallback(() => {
+  const renderRelationshipField = () => {
     return (
       <View>
         <View style={styles.relationshipField.container}>
@@ -66,10 +51,8 @@ const WriteOrEditLetter = ({navigation, route}) => {
             }}>
             <TextInput
               style={styles.relationshipField.textInput}
-              placeholderTextColor={actionType === 'write' ? '#939393' : '#000'}
-              placeholder={
-                actionType === 'write' ? '관계를 입력하세요' : relationship
-              }
+              placeholderTextColor={'#939393'}
+              placeholder={'관계를 입력하세요'}
               clearButtonMode={'while-editing'}
               autoCapitalize={'none'}
               autoCorrect={false}
@@ -84,9 +67,9 @@ const WriteOrEditLetter = ({navigation, route}) => {
         </View>
       </View>
     );
-  }, [actionType, relationship]);
+  };
 
-  const renderAccessLevelField = useCallback(() => {
+  const renderAccessLevelField = () => {
     return (
       <View style={styles.accessLevelField.container}>
         <Text style={styles.inputField.label}>접근설정</Text>
@@ -116,18 +99,16 @@ const WriteOrEditLetter = ({navigation, route}) => {
         </View>
       </View>
     );
-  }, [checked]);
+  };
 
-  const renderMessageField = useCallback(() => {
+  const renderMessageField = () => {
     return (
       <View style={styles.messageField.container}>
         <Text style={styles.inputField.label}>글</Text>
         <TextInput
           style={styles.messageField.textInput}
-          placeholderTextColor={actionType === 'write' ? '#939393' : '#000'}
-          placeholder={
-            actionType === 'write' ? '내용을 입력하세요 (최대 1000자)' : message
-          }
+          placeholderTextColor={'#939393'}
+          placeholder={'내용을 입력하세요 (최대 1000자)'}
           multiline={true}
           textAlign={'left'}
           textAlignVertical={'top'}
@@ -140,11 +121,9 @@ const WriteOrEditLetter = ({navigation, route}) => {
         />
       </View>
     );
-  }, [actionType, message]);
+  };
 
-  const uploadLettertoDB = async mutationQuery => {
-    console.log('print petID before uploading letter to db: ', petID);
-    console.log('checkbox before uploading to db: ', checked);
+  const onSubmit = () => {
     const newLetterInput = {
       petID: petID,
       title: newTitle,
@@ -153,33 +132,14 @@ const WriteOrEditLetter = ({navigation, route}) => {
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
     };
-    try {
-      if (!isCallingAPI) {
-        setIsCallingAPI(true);
-        const client = generateClient();
-        const response = await client.graphql({
-          query: mutationQuery,
-          variables: {input: newLetterInput},
-          authMode: 'userPool',
-        });
-        AlertBox('편지가 성공적으로 등록되었습니다.', '', '확인', () => {
-          navigation.pop();
-        });
-        console.log('response for uploading a new letter to db: ', response);
-      }
-    } catch (error) {
-      console.log('error for uploading letter to db: ', error);
-    } finally {
-      setIsCallingAPI(false);
-    }
-  };
-
-  const onSubmit = () => {
-    if (actionType === 'write') {
-      uploadLettertoDB(createLetter);
-    } else {
-      uploadLettertoDB(updateLetter);
-    }
+    createUpdateItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      newLetterInput,
+      createLetter,
+      '편지가 성공적으로 등록되었습니다.',
+      navigation.pop(),
+    );
   };
 
   return (
@@ -191,17 +151,14 @@ const WriteOrEditLetter = ({navigation, route}) => {
         {renderAccessLevelField()}
         {renderMessageField()}
         <View style={styles.blueButton}>
-          <BlueButton
-            title={actionType === 'edit' ? '수정하기' : '등록하기'}
-            onPress={() => onSubmit()}
-          />
+          <BlueButton title={'등록하기'} onPress={() => onSubmit()} />
         </View>
       </View>
     </KeyboardAwareScrollView>
   );
 };
 
-export default WriteOrEditLetter;
+export default WriteLetter;
 
 const styles = StyleSheet.create({
   spacer: {
