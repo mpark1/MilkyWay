@@ -320,7 +320,7 @@ const Settings = ({navigation, route}) => {
   const renderLastWordField = () => {
     return (
       <View style={styles.lastWordField.container}>
-        <Text style={styles.lastWordField.label}>마지막 인사</Text>
+        <Text style={styles.label}>마지막 인사</Text>
         <TextInput
           style={styles.lastWordField.textInput}
           value={lastWord}
@@ -341,10 +341,8 @@ const Settings = ({navigation, route}) => {
     return (
       <View>
         <View style={styles.accessLevelField.flexDirectionRow}>
-          <Text style={styles.accessLevelField.label}>추모공간 접근 설정</Text>
-          <Pressable onPress={() => setIsPopUpVisible(true)}>
-            <Ionicons name={'information-circle'} color={'#000'} size={24} />
-          </Pressable>
+          <Text style={styles.label}>추모공간 접근 설정</Text>
+          <Ionicons name={'information-circle'} color={'#000'} size={24} />
         </View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <CheckBox
@@ -489,15 +487,17 @@ const Settings = ({navigation, route}) => {
 
   const renderCloseMemorialSpace = () => {
     return (
-      <Pressable onPress={() => onCloseMemorialSpace()}>
-        <Text style={styles.closeMemorialSpace}>추모공간 삭제</Text>
+      <Pressable
+        style={styles.closeMemorialSpace}
+        onPress={() => onCloseMemorialSpace()}>
+        <Text style={styles.closeMemorialSpace.text}>추모공간 삭제</Text>
       </Pressable>
     );
   };
 
   return (
     <KeyboardAwareScrollView
-      style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+      style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {renderProfilePic()}
       <View style={styles.inputFieldsContainer}>
         {renderNameField()}
@@ -519,13 +519,13 @@ export default Settings;
 
 const styles = StyleSheet.create({
   spacer: {
-    paddingVertical: Dimensions.get('window').height * 0.01,
-    paddingHorizontal: Dimensions.get('window').width * 0.1,
-    alignItems: 'center',
+    padding: 20,
   },
   profilePicPlaceholder: {
-    width: 130,
-    height: 130,
+    width: 120,
+    height: 120,
+    borderRadius: 120 / 2,
+    backgroundColor: '#EEEEEE',
     alignSelf: 'center',
   },
   profilePic: {width: '100%', height: '100%', borderRadius: 120 / 2},
@@ -577,12 +577,12 @@ const styles = StyleSheet.create({
     },
     borderStyle: {
       borderRadius: 5,
-      borderColor: '#d9d9d9',
+      borderColor: '#939393',
       minHeight: 40,
       padding: 8,
       fontSize: scaleFontSize(18),
     },
-    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    placeholder: {color: '#000', fontSize: scaleFontSize(16)},
   },
   flexDirectionRow: {
     flexDirection: 'row',
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   },
   datePlaceholder: {
     fontSize: scaleFontSize(18),
-    color: '#939393',
+    color: '#000',
     textAlign: 'center',
   },
   lastWordField: {
@@ -601,17 +601,11 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'space-between',
     },
-    label: {
-      fontSize: scaleFontSize(20),
-      color: '#000',
-      marginRight: Dimensions.get('window').width * 0.04,
-      alignSelf: 'center',
-    },
     textInput: {
       fontSize: scaleFontSize(18),
-      lineHeight: scaleFontSize(24),
+      lineHeight: scaleFontSize(22),
       color: '#000',
-      borderWidth: 1,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: '#939393',
       borderRadius: 5,
       padding: 10,
@@ -619,11 +613,6 @@ const styles = StyleSheet.create({
     },
   },
   accessLevelField: {
-    label: {
-      fontSize: scaleFontSize(20),
-      color: '#000',
-      marginRight: Dimensions.get('window').width * 0.04,
-    },
     flexDirectionRow: {
       flexDirection: 'row',
     },
@@ -634,7 +623,7 @@ const styles = StyleSheet.create({
         borderColor: '#000',
       },
       text: {
-        fontSize: scaleFontSize(18),
+        fontSize: scaleFontSize(16),
         color: '#000',
         fontWeight: '400',
       },
@@ -655,9 +644,12 @@ const styles = StyleSheet.create({
     },
   },
   closeMemorialSpace: {
-    fontSize: scaleFontSize(16),
-    color: '#939393',
-    paddingVertical: 17,
+    alignSelf: 'center',
+    text: {
+      fontSize: scaleFontSize(16),
+      color: '#939393',
+      paddingVertical: 17,
+    },
   },
   bottomSheet: {
     inner: {
