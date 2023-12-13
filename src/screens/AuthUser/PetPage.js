@@ -92,7 +92,7 @@ const PetPage = ({navigation}) => {
       <centerTab.Navigator
         screenOptions={{
           tabBarLabelStyle: {fontSize: scaleFontSize(18)},
-          tabBarIndicatorStyle: {backgroundColor: '#FFF'},
+          tabBarIndicatorStyle: {backgroundColor: '#6395E1'},
           tabBarItemStyle: {
             width: Dimensions.get('window').width * 0.25,
             paddingHorizontal: 0,
