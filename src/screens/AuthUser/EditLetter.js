@@ -8,7 +8,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {updateLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
-import {createUpdateItem} from '../../utils/amplifyUtil';
+import {mutationItem} from '../../utils/amplifyUtil';
 
 const EditLetter = ({navigation, route}) => {
   const {title, relationship, isPrivate, message, letterID, timestamp} =
@@ -134,7 +134,7 @@ const EditLetter = ({navigation, route}) => {
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
     };
-    createUpdateItem(
+    mutationItem(
       isCallingAPI,
       setIsCallingAPI,
       newLetterInput,

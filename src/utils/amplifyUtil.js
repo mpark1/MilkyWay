@@ -1,6 +1,7 @@
 import {getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../components/AlertBox';
+import {deleteLetter} from '../graphql/mutations';
 
 export async function checkUser() {
   try {
@@ -16,7 +17,7 @@ export async function checkUser() {
   }
 }
 
-export async function createUpdateItem(
+export async function mutationItem(
   isCallingAPI,
   setIsCallingAPI,
   inputObj,

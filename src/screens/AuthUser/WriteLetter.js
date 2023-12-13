@@ -8,7 +8,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {createLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
-import {createUpdateItem} from '../../utils/amplifyUtil';
+import {mutationItem} from '../../utils/amplifyUtil';
 
 const WriteLetter = ({navigation}) => {
   const petID = useSelector(state => state.user.currentPetID);
@@ -132,7 +132,7 @@ const WriteLetter = ({navigation}) => {
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
     };
-    createUpdateItem(
+    mutationItem(
       isCallingAPI,
       setIsCallingAPI,
       newLetterInput,

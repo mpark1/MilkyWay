@@ -5,44 +5,49 @@ import {useNavigation} from '@react-navigation/core';
 import {generateClient} from 'aws-amplify/api';
 import {deleteLetter} from '../graphql/mutations';
 import AlertBox from './AlertBox';
+import {mutationItem} from '../utils/amplifyUtil';
+import DeleteAlertBox from './DeleteAlertBox';
 
 const EditOrDeleteButtons = ({item}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+  // const deleteLetterApi = async () => {
+  //   const deleteLetterInput = {
+  //     id: item.id,
+  //     petID: item.petID,
+  //     createdAt: item.createdAt,
+  //   };
+  //   try {
+  //     if (!isCallingAPI) {
+  //       setIsCallingAPI(true);
+  //       const client = generateClient();
+  //       const response = await client.graphql({
+  //         query: deleteLetter,
+  //         variables: {input: deleteLetterInput},
+  //         authMode: 'userPool',
+  //       });
+  //       AlertBox('편지가 성공적으로 삭제되었습니다.', '', '확인', 'none');
+  //       console.log('response for deleting a letter in db: ', response);
+  //     }
+  //   } catch (error) {
+  //     console.log('error for updating letter to db: ', error);
+  //   } finally {
+  //     setIsCallingAPI(false);
+  //   }
+  // };
+
   const deleteLetterApi = async () => {
     const deleteLetterInput = {
       id: item.id,
       petID: item.petID,
       createdAt: item.createdAt,
     };
-    try {
-      if (!isCallingAPI) {
-        setIsCallingAPI(true);
-        const client = generateClient();
-        const response = await client.graphql({
-          query: deleteLetter,
-          variables: {input: deleteLetterInput},
-          authMode: 'userPool',
-        });
-        AlertBox('편지가 성공적으로 삭제되었습니다.', '', '확인', 'none');
-        console.log('response for deleting a letter in db: ', response);
-      }
-    } catch (error) {
-      console.log('error for updating letter to db: ', error);
-    } finally {
-      setIsCallingAPI(false);
-    }
-  };
-  const onDeleteLetter = () => {
-    Alert.alert(
-      '편지를 삭제하시겠습니까?',
-      '삭제된 편지는 복구가 불가능합니다.',
-      [
-        {text: '취소'},
-        {
-          text: '삭제',
-          onPress: () => deleteLetterApi(),
-        },
-      ],
+    await mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      deleteLetterInput,
+      deleteLetter,
+      '편지가 성공적으로 삭제되었습니다.',
+      'none',
     );
   };
 
@@ -62,7 +67,7 @@ const EditOrDeleteButtons = ({item}) => {
         }>
         <EvilIcons name={'pencil'} color={'#373737'} size={26} />
       </Pressable>
-      <Pressable onPress={() => onDeleteLetter()}>
+      <Pressable onPress={() => DeleteAlertBox(deleteLetterApi)}>
         <EvilIcons name={'trash'} color={'#373737'} size={26} />
       </Pressable>
     </View>
