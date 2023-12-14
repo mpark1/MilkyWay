@@ -577,6 +577,7 @@ const styles = StyleSheet.create({
     },
     borderStyle: {
       borderRadius: 5,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: '#939393',
       minHeight: 40,
       padding: 8,
@@ -602,14 +603,14 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
     textInput: {
+      width: '65%',
       fontSize: scaleFontSize(18),
-      lineHeight: scaleFontSize(22),
+      lineHeight: scaleFontSize(24),
       color: '#000',
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: '#939393',
       borderRadius: 5,
       padding: 10,
-      flex: 1,
     },
   },
   accessLevelField: {
@@ -630,17 +631,15 @@ const styles = StyleSheet.create({
     },
   },
   submitButton: {
-    submitButton: {
-      titleStyle: {
-        fontSize: scaleFontSize(16),
-        color: '#FFF',
-        fontWeight: '700',
-        paddingVertical: 5,
-        paddingHorizontal: 25,
-      },
-      containerStyle: {
-        borderRadius: 10,
-      },
+    titleStyle: {
+      fontSize: scaleFontSize(16),
+      color: '#FFF',
+      fontWeight: '700',
+      paddingVertical: 5,
+      paddingHorizontal: 25,
+    },
+    containerStyle: {
+      borderRadius: 10,
     },
   },
   closeMemorialSpace: {
