@@ -1,19 +1,53 @@
-import React, {useCallback, useMemo, useRef} from 'react';
-import {View, Text, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  Pressable,
+  ActionSheetIOS,
+  ActivityIndicator,
+} from 'react-native';
 import {Button} from '@rneui/base';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+// import {
+//   createPetIntroduction,
+//   deletePetIntroduction,
+//   updatePetIntroduction,
+// } from '../../../graphql/mutations';
+// import {mutationItem, querySingleItem} from '../../../utils/amplifyUtil';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+// import DeleteAlertBox from '../../../components/DeleteAlertBox';
+// import {getIntroductionMessage} from '../../../graphql/queries';
 
 const Home = ({navigation, route}) => {
-  const {lastWord} = route.params;
+  const {lastWord, petID} = route.params;
+  const [introductionMsg, setIntroductionMsg] = useState('샘플 추모 메세지');
+  // const [fetchedData, setFetchedData] = useState(false);
+  const [fetchedData, setFetchedData] = useState(true);
+
+  //   useEffect(() => {
+  //     querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
+  //       setIntroductionMsg(response.getIntroductionMessage),
+  //         console.log('print after fetching in Home', response.getIntroductionMessage);}
+  //     )});
+  //   console.log('petId passed to Home: ', petID);
+  //   setFetchedData(true);
+  // }, []);
+
+  const onChangeIntroductionMsg = useCallback(text => {
+    const trimmedText = text.trim();
+    setIntroductionMsg(trimmedText);
+  }, []);
+
   const renderLastWord = () => {
     return (
       <View style={styles.lastWordCard}>
@@ -64,15 +98,30 @@ const Home = ({navigation, route}) => {
     );
   };
 
+  // const uploadMessageToDb = () => {
+  //   const newIntroductionInput = {
+  //     petID: petID,
+  //     introductionMsg: introductionMsg,
+  //   };
+  //   mutationItem(
+  //     isCallingAPI,
+  //     setIsCallingAPI,
+  //     newIntroductionInput,
+  //     createPetIntroduction,
+  //     '추모의 메세지가 등록되었습니다.',
+  //     'none',
+  //   );
+  //   bottomSheetModalRef.current?.close();
+  // };
+
   const renderBottomSheetSubmitButton = () => {
-    // TODO: onPress 하면 DB에 추모메세지 생성
     return (
       <Button
         title={'완료'}
         titleStyle={styles.submit}
         containerStyle={styles.submitButton}
         buttonStyle={globalStyle.backgroundBlue}
-        // onPress={}
+        // onPress={uploadMessageToDb}
       />
     );
   };
@@ -87,6 +136,7 @@ const Home = ({navigation, route}) => {
             '짧다면 짧고 길다면 긴 10년동안 가족같이 지내던 아이가 갑자기 없으니 너무 허전해요. ' +
             '[이름]이 좋은 곳에 갈 수 있게, 저희가 [이름]을 잘 보내줄 수 있게 같이 슬퍼해 주시고 애도해 주세요. '
           }
+          onChangeText={onChangeIntroductionMsg}
           placeholderTextColor={'#939393'}
           textAlign={'left'}
           textAlignVertical={'top'}
@@ -117,13 +167,70 @@ const Home = ({navigation, route}) => {
     );
   };
 
+  // const onDeleteMessage = async () => {
+  //   const deleteMessageInput = {
+  //     petID: petID,
+  //   };
+  //   await mutationItem(
+  //     isCallingAPI,
+  //     setIsCallingAPI,
+  //     deleteMessageInput,
+  //     deletePetIntroduction,
+  //     '추모의 메세지가 삭제되었습니다.',
+  //     'none',
+  //   );
+  // };
+
+  const updateMessage = async () => {
+    bottomSheetModalRef.current?.present();
+    const updateMessageInput = {
+      petID: petID,
+      introductionMsg: introductionMsg,
+    };
+    // await mutationItem(
+    //   isCallingAPI,
+    //   setIsCallingAPI,
+    //   updateMessageInput,
+    //   updatePetIntroduction,
+    //   '추모의 메세지가 업데이트되었습니다.',
+    //   'none',
+    // );
+  };
+
+  const showIntroductionMessage = () => {
+    return !introductionMsg ? (
+      renderDottedBorderButton()
+    ) : (
+      <View style={styles.introductionMsg.container}>
+        <View style={styles.introductionMsg.titleWithActionButtons}>
+          <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
+          <View style={styles.introductionMsg.editAndDeleteContainer}>
+            <Pressable onPress={() => updateMessage()}>
+              <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+            </Pressable>
+            <Pressable
+            // onPress={() => DeleteAlertBox(onDeleteMessage())}
+            >
+              <EvilIcons name={'trash'} color={'#373737'} size={26} />
+            </Pressable>
+          </View>
+        </View>
+        <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
+      </View>
+    );
+  };
+
   return (
     <ScrollView
       style={[globalStyle.backgroundWhite, globalStyle.flex]}
       showsVerticalScrollIndicator={false}>
       <View style={styles.spacer}>
         {renderLastWord()}
-        {renderDottedBorderButton()}
+        {!fetchedData ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          showIntroductionMessage()
+        )}
         {renderBottomSheetModal()}
       </View>
     </ScrollView>
@@ -215,5 +322,30 @@ const styles = StyleSheet.create({
     fontSize: scaleFontSize(18),
     fontWeight: 'bold',
     paddingHorizontal: 20,
+  },
+  introductionMsg: {
+    container: {
+      flex: 1,
+    },
+    titleWithActionButtons: {
+      flexDirection: 'row',
+      width: '100%',
+      justifyContent: 'space-between',
+      paddingTop: 20,
+      paddingBottom: 10,
+    },
+    title: {
+      fontWeight: 'bold',
+      fontSize: scaleFontSize(18),
+      paddingLeft: 10,
+    },
+    text: {
+      fontSize: scaleFontSize(16),
+      lineHeight: scaleFontSize(28),
+      paddingLeft: 10,
+    },
+    editAndDeleteContainer: {
+      flexDirection: 'row',
+    },
   },
 });
