@@ -112,7 +112,7 @@ export default PetPage;
 const styles = StyleSheet.create({
   backgroundImageContainer: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.25,
+    height: Dimensions.get('window').height * 0.2,
   },
   backgroundImage: {
     width: '100%',
@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
   },
   profilePicContainer: {
     position: 'absolute',
-    width: 160,
-    height: 160,
+    width: 130,
+    height: 130,
     top: Dimensions.get('window').height * 0.15,
     left: Dimensions.get('window').width * 0.03,
   },

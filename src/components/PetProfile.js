@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: '2%',
   },
   name: {
-    fontSize: scaleFontSize(24),
+    fontSize: scaleFontSize(22),
     color: '#000',
     marginRight: 5,
   },

@@ -31,10 +31,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Backdrop from '../../components/Backdrop';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import PetTypes from '../../data/PetTypes.json';
-import deathCauses from '../../data/deathCauses.json';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {createUpdateItem} from '../../utils/amplifyUtil';
+import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
 import {deleteLetter, updatePet} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
@@ -52,19 +49,6 @@ const Settings = ({navigation, route}) => {
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
 
-  const [value, setValue] = useState(petInfo.petType);
-  const petOptions = Object.keys(PetTypes).map(key => ({
-    label: key,
-    value: key,
-  }));
-  const [value2, setValue2] = useState(petInfo.deathCause);
-  const deathOptions = deathCauses.map(item => ({
-    label: item,
-    value: item,
-  }));
-
-  const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
   const currentDateInString = getCurrentDate();
 
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
@@ -75,6 +59,11 @@ const Settings = ({navigation, route}) => {
 
   const [birthday, setBirthday] = useState(new Date(birthdayString));
   const [deathDay, setDeathDay] = useState(new Date(deathDayString));
+
+  const [checkPrivate, setPrivate] = useState(
+    petInfo.accessLevel === 'Private',
+  );
+  const [checkAll, setAll] = useState(petInfo.accessLevel === 'Public'); // defaults to all
 
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
@@ -102,11 +91,6 @@ const Settings = ({navigation, route}) => {
   const onLaunchImageLibrary = () => {
     launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
   };
-
-  const [checkPrivate, setPrivate] = useState(
-    petInfo.accessLevel === 'PRIVATE',
-  );
-  const [checkAll, setAll] = useState(petInfo.accessLevel === 'PUBLIC'); // defaults to all
 
   const onChangeDate = (date, option) => {
     option === 'birthday'
@@ -235,7 +219,7 @@ const Settings = ({navigation, route}) => {
     return (
       <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
-          <Text style={styles.label}>생일*</Text>
+          <Text style={styles.label}>생일</Text>
           <Pressable
             style={styles.textInput}
             onPress={() => setIsBirthdayPickerOpen(true)}>
@@ -251,66 +235,13 @@ const Settings = ({navigation, route}) => {
     return (
       <View style={styles.containerForInput}>
         <View style={styles.flexDirectionRow}>
-          <Text style={styles.label}>기일*</Text>
+          <Text style={styles.label}>기일</Text>
           <Pressable
             style={styles.textInput}
             onPress={() => setIsDeathDayPickerOpen(true)}>
             <Text style={styles.datePlaceholder}>{deathDayString}</Text>
             {renderDatePicker('deathDay')}
           </Pressable>
-        </View>
-      </View>
-    );
-  };
-
-  const renderPetTypeField = () => {
-    return (
-      <View style={styles.containerForInput}>
-        <View style={styles.animalType}>
-          <Text style={styles.label}>동물종류*</Text>
-          <DropDownPicker
-            containerStyle={styles.dropDownPicker.containerStyle}
-            style={styles.dropDownPicker.borderStyle}
-            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-            textStyle={{fontSize: scaleFontSize(18)}}
-            multiple={false}
-            placeholderStyle={styles.dropDownPicker.placeholder}
-            items={petOptions}
-            placeholder={petInfo.petType}
-            setValue={setValue}
-            value={value}
-            open={open}
-            setOpen={setOpen}
-            zIndex={3000}
-            listMode="SCROLLVIEW"
-          />
-        </View>
-      </View>
-    );
-  };
-
-  const renderDeathCausesField = () => {
-    return (
-      <View style={styles.containerForInput2}>
-        <View style={styles.animalType}>
-          <Text style={styles.label}>별이된 이유*</Text>
-          <DropDownPicker
-            containerStyle={styles.dropDownPicker.containerStyle}
-            style={styles.dropDownPicker.borderStyle}
-            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-            textStyle={{fontSize: scaleFontSize(18)}}
-            multiple={false}
-            placeholderStyle={styles.dropDownPicker.placeholder}
-            items={deathOptions}
-            placeholder={petInfo.deathCause}
-            setValue={setValue2}
-            value={value2}
-            open={open2}
-            setOpen={setOpen2}
-            zIndex={1000}
-            listMode="SCROLLVIEW"
-            dropDownDirection="BOTTOM"
-          />
         </View>
       </View>
     );
@@ -341,7 +272,13 @@ const Settings = ({navigation, route}) => {
       <View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <Text style={styles.label}>추모공간 접근 설정</Text>
-          <Ionicons name={'information-circle'} color={'#000'} size={24} />
+          <Pressable onPress={() => {}}>
+            <Ionicons
+              name={'information-circle-outline'}
+              color={'#000'}
+              size={24}
+            />
+          </Pressable>
         </View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <CheckBox
@@ -409,50 +346,43 @@ const Settings = ({navigation, route}) => {
   const deletePetApi = async () => {
     const deletePetInput = {
       id: petInfo.id,
-      SK: petInfo.managerID,
-      createdAt: petInfo.createdAt,
+      SK: petInfo.SK,
+      state: 'INACTIVE',
     };
-    try {
-      if (!isCallingDeleteAPI) {
-        setIsCallingDeleteAPI(true);
-        const client = generateClient();
-        const response = await client.graphql({
-          query: deleteLetter,
-          variables: {input: deletePetInput},
-          authMode: 'userPool',
-        });
-        AlertBox('추모공간이 성공적으로 삭제되었습니다.', '', '확인', () =>
-          navigation.navigate('BottomTabs'),
-        );
-        console.log('response for deleting a letter in db: ', response);
-      }
-    } catch (error) {
-      console.log('error for updating letter to db: ', error);
-    } finally {
-      setIsCallingDeleteAPI(false);
-    }
+    mutationItem(
+      isCallingUpdateAPI,
+      setIsCallingUpdateAPI,
+      deletePetInput,
+      updatePet,
+      '추모공간이 삭제되었습니다.',
+      navigateToPets,
+    );
   };
+  function navigateToPets() {}
+
+  function popPage() {
+    navigation.pop();
+  }
 
   const onUpdatePetInfo = () => {
     const newPetInput = {
       id: petInfo.id,
-      SK: petInfo.managerID,
+      SK: petInfo.SK,
       profilePic: profilePic,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
       lastWord: lastWord,
-      accessLevel: checkPrivate ? 'PRIVATE' : 'PUBLIC',
-      petType: value,
-      deathCauses: value2,
+      state: 'ACTIVE',
+      accessLevel: checkPrivate ? 'Private' : 'Public',
     };
-    createUpdateItem(
+    mutationItem(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
       newPetInput,
       updatePet,
       '정보가 성공적으로 변경되었습니다.',
-      'none',
+      popPage,
     );
   };
 
@@ -478,7 +408,7 @@ const Settings = ({navigation, route}) => {
         {text: '취소'},
         {
           text: '삭제',
-          onPress: async () => await deletePetApi(),
+          onPress: () => deletePetApi(),
         },
       ],
     );
@@ -502,8 +432,6 @@ const Settings = ({navigation, route}) => {
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
-        {renderPetTypeField()}
-        {renderDeathCausesField()}
         {renderLastWordField()}
         {renderAccessLevelField()}
       </View>
@@ -537,7 +465,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: scaleFontSize(18),
-    paddingRight: 20,
+    paddingRight: 5,
     color: '#000',
   },
   inputFieldsContainer: {
@@ -596,7 +524,7 @@ const styles = StyleSheet.create({
   },
   lastWordField: {
     container: {
-      paddingBottom: Dimensions.get('window').height * 0.04,
+      paddingBottom: Dimensions.get('window').height * 0.025,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -621,9 +549,10 @@ const styles = StyleSheet.create({
         marginLeft: -5,
         paddingLeft: 0,
         borderColor: '#000',
+        marginTop: -2,
       },
       text: {
-        fontSize: scaleFontSize(16),
+        fontSize: scaleFontSize(18),
         color: '#000',
         fontWeight: '400',
       },
@@ -631,11 +560,10 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     titleStyle: {
-      fontSize: scaleFontSize(16),
+      fontSize: scaleFontSize(18),
       color: '#FFF',
       fontWeight: '700',
-      paddingVertical: 5,
-      paddingHorizontal: 25,
+      paddingHorizontal: 30,
     },
     containerStyle: {
       borderRadius: 10,
@@ -644,7 +572,7 @@ const styles = StyleSheet.create({
   closeMemorialSpace: {
     alignSelf: 'center',
     text: {
-      fontSize: scaleFontSize(16),
+      fontSize: scaleFontSize(18),
       color: '#939393',
       paddingVertical: 17,
     },

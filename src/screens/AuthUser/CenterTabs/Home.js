@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   spacer: {paddingTop: 15, paddingHorizontal: 15},
   lastWordCard: {
     padding: 10,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: '#EEEEEE',
     borderRadius: 10,
   },
   lastWordTitle: {
