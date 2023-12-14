@@ -258,3 +258,84 @@ export const deleteLetter = /* GraphQL */ `
     }
   }
 `;
+export const createGuestBook = /* GraphQL */ `
+  mutation CreateGuestBook(
+    $input: CreateGuestBookInput!
+    $condition: ModelGuestBookConditionInput
+  ) {
+    createGuestBook(input: $input, condition: $condition) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const updateGuestBook = /* GraphQL */ `
+  mutation UpdateGuestBook(
+    $input: UpdateGuestBookInput!
+    $condition: ModelGuestBookConditionInput
+  ) {
+    updateGuestBook(input: $input, condition: $condition) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const deleteGuestBook = /* GraphQL */ `
+  mutation DeleteGuestBook(
+    $input: DeleteGuestBookInput!
+    $condition: ModelGuestBookConditionInput
+  ) {
+    deleteGuestBook(input: $input, condition: $condition) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;

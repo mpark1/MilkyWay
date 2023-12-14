@@ -216,3 +216,84 @@ export const onDeleteLetter = /* GraphQL */ `
     }
   }
 `;
+export const onCreateGuestBook = /* GraphQL */ `
+  subscription OnCreateGuestBook(
+    $filter: ModelSubscriptionGuestBookFilterInput
+    $owner: String
+  ) {
+    onCreateGuestBook(filter: $filter, owner: $owner) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const onUpdateGuestBook = /* GraphQL */ `
+  subscription OnUpdateGuestBook(
+    $filter: ModelSubscriptionGuestBookFilterInput
+    $owner: String
+  ) {
+    onUpdateGuestBook(filter: $filter, owner: $owner) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeleteGuestBook = /* GraphQL */ `
+  subscription OnDeleteGuestBook(
+    $filter: ModelSubscriptionGuestBookFilterInput
+    $owner: String
+  ) {
+    onDeleteGuestBook(filter: $filter, owner: $owner) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;

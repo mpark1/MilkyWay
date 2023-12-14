@@ -358,7 +358,9 @@ const Settings = ({navigation, route}) => {
       navigateToPets,
     );
   };
-  function navigateToPets() {}
+  function navigateToPets() {
+    navigation.navigate('Pets');
+  }
 
   function popPage() {
     navigation.pop();

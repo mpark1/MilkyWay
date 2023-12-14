@@ -57,7 +57,12 @@ const PetCard = ({petID, profilePic, name, birthday, deathDay, lastWord}) => {
             </Text>
           </View>
 
-          <Text style={styles.lastWords}>{lastWord.substring(0, 22)}</Text>
+          <Text
+            style={styles.lastWords}
+            numberOfLines={1}
+            ellipsizeMode={'tail'}>
+            {lastWord}
+          </Text>
         </View>
       </View>
     </Pressable>

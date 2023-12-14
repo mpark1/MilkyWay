@@ -92,3 +92,17 @@ type Letter @model
     author: User @hasOne
     accessLevel: letterAccessLevel!
 }
+
+type GuestBook @model
+@auth(
+    rules: [
+        { allow: owner},
+        { allow: private, operations: [read]}
+    ])
+{
+    id: ID!
+    petID: ID! @primaryKey(sortKeyFields:["createdAt", "id"])
+    content: String!
+    createdAt: String!
+    author: User @hasOne
+}

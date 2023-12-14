@@ -89,5 +89,23 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
+  },
+  "parameters": {
+    "AMPLIFY_function_createNewUserinDB_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createNewUserinDB"
+        }
+      ]
+    },
+    "AMPLIFY_function_createNewUserinDB_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "createNewUserinDB"
+        }
+      ]
+    }
   }
 }

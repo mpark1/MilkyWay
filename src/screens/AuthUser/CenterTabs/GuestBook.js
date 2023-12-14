@@ -1,8 +1,11 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {View, Dimensions, StyleSheet, FlatList} from 'react-native';
-import {pagination} from '../../../utils/pagination';
-import mockData from '../../../data/guestBook.json';
-import ShortGuestBookMessage from '../../../components/ShortGuestBookMessage';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  View,
+  Dimensions,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import {Button} from '@rneui/base';
 import {
   BottomSheetBackdrop,
@@ -12,14 +15,49 @@ import {
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
+import {
+  mutationItem,
+  queryListItemsByPetIDPagination,
+} from '../../../utils/amplifyUtil';
+import {listGuestBooks} from '../../../graphql/queries';
+import {useSelector} from 'react-redux';
+import MoreLessTruncated from '../../../components/MoreLessTruncated';
+import {createGuestBook, createLetter} from '../../../graphql/mutations';
 
 const GuestBook = ({navigation}) => {
-  const pageSize = 2;
-  const [pageNumber, setPageNumber] = useState(1);
-  const [renderedMessages, setRenderedMessages] = useState(
-    mockData.slice(0, pageSize),
-  );
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const pageSize = 3;
+  const petID = useSelector(state => state.user.currentPetID);
+  const userID = useSelector(state => state.user.cognitoUsername);
+  const [guestBookData, setGuestBookData] = useState({
+    guestMessages: [],
+    nextToken: null,
+  });
+  const [isLoadingLetters, setIsLoadingLetters] = useState(false);
+  const [fetchedData, setFetchedData] = useState(false);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
+  const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    fetchMessages();
+    setFetchedData(true);
+  }, [petID]);
+
+  const fetchMessages = async () => {
+    queryListItemsByPetIDPagination(
+      isLoadingLetters,
+      setIsLoadingLetters,
+      listGuestBooks,
+      pageSize,
+      petID,
+      guestBookData.nextToken,
+    ).then(data => {
+      const {items, nextToken: newNextToken} = data.listGuestBooks;
+      setGuestBookData(prev => ({
+        guestMessages: [...prev.guestMessages, ...items],
+        nextToken: newNextToken,
+      }));
+    });
+  };
 
   const renderBottomSheetCancelButton = () => {
     return (
@@ -33,6 +71,22 @@ const GuestBook = ({navigation}) => {
     );
   };
 
+  const onSubmit = () => {
+    const newMessageInput = {
+      petID: petID,
+      content: newMessage,
+      guestBookAuthorId: userID,
+    };
+    mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      newMessageInput,
+      createGuestBook,
+      '방명록이 성공적으로 등록되었습니다.',
+      'none',
+    );
+  };
+
   const renderBottomSheetSubmitButton = () => {
     // TODO: onPress 하면 DB에 추모메세지 생성
     return (
@@ -41,7 +95,7 @@ const GuestBook = ({navigation}) => {
         titleStyle={styles.submit}
         containerStyle={styles.submitButton}
         buttonStyle={globalStyle.backgroundBlue}
-        // onPress={}
+        onPress={onSubmit}
       />
     );
   };
@@ -63,27 +117,11 @@ const GuestBook = ({navigation}) => {
     );
   }, []);
 
-  const onEndReached = useCallback(() => {
-    if (!isLoadingMessages) {
-      setIsLoadingMessages(true);
-      setRenderedMessages(prev => [
-        ...prev,
-        ...pagination(mockData, pageNumber + 1, pageSize, setPageNumber),
-      ]);
-      setIsLoadingMessages(false);
+  const onEndReached = async () => {
+    if (guestBookData.nextToken !== null) {
+      await fetchMessages();
     }
-  }, [isLoadingMessages, pageNumber]);
-
-  const renderFlatListItem = useCallback(({item}) => {
-    return (
-      <ShortGuestBookMessage
-        timestamp={item.timestamp}
-        profilePic={item.profilePic}
-        name={item.name}
-        message={item.message}
-      />
-    );
-  }, []);
+  };
 
   const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -137,17 +175,25 @@ const GuestBook = ({navigation}) => {
     );
   }, []);
 
+  const renderFlatListItem = useCallback(({item}) => {
+    return <MoreLessTruncated item={item} linesToTruncate={2} />;
+  }, []);
+
   return (
     <View style={styles.flatListContainer}>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollBegin={() => setIsLoadingMessages(false)}
-        onEndReachedThreshold={0.7}
-        onEndReached={onEndReached}
-        data={renderedMessages}
-        renderItem={renderFlatListItem}
-        ListHeaderComponent={renderLeaveMessageButton}
-      />
+      {!fetchedData ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollBegin={() => setIsLoadingMessages(false)}
+          onEndReachedThreshold={0.7}
+          onEndReached={onEndReached}
+          data={guestBookData.guestMessages}
+          renderItem={renderFlatListItem}
+          ListHeaderComponent={renderLeaveMessageButton}
+        />
+      )}
       {renderBottomSheetModal()}
     </View>
   );

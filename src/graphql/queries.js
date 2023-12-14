@@ -283,3 +283,59 @@ export const listLetters = /* GraphQL */ `
     }
   }
 `;
+export const getGuestBook = /* GraphQL */ `
+  query GetGuestBook($petID: ID!, $createdAt: String!, $id: ID!) {
+    getGuestBook(petID: $petID, createdAt: $createdAt, id: $id) {
+      id
+      petID
+      content
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      guestBookAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const listGuestBooks = /* GraphQL */ `
+  query ListGuestBooks(
+    $petID: ID
+    $createdAtId: ModelGuestBookPrimaryCompositeKeyConditionInput
+    $filter: ModelGuestBookFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listGuestBooks(
+      petID: $petID
+      createdAtId: $createdAtId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        petID
+        content
+        createdAt
+        updatedAt
+        guestBookAuthorId
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
