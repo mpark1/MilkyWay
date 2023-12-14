@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   changeProfilePicButton: {
     position: 'absolute',
     bottom: 10,
-    right: 10,
+    right: 5,
     backgroundColor: 'white',
     borderRadius: 30,
   },
