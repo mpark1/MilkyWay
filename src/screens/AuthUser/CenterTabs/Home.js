@@ -32,13 +32,12 @@ const Home = ({navigation, route}) => {
   const {lastWord, petID} = route.params;
   const [introductionMsg, setIntroductionMsg] = useState('');
   const [fetchedData, setFetchedData] = useState(false);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   useEffect(() => {
-    querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
-      setIntroductionMsg(response.getIntroductionMessage),
-        console.log('print after fetching in Home', response.getIntroductionMessage);}
-    )});
-    console.log('petId passed to Home: ', petID);
+    querySingleItem(getIntroductionMessage, {petID: petID}).then(response =>
+      setIntroductionMsg(response.getIntroductionMessage.introductionMsg),
+    );
     setFetchedData(true);
   }, []);
 
@@ -201,14 +200,16 @@ const Home = ({navigation, route}) => {
       renderDottedBorderButton()
     ) : (
       <View style={styles.introductionMsg.container}>
-        <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
-        <View style={styles.introductionMsg.editAndDeleteContainer}>
-          <Pressable onPress={() => updateMessage()}>
-            <EvilIcons name={'pencil'} color={'#373737'} size={26} />
-          </Pressable>
-          <Pressable onPress={() => DeleteAlertBox(onDeleteMessage())}>
-            <EvilIcons name={'trash'} color={'#373737'} size={26} />
-          </Pressable>
+        <View style={styles.introductionMsg.titleWithActionButtons}>
+          <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
+          <View style={styles.introductionMsg.editAndDeleteContainer}>
+            <Pressable onPress={() => updateMessage()}>
+              <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+            </Pressable>
+            <Pressable onPress={() => DeleteAlertBox(onDeleteMessage)}>
+              <EvilIcons name={'trash'} color={'#373737'} size={26} />
+            </Pressable>
+          </View>
         </View>
         <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
       </View>
@@ -322,13 +323,19 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       paddingTop: 20,
-      justifyContent: 'space-between',
-      flexDirection: 'row',
+      // justifyContent: 'space-between',
+      // flexDirection: 'row',
     },
     title: {
       fontWeight: 'bold',
       fontSize: scaleFontSize(18),
       paddingLeft: 10,
+      paddingBottom: 10,
+    },
+    titleWithActionButtons: {
+      flexDirection: 'row',
+      width: '100%',
+      justifyContent: 'space-between',
       paddingBottom: 10,
     },
     text: {

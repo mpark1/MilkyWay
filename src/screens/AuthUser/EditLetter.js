@@ -122,6 +122,9 @@ const EditLetter = ({navigation, route}) => {
       </View>
     );
   };
+  function popPage() {
+    navigation.pop();
+  }
 
   const onSubmit = () => {
     const newLetterInput = {
@@ -140,7 +143,7 @@ const EditLetter = ({navigation, route}) => {
       newLetterInput,
       updateLetter,
       '편지가 성공적으로 수정되었습니다.',
-      navigation.pop(),
+      popPage,
     );
   };
 

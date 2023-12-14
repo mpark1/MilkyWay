@@ -10,30 +10,6 @@ import DeleteAlertBox from './DeleteAlertBox';
 
 const EditOrDeleteButtons = ({item}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
-  // const deleteLetterApi = async () => {
-  //   const deleteLetterInput = {
-  //     id: item.id,
-  //     petID: item.petID,
-  //     createdAt: item.createdAt,
-  //   };
-  //   try {
-  //     if (!isCallingAPI) {
-  //       setIsCallingAPI(true);
-  //       const client = generateClient();
-  //       const response = await client.graphql({
-  //         query: deleteLetter,
-  //         variables: {input: deleteLetterInput},
-  //         authMode: 'userPool',
-  //       });
-  //       AlertBox('편지가 성공적으로 삭제되었습니다.', '', '확인', 'none');
-  //       console.log('response for deleting a letter in db: ', response);
-  //     }
-  //   } catch (error) {
-  //     console.log('error for updating letter to db: ', error);
-  //   } finally {
-  //     setIsCallingAPI(false);
-  //   }
-  // };
 
   const deleteLetterApi = async () => {
     const deleteLetterInput = {

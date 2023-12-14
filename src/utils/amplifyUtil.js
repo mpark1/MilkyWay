@@ -1,7 +1,6 @@
 import {getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
-import AlertBox from '../components/AlertBox';
-import {deleteLetter} from '../graphql/mutations';
+import {Alert} from 'react-native';
 
 export async function checkUser() {
   try {
@@ -34,9 +33,7 @@ export async function mutationItem(
         variables: {input: inputObj},
         authMode: 'userPool',
       });
-      AlertBox(alertMsg, '', '확인', () => {
-        alertFunc;
-      });
+      alertBox(alertMsg, '', '확인', alertFunc);
       console.log('response after query ', response);
     }
   } catch (error) {
@@ -45,6 +42,23 @@ export async function mutationItem(
     setIsCallingAPI(false);
   }
 }
+
+const alertBox = (title, message, buttonText, onConfirm) => {
+  if (onConfirm === 'none') {
+    Alert.alert(title, message, [
+      {
+        text: buttonText,
+      },
+    ]);
+  } else {
+    Alert.alert(title, message, [
+      {
+        text: buttonText,
+        onPress: () => onConfirm(), // Pass the callback function here
+      },
+    ]);
+  }
+};
 
 export async function querySingleItem(queryName, variables) {
   try {

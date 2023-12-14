@@ -5,9 +5,7 @@ const DeleteAlertBox = onPressFunc => {
     {text: '취소'},
     {
       text: '삭제',
-      onPress: () => {
-        onPressFunc;
-      },
+      onPress: () => onPressFunc(),
     },
   ]);
 };

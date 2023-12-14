@@ -123,6 +123,10 @@ const WriteLetter = ({navigation}) => {
     );
   };
 
+  function popPage() {
+    navigation.pop();
+  }
+
   const onSubmit = () => {
     const newLetterInput = {
       petID: petID,
@@ -138,7 +142,7 @@ const WriteLetter = ({navigation}) => {
       newLetterInput,
       createLetter,
       '편지가 성공적으로 등록되었습니다.',
-      navigation.pop(),
+      popPage,
     );
   };
 
