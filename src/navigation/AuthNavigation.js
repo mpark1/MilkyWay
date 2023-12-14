@@ -1,7 +1,5 @@
 import React from 'react';
 
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
@@ -13,8 +11,9 @@ import Notifications from '../screens/AuthUser/Notifications';
 
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditLetter from '../screens/AuthUser/EditLetter';
+import {createStackNavigator} from '@react-navigation/stack';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
   return (

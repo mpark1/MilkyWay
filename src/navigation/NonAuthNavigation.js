@@ -1,13 +1,13 @@
 import React from 'react';
 
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SignIn from '../screens/NonAuthUser/SignIn';
 import SignUp from '../screens/NonAuthUser/SignUp';
 import {scaleFontSize} from '../assets/styles/scaling';
 import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 import ForgotPassword from '../screens/NonAuthUser/ForgotPassword';
+import {createStackNavigator} from '@react-navigation/stack';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export const NonAuthNavigation = () => {
   return (

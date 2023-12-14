@@ -1,5 +1,4 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 // screens
 import Pets from '../screens/AuthUser/Pets';
@@ -10,8 +9,9 @@ import {scaleFontSize} from '../assets/styles/scaling';
 import UserSettings from '../screens/AuthUser/UserSettings';
 import ChangePassword from '../screens/AuthUser/ChangePassword';
 import SignOutButton from '../components/SignOutButton';
+import {createStackNavigator} from '@react-navigation/stack';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 const MyMilkyWay = () => {
   return (
