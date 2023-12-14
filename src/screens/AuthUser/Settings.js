@@ -92,8 +92,7 @@ const Settings = ({navigation, route}) => {
   }, []);
 
   const onChangeLastWord = useCallback(text => {
-    const trimmedText = text.trim();
-    setLastWord(trimmedText);
+    setLastWord(text);
   }, []);
 
   const onLaunchCamera = () => {
