@@ -73,8 +73,8 @@ const Settings = ({navigation, route}) => {
   const [birthdayString, setBirthdayString] = useState(petInfo.birthday);
   const [deathDayString, setDeathDayString] = useState(petInfo.deathDay);
 
-  const [birthday, setBirthday] = useState(birthdayString);
-  const [deathDay, setDeathDay] = useState(deathDayString);
+  const [birthday, setBirthday] = useState(new Date(birthdayString));
+  const [deathDay, setDeathDay] = useState(new Date(deathDayString));
 
   const onResponseFromCameraOrGallery = res => {
     if (res.didCancel || !res) {
