@@ -23,6 +23,7 @@ import {listGuestBooks} from '../../../graphql/queries';
 import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import {createGuestBook, createLetter} from '../../../graphql/mutations';
+import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 3;
@@ -35,7 +36,7 @@ const GuestBook = ({navigation}) => {
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
-  const [newMessage, setNewMessage] = useState('');
+
 
   useEffect(() => {
     fetchMessages();
@@ -59,46 +60,21 @@ const GuestBook = ({navigation}) => {
     });
   };
 
-  const renderBottomSheetCancelButton = () => {
-    return (
-      <Button
-        title={'취소'}
-        titleStyle={styles.cancel}
-        containerStyle={styles.cancelButton}
-        buttonStyle={globalStyle.backgroundWhite}
-        onPress={() => bottomSheetModalRef.current?.close()}
-      />
-    );
-  };
-
-  const onSubmit = () => {
-    const newMessageInput = {
-      petID: petID,
-      content: newMessage,
-      guestBookAuthorId: userID,
-    };
-    mutationItem(
-      isCallingAPI,
-      setIsCallingAPI,
-      newMessageInput,
-      createGuestBook,
-      '방명록이 성공적으로 등록되었습니다.',
-      'none',
-    );
-  };
-
-  const renderBottomSheetSubmitButton = () => {
-    // TODO: onPress 하면 DB에 추모메세지 생성
-    return (
-      <Button
-        title={'완료'}
-        titleStyle={styles.submit}
-        containerStyle={styles.submitButton}
-        buttonStyle={globalStyle.backgroundBlue}
-        onPress={onSubmit}
-      />
-    );
-  };
+  // const onSubmit = () => {
+  //   const newMessageInput = {
+  //     petID: petID,
+  //     content: newMessage,
+  //     guestBookAuthorId: userID,
+  //   };
+  //   mutationItem(
+  //     isCallingAPI,
+  //     setIsCallingAPI,
+  //     newMessageInput,
+  //     createGuestBook,
+  //     '방명록이 성공적으로 등록되었습니다.',
+  //     'none',
+  //   );
+  // };
 
   const renderLeaveMessageButton = useCallback(() => {
     return (
@@ -123,57 +99,7 @@ const GuestBook = ({navigation}) => {
     }
   };
 
-  const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
-  const renderBackdrop = useCallback(
-    props => (
-      <BottomSheetBackdrop
-        {...props}
-        opacity={0.2}
-        pressBehavior={'none'}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheetInnerSpacer}>
-        <BottomSheetTextInput
-          style={styles.bottomSheetTextInput}
-          placeholder={'추모 메세지를 남겨주세요. (최대 1000자)'}
-          placeholderTextColor={'#939393'}
-          textAlign={'left'}
-          textAlignVertical={'top'}
-          autoCorrect={false}
-          multiline={true}
-          scrollEnabled={true}
-          maxLength={1000}
-        />
-        <View style={styles.bottomSheetActionButtons}>
-          {renderBottomSheetCancelButton()}
-          {renderBottomSheetSubmitButton()}
-        </View>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={false}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
 
   const renderFlatListItem = useCallback(({item}) => {
     return <MoreLessTruncated item={item} linesToTruncate={2} />;
@@ -194,7 +120,13 @@ const GuestBook = ({navigation}) => {
           ListHeaderComponent={renderLeaveMessageButton}
         />
       )}
-      {renderBottomSheetModal()}
+       <BottomSheetModalTextInputWrapper
+        petID={petID}
+        whichTab={'GuestBook'}
+        option={'CREATE'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        mutationName={'createGuestBookMessage'}
+      />
     </View>
   );
 };
