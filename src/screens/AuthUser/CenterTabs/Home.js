@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -6,23 +6,12 @@ import {
   ScrollView,
   Dimensions,
   Pressable,
-  ActionSheetIOS,
   ActivityIndicator,
 } from 'react-native';
-import {Button} from '@rneui/base';
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetTextInput,
-} from '@gorhom/bottom-sheet';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
-import {
-  createPetIntroduction,
-  deletePetIntroduction,
-  updatePetIntroduction,
-} from '../../../graphql/mutations';
+import {deletePetIntroduction} from '../../../graphql/mutations';
 import {mutationItem, querySingleItem} from '../../../utils/amplifyUtil';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from '../../../components/DeleteAlertBox';
@@ -32,7 +21,7 @@ import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetMod
 const Home = ({navigation, route}) => {
   const {lastWord, petID} = route.params;
   const [introductionMsg, setIntroductionMsg] = useState('');
-  const originalMsgCopy = introductionMsg;
+  // const originalMsgCopy = introductionMsg;
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
@@ -41,11 +30,6 @@ const Home = ({navigation, route}) => {
       setIntroductionMsg(response.getIntroductionMessage.introductionMsg),
     );
     setFetchedData(true);
-  }, []);
-
-  const onChangeIntroductionMsg = useCallback(text => {
-    const trimmedText = text.trim();
-    setIntroductionMsg(trimmedText);
   }, []);
 
   const renderLastWord = () => {
@@ -71,38 +55,8 @@ const Home = ({navigation, route}) => {
     );
   }, []);
 
-  const renderBackdrop = useCallback(
-    props => (
-      <BottomSheetBackdrop
-        {...props}
-        opacity={0.2}
-        pressBehavior={'none'}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
-  const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
   const bottomSheetModalRef2 = useRef(null);
-
-  const uploadMessageToDb = () => {
-    const newIntroductionInput = {
-      petID: petID,
-      introductionMsg: introductionMsg,
-    };
-    mutationItem(
-      isCallingAPI,
-      setIsCallingAPI,
-      newIntroductionInput,
-      createPetIntroduction,
-      '추모의 메세지가 등록되었습니다.',
-      'none',
-    );
-    bottomSheetModalRef.current?.close();
-  };
-
 
   const onDeleteMessage = async () => {
     const deleteMessageInput = {
@@ -114,22 +68,6 @@ const Home = ({navigation, route}) => {
       deleteMessageInput,
       deletePetIntroduction,
       '추모의 메세지가 삭제되었습니다.',
-      'none',
-    );
-  };
-
-  const updateMessage = async () => {
-    bottomSheetModalRef.current?.present();
-    const updateMessageInput = {
-      petID: petID,
-      introductionMsg: introductionMsg,
-    };
-    await mutationItem(
-      isCallingAPI,
-      setIsCallingAPI,
-      updateMessageInput,
-      updatePetIntroduction,
-      '추모의 메세지가 업데이트되었습니다.',
       'none',
     );
   };
@@ -167,7 +105,7 @@ const Home = ({navigation, route}) => {
           showIntroductionMessage()
         )}
       </View>
-           {!introductionMsg ? (
+      {!introductionMsg ? (
         <BottomSheetModalTextInputWrapper
           petID={petID}
           whichTab={'Home'}
@@ -181,7 +119,7 @@ const Home = ({navigation, route}) => {
           whichTab={'Home'}
           option={'Update'}
           bottomSheetModalRef={bottomSheetModalRef2}
-          originalMsg={originalMsgCopy}
+          originalMsg={introductionMsg}
         />
       )}
     </ScrollView>

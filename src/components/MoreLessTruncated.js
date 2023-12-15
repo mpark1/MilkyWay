@@ -6,11 +6,24 @@ import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
-  const [clippedText, setClippedText] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const [clippedText, setClippedText] = useState('');
   const {content, createdAt, relationship, title} = item;
 
+  const handleTextLayout = event => {
+    const {lines} = event.nativeEvent;
+    if (lines.length > linesToTruncate) {
+      setIsTruncated(true);
+      const displayedText = lines
+        .slice(0, linesToTruncate)
+        .map(line => line.text)
+        .join('');
+      setClippedText(displayedText);
+    }
+  };
+
   const renderText = () => {
-    return clippedText ? (
+    return isTruncated ? (
       <MoreLessComponent
         truncatedText={clippedText}
         fullText={content}
@@ -18,32 +31,13 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         whichTab={whichTab}
       />
     ) : (
-      <>
-        <Text
-          style={styles.content}
-          numberOfLines={linesToTruncate}
-          ellipsizeMode={'tail'}
-          onTextLayout={event => {
-            //get all lines
-            const {lines} = event.nativeEvent;
-            //get lines after it truncate
-            let content = lines
-              .splice(0, linesToTruncate)
-              .map(line => line.text)
-              .join('');
-            //substring with some random digit, this might need more work here based on the font size
-            setClippedText(content.substring(0, content.length - 3));
-          }}>
-          {content}
-        </Text>
-        <View style={styles.editAndDeleteContainer}>
-          {whichTab === 'Letters' ? (
-            <EditOrDeleteButtons item={item} />
-          ) : (
-            <DeleteIcon item={item} />
-          )}
-        </View>
-      </>
+      <Text
+        style={styles.content}
+        numberOfLines={linesToTruncate}
+        ellipsizeMode={'tail'}
+        onTextLayout={handleTextLayout}>
+        {content}
+      </Text>
     );
   };
   return (
@@ -66,6 +60,12 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             </Text>
           </View>
           {renderText()}
+          {whichTab === 'Letters' && !isTruncated && (
+            <EditOrDeleteButtons item={item} />
+          )}
+          {whichTab === 'GuestBook' && !isTruncated && (
+            <DeleteIcon item={item} />
+          )}
         </View>
       </View>
     </View>

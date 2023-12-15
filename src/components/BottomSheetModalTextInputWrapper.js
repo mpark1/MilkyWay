@@ -177,7 +177,7 @@ const BottomSheetModalTextInputWrapper = ({
         ) : (
           <BottomSheetTextInput
             style={styles.bottomSheetTextInput}
-            defaultValue={newMessage}
+            defaultValue={'테스트'}
             onChangeText={onChangeNewMessage}
             placeholderTextColor={'#000'}
             textAlign={'left'}

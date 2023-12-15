@@ -54,9 +54,9 @@ const styles = StyleSheet.create({
   },
   seeLess: {
     container: {
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
+      // position: 'absolute',
+      // bottom: 0,
+      // right: 0,
       backgroundColor: 'yellow',
     },
     title: {
