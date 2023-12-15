@@ -11,22 +11,23 @@ const MoreLessComponent = ({truncatedText, fullText, item, whichTab}) => {
       <Text style={styles.content}>
         {!more ? `${truncatedText}...` : fullText}
       </Text>
-
-      {more && whichTab === 'Letters' && (
-        <View style={styles.editAndDeleteContainer}>
-          <EditOrDeleteButtons item={item} />
-        </View>
-      )}
-      {more && whichTab === 'Guestbook' && (
-        <View style={styles.editAndDeleteContainer}>
-          <DeleteIcon item={item} />
-        </View>
-      )}
-      <Pressable
-        style={styles.seeLess.container}
-        onPress={() => setMore(!more)}>
-        <Text style={styles.seeLess.title}>{more ? '닫기' : '더보기'}</Text>
-      </Pressable>
+      <View style={styles.actionButtonsContainer}>
+        <Pressable
+          style={styles.seeLess.container}
+          onPress={() => setMore(!more)}>
+          <Text style={styles.seeLess.title}>{more ? '닫기' : '더보기'}</Text>
+        </Pressable>
+        {more && whichTab === 'Letters' && (
+          <View style={styles.editAndDeleteContainer}>
+            <EditOrDeleteButtons item={item} />
+          </View>
+        )}
+        {more && whichTab === 'Guestbook' && (
+          <View style={styles.editAndDeleteContainer}>
+            <DeleteIcon item={item} />
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -49,16 +50,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 35,
     bottom: 3,
-    backgroundColor: 'blue',
-    borderWidth: 1,
   },
+  actionButtonsContainer: {flexDirection: 'row', justifyContent: 'flex-end'},
   seeLess: {
-    container: {
-      // position: 'absolute',
-      // bottom: 0,
-      // right: 0,
-      backgroundColor: 'yellow',
-    },
     title: {
       color: '#939393',
       fontSize: scaleFontSize(14),

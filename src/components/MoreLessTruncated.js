@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import MoreLessComponent from './MoreLess';
 import {scaleFontSize} from '../assets/styles/scaling';
@@ -8,25 +8,26 @@ import DeleteIcon from './DeleteIcon';
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
-  const {content, createdAt, relationship, title} = item;
+  const {createdAt, relationship, title} = item;
+  const text = item.content.trim();
 
-  const handleTextLayout = event => {
-    const {lines} = event.nativeEvent;
-    if (lines.length > linesToTruncate) {
-      setIsTruncated(true);
-      const displayedText = lines
-        .slice(0, linesToTruncate)
-        .map(line => line.text)
-        .join('');
-      setClippedText(displayedText);
-    }
-  };
+  // const handleTextLayout = event => {
+  //   const {lines} = event.nativeEvent;
+  //   if (lines.length > linesToTruncate) {
+  //     setIsTruncated(true);
+  //     let displayedText = lines
+  //       .slice(0, linesToTruncate)
+  //       .map(line => line.text)
+  //       .join('');
+  //     setClippedText(displayedText);
+  //   }
+  // };
 
   const renderText = () => {
     return isTruncated ? (
       <MoreLessComponent
         truncatedText={clippedText}
-        fullText={content}
+        fullText={text}
         item={item}
         whichTab={whichTab}
       />
@@ -35,11 +36,28 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         style={styles.content}
         numberOfLines={linesToTruncate}
         ellipsizeMode={'tail'}
-        onTextLayout={handleTextLayout}>
-        {content}
+        onTextLayout={event => {
+          const {lines} = event.nativeEvent;
+          if (lines.length > 1) {
+            setIsTruncated(true);
+            let text = lines
+              .splice(0, linesToTruncate)
+              .map(line => line.text)
+              .join('');
+            setClippedText(text.substring(0, text.length - 3));
+          }
+        }}>
+        {text}
       </Text>
     );
   };
+
+  const printCallback = useCallback(() => {
+    console.log('print fulltext', text);
+    console.log('print isTruncated? ', isTruncated);
+    console.log('print clippedText', clippedText);
+  }, [clippedText, isTruncated]);
+
   return (
     <View style={styles.letter}>
       <Text style={styles.title}>{title}</Text>
@@ -60,12 +78,15 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             </Text>
           </View>
           {renderText()}
-          {whichTab === 'Letters' && !isTruncated && (
-            <EditOrDeleteButtons item={item} />
-          )}
-          {whichTab === 'GuestBook' && !isTruncated && (
-            <DeleteIcon item={item} />
-          )}
+          {printCallback()}
+          <View style={styles.editAndDeleteContainer}>
+            {whichTab === 'Letters' && !isTruncated && (
+              <EditOrDeleteButtons item={item} />
+            )}
+            {whichTab === 'GuestBook' && !isTruncated && (
+              <DeleteIcon item={item} />
+            )}
+          </View>
         </View>
       </View>
     </View>
@@ -129,12 +150,8 @@ const styles = StyleSheet.create({
   },
   editAndDeleteContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    width: 45,
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'grey',
+    width: '100%',
   },
 });
