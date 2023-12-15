@@ -3,8 +3,9 @@ import {Image, StyleSheet, Text, View} from 'react-native';
 import MoreLessComponent from './MoreLess';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
+import DeleteIcon from './DeleteIcon';
 
-const MoreLessTruncated = ({item, linesToTruncate}) => {
+const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const [clippedText, setClippedText] = useState(false);
   const {content, createdAt, relationship, title} = item;
 
@@ -14,6 +15,7 @@ const MoreLessTruncated = ({item, linesToTruncate}) => {
         truncatedText={clippedText}
         fullText={content}
         item={item}
+        whichTab={whichTab}
       />
     ) : (
       <>
@@ -24,20 +26,22 @@ const MoreLessTruncated = ({item, linesToTruncate}) => {
           onTextLayout={event => {
             //get all lines
             const {lines} = event.nativeEvent;
-            if (lines.length > 1) {
-              //get lines after it truncate
-              let content = lines
-                .splice(0, linesToTruncate)
-                .map(line => line.text)
-                .join('');
-              //substring with some random digit, this might need more work here based on the font size
-              setClippedText(content.substring(0, content.length - 6));
-            }
+            //get lines after it truncate
+            let content = lines
+              .splice(0, linesToTruncate)
+              .map(line => line.text)
+              .join('');
+            //substring with some random digit, this might need more work here based on the font size
+            setClippedText(content.substring(0, content.length - 3));
           }}>
           {content}
         </Text>
         <View style={styles.editAndDeleteContainer}>
-          <EditOrDeleteButtons item={item} />
+          {whichTab === 'Letters' ? (
+            <EditOrDeleteButtons item={item} />
+          ) : (
+            <DeleteIcon item={item} />
+          )}
         </View>
       </>
     );
@@ -131,5 +135,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     bottom: 0,
+    backgroundColor: 'grey',
   },
 });

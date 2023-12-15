@@ -38,7 +38,9 @@ const Letters = ({navigation}) => {
   };
 
   const renderFlatListItem = useCallback(({item}) => {
-    return <MoreLessTruncated item={item} linesToTruncate={2} />;
+    return (
+      <MoreLessTruncated item={item} linesToTruncate={2} whichTab={'Letters'} />
+    );
   }, []);
 
   const renderWriteLetterButton = useCallback(() => {

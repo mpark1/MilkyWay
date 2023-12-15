@@ -9,6 +9,12 @@ import {
 
 import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
+import {mutationItem} from '../utils/amplifyUtil';
+import {
+  createGuestBook,
+  createPetIntroduction,
+  updatePetIntroduction,
+} from '../graphql/mutations';
 
 const INTRO_MSG_PLACEHOLDER =
   '추모의 메세지를 입력해주세요. (아래 예시글)\n\n사랑하는 [이름]이 세상을 떠났습니다. [이름]은 태어난지 1주일만에 저희 집에 와서 저희와는 가족같이 지냈습니다. 솔직히 아직도 [이름]이 별이 되었다는게 믿어지지 않습니다. ' +
@@ -19,13 +25,11 @@ const GUESTBOOK_MSG_PLACEHOLDER = '방명록을 남겨주세요 (1000자 이내)
 
 const BottomSheetModalTextInputWrapper = ({
   petID,
-  whichTab, // Letters or GuestBook
-  option, // CREATE or UPDATE
-  mutationName,
+  userID,
+  whichTab, // Home or GuestBook
+  option, // Create or Update
   bottomSheetModalRef,
   originalMsg,
-  onSubmit,
-  setTextWhenSubmitted,
 }) => {
   const [newMessage, setNewMessage] = useState(originalMsg);
   const onChangeNewMessage = useCallback(text => setNewMessage(text), []);
@@ -47,37 +51,52 @@ const BottomSheetModalTextInputWrapper = ({
     [],
   );
 
-  // const onSubmit = () => {
-  //   const newIntroductionInput = {
-  //     petID: petID,
-  //     introductionMsg: newMessage,
-  //   };
-  //
-  //   mutationItem(
-  //     isCallingAPI,
-  //     setIsCallingAPI,
-  //     mutationName,
-  //     createPetIntroduction,
-  //     '추모의 메세지가 등록되었습니다.',
-  //     'none',
-  //   );
-  //   bottomSheetModalRef.current?.close();
-  // };
+  const createIntroduction = () => {
+    const newIntroductionInput = {
+      petID: petID,
+      introductionMsg: newMessage,
+    };
 
-  // const updateMessage = async () => {
-  //   const updateMessageInput = {
-  //     petID: petID,
-  //     introductionMsg: introductionMsg,
-  //   };
-  //   // await mutationItem(
-  //   //   isCallingAPI,
-  //   //   setIsCallingAPI,
-  //   //   updateMessageInput,
-  //   //   updatePetIntroduction,
-  //   //   '추모의 메세지가 업데이트되었습니다.',
-  //   //   'none',
-  //   // );
-  // };
+    mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      newIntroductionInput,
+      createPetIntroduction,
+      '추모의 메세지가 등록되었습니다.',
+      'none',
+    );
+  };
+
+  const submitGuestMessage = () => {
+    const newMessageInput = {
+      petID: petID,
+      content: newMessage,
+      guestBookAuthorId: userID,
+    };
+    mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      newMessageInput,
+      createGuestBook,
+      '방명록이 성공적으로 등록되었습니다.',
+      'none',
+    );
+  };
+
+  const updateIntroduction = async () => {
+    const updateMessageInput = {
+      petID: petID,
+      introductionMsg: newMessage,
+    };
+    await mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      updateMessageInput,
+      updatePetIntroduction,
+      '추모의 메세지가 업데이트되었습니다.',
+      'none',
+    );
+  };
 
   const renderCancelButton = () => {
     return (
@@ -87,20 +106,38 @@ const BottomSheetModalTextInputWrapper = ({
         containerStyle={styles.cancelButton}
         buttonStyle={globalStyle.backgroundWhite}
         onPress={
-          option === 'CREATE'
+          option === 'Create'
             ? () => {
-                //  option === 'CREATE'
+                //  option === 'Create'
                 setNewMessage('');
                 bottomSheetModalRef.current?.close();
               }
             : () => {
-                //  option === 'UPDATE'
+                //  option === 'Update'
                 setNewMessage(originalMsg);
                 bottomSheetModalRef.current?.close();
               }
         }
       />
     );
+  };
+
+  const onSubmit = () => {
+    switch (whichTab) {
+      case 'Home':
+        if (option === 'Create') {
+          createIntroduction();
+        } else if (option === 'Update') {
+          updateIntroduction();
+        }
+        break;
+      case 'GuestBook':
+        submitGuestMessage();
+        break;
+      default:
+        console.log('nothing was done during submit in bottomsheetmodal.');
+    }
+    bottomSheetModalRef.current?.close();
   };
 
   const renderSubmitButton = () => {
@@ -120,11 +157,11 @@ const BottomSheetModalTextInputWrapper = ({
   const renderModalInner = () => {
     return (
       <View style={styles.bottomSheetInnerSpacer}>
-        {option === 'CREATE' ? (
+        {option === 'Create' ? (
           <BottomSheetTextInput
             style={styles.bottomSheetTextInput}
             placeholder={
-              whichTab === 'Letters'
+              whichTab === 'Home'
                 ? INTRO_MSG_PLACEHOLDER
                 : GUESTBOOK_MSG_PLACEHOLDER
             }

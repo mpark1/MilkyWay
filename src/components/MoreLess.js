@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import {StyleSheet, View, Text, Pressable} from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
+import DeleteIcon from './DeleteIcon';
 
-const MoreLessComponent = ({truncatedText, fullText, item}) => {
+const MoreLessComponent = ({truncatedText, fullText, item, whichTab}) => {
   const [more, setMore] = useState(false);
   return (
     <View style={styles.container}>
@@ -11,9 +12,14 @@ const MoreLessComponent = ({truncatedText, fullText, item}) => {
         {!more ? `${truncatedText}...` : fullText}
       </Text>
 
-      {more && (
+      {more && whichTab === 'Letters' && (
         <View style={styles.editAndDeleteContainer}>
           <EditOrDeleteButtons item={item} />
+        </View>
+      )}
+      {more && whichTab === 'Guestbook' && (
+        <View style={styles.editAndDeleteContainer}>
+          <DeleteIcon item={item} />
         </View>
       )}
       <Pressable
@@ -43,12 +49,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 35,
     bottom: 3,
+    backgroundColor: 'blue',
+    borderWidth: 1,
   },
   seeLess: {
     container: {
       position: 'absolute',
       bottom: 0,
       right: 0,
+      backgroundColor: 'yellow',
     },
     title: {
       color: '#939393',
