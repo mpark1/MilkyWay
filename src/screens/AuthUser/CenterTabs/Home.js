@@ -27,10 +27,12 @@ import {mutationItem, querySingleItem} from '../../../utils/amplifyUtil';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from '../../../components/DeleteAlertBox';
 import {getIntroductionMessage} from '../../../graphql/queries';
+import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
 
 const Home = ({navigation, route}) => {
   const {lastWord, petID} = route.params;
   const [introductionMsg, setIntroductionMsg] = useState('');
+  const originalMsgCopy = introductionMsg;
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
@@ -83,18 +85,7 @@ const Home = ({navigation, route}) => {
   );
   const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
-
-  const renderBottomSheetCancelButton = () => {
-    return (
-      <Button
-        title={'취소'}
-        titleStyle={styles.cancel}
-        containerStyle={styles.cancelButton}
-        buttonStyle={globalStyle.backgroundWhite}
-        onPress={() => bottomSheetModalRef.current?.close()}
-      />
-    );
-  };
+  const bottomSheetModalRef2 = useRef(null);
 
   const uploadMessageToDb = () => {
     const newIntroductionInput = {
@@ -112,58 +103,6 @@ const Home = ({navigation, route}) => {
     bottomSheetModalRef.current?.close();
   };
 
-  const renderBottomSheetSubmitButton = () => {
-    return (
-      <Button
-        title={'완료'}
-        titleStyle={styles.submit}
-        containerStyle={styles.submitButton}
-        buttonStyle={globalStyle.backgroundBlue}
-        onPress={uploadMessageToDb}
-      />
-    );
-  };
-
-  const renderBottomSheetModalInner = () => {
-    return (
-      <View style={styles.bottomSheetInnerSpacer}>
-        <BottomSheetTextInput
-          style={styles.bottomSheetTextInput}
-          placeholder={
-            '추모의 메세지를 입력해주세요. (아래 예시글)\n\n사랑하는 [이름]이 세상을 떠났습니다. [이름]은 태어난지 1주일만에 저희 집에 와서 저희와는 가족같이 지냈습니다. 솔직히 아직도 [이름]이 별이 되었다는게 믿어지지 않습니다. ' +
-            '짧다면 짧고 길다면 긴 10년동안 가족같이 지내던 아이가 갑자기 없으니 너무 허전해요. ' +
-            '[이름]이 좋은 곳에 갈 수 있게, 저희가 [이름]을 잘 보내줄 수 있게 같이 슬퍼해 주시고 애도해 주세요. '
-          }
-          onChangeText={onChangeIntroductionMsg}
-          placeholderTextColor={'#939393'}
-          textAlign={'left'}
-          textAlignVertical={'top'}
-          autoCorrect={false}
-          multiline={true}
-          scrollEnabled={true}
-          maxLength={1000}
-        />
-        <View style={styles.bottomSheetActionButtons}>
-          {renderBottomSheetCancelButton()}
-          {renderBottomSheetSubmitButton()}
-        </View>
-      </View>
-    );
-  };
-  const renderBottomSheetModal = () => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={false}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  };
 
   const onDeleteMessage = async () => {
     const deleteMessageInput = {
@@ -203,7 +142,7 @@ const Home = ({navigation, route}) => {
         <View style={styles.introductionMsg.titleWithActionButtons}>
           <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
           <View style={styles.introductionMsg.editAndDeleteContainer}>
-            <Pressable onPress={() => updateMessage()}>
+            <Pressable onPress={() => bottomSheetModalRef2.current?.present()}>
               <EvilIcons name={'pencil'} color={'#373737'} size={26} />
             </Pressable>
             <Pressable onPress={() => DeleteAlertBox(onDeleteMessage)}>
@@ -227,8 +166,24 @@ const Home = ({navigation, route}) => {
         ) : (
           showIntroductionMessage()
         )}
-        {renderBottomSheetModal()}
       </View>
+           {!introductionMsg ? (
+        <BottomSheetModalTextInputWrapper
+          petID={petID}
+          whichTab={'Home'}
+          option={'Create'}
+          bottomSheetModalRef={bottomSheetModalRef}
+          originalMsg={''}
+        />
+      ) : (
+        <BottomSheetModalTextInputWrapper
+          petID={petID}
+          whichTab={'Home'}
+          option={'Update'}
+          bottomSheetModalRef={bottomSheetModalRef2}
+          originalMsg={originalMsgCopy}
+        />
+      )}
     </ScrollView>
   );
 };
