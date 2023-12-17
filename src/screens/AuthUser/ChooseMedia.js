@@ -12,27 +12,24 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
+import ages from '../../data/ages.json';
+
 const ChooseMedia = ({navigation}) => {
   const [mediaType, setMediaType] = useState('');
-  const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const [selectedAge, setSelectedAge] = useState(-2);
-  const [items, setItems] = useState([
-    {label: '유아기', value: 0},
-    {label: '청소년기', value: 1},
-    {label: '장년기', value: 2},
-    {label: '노년기', value: 3},
-    {label: '관련없음', value: -1},
-  ]);
-
   const mediaTypeRef = useRef(mediaType);
-
-  useEffect(() => {
-    console.log('Media Type Updated:', mediaType);
-    mediaTypeRef.current = mediaType;
-  }, [mediaType]);
+  const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
+  const ageOptions = ages.map(item => ({
+    label: item,
+    value: item,
+  }));
+  const [age, setAge] = useState(null);
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
+
+  useEffect(() => {
+    mediaTypeRef.current = mediaType;
+  }, [mediaType]);
 
   const renderBackdrop = useCallback(
     props => (
@@ -50,39 +47,54 @@ const ChooseMedia = ({navigation}) => {
   const onLaunchGallery = () => {
     let mediaList = [];
 
-    console.log('media type inside onLaunchGallery: ', mediaTypeRef.current);
-
     ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaTypeRef.current === 'photo' ? 10 : 1,
+      maxFiles: mediaTypeRef.current === 'photo' ? 4 : 1,
       mediaType: mediaTypeRef.current,
+      cropping: true,
     })
       .then(response => {
-        response.map(media => {
+        response.forEach(media => {
           mediaList.push({
             uri: media.sourceURL,
           });
         });
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
-          mediaType: mediaType,
+          mediaType: mediaTypeRef.current,
           mediaList: mediaList,
+          age: age,
         });
       })
       .catch(e => console.log('Error: ', e.message));
   };
 
   const onLaunchCamera = () => {
-    ImagePicker.openCamera({});
+    let singleMedia = [];
+    ImagePicker.openCamera({
+      // width:300,
+      // height:400,
+      mediaType: mediaTypeRef.current,
+      cropping: mediaTypeRef.current === 'photo', // cropping은 사진만 가능하게 (안드로이드에서 영상 크롭 안됨)
+    })
+      .then(response => {
+        singleMedia.push(response);
+        bottomSheetModalRef.current?.close();
+        navigation.navigate('MediaPreview', {
+          mediaType: mediaTypeRef.current,
+          mediaList: singleMedia,
+          age: age,
+        });
+      })
+      .catch(e => console.log('Error: ', e.message));
   };
 
-  const renderBottomSheetModalInner = useCallback(() => {
+  const renderBottomSheetModalInner = () => {
     return (
       <View style={styles.bottomSheet.inner}>
         <Pressable
           style={styles.bottomSheet.icons}
-          // onPress={()=>onLaunchCamera()}
-        >
+          onPress={() => onLaunchCamera()}>
           <Entypo name={'camera'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>카메라</Text>
         </Pressable>
@@ -94,9 +106,9 @@ const ChooseMedia = ({navigation}) => {
         </Pressable>
       </View>
     );
-  }, []);
+  };
 
-  const renderBottomSheetModal = useCallback(() => {
+  const renderBottomSheetModal = () => {
     return (
       <BottomSheetModal
         handleIndicatorStyle={styles.hideBottomSheetHandle}
@@ -109,7 +121,7 @@ const ChooseMedia = ({navigation}) => {
         children={renderBottomSheetModalInner()}
       />
     );
-  }, []);
+  };
 
   const renderSelectPhotoButton = () => {
     const plusButton = (
@@ -132,7 +144,7 @@ const ChooseMedia = ({navigation}) => {
           }}
           icon={plusButton}
         />
-        <Text style={styles.dashedBorderButton.guide}>(최대 10장)</Text>
+        <Text style={styles.dashedBorderButton.guide}>(최대 4장)</Text>
       </View>
     );
   };
@@ -177,11 +189,12 @@ const ChooseMedia = ({navigation}) => {
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'연령을 선택해주세요'}
-          setValue={setSelectedAge}
-          value={selectedAge}
-          items={items}
+          items={ageOptions}
+          value={age}
+          setValue={setAge}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
+          listMode="SCROLLVIEW"
         />
       </View>
       <Text style={[styles.label, {marginBottom: 10}]}>사진 / 영상</Text>
@@ -262,4 +275,3 @@ const styles = StyleSheet.create({
     },
   },
 });
-
