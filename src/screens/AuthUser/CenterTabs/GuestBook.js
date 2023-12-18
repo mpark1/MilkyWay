@@ -7,7 +7,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-import {queryListItemsByPetIDPagination} from '../../../utils/amplifyUtil';
+import {
+  queryGuestBooksByPetIDPagination,
+  queryListItemsByPetIDPagination,
+} from '../../../utils/amplifyUtil';
 import {listGuestBooks} from '../../../graphql/queries';
 import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
@@ -30,7 +33,7 @@ const GuestBook = ({navigation}) => {
   }, [petID]);
 
   const fetchMessages = async () => {
-    queryListItemsByPetIDPagination(
+    queryGuestBooksByPetIDPagination(
       isLoadingLetters,
       setIsLoadingLetters,
       listGuestBooks,
@@ -38,9 +41,9 @@ const GuestBook = ({navigation}) => {
       petID,
       guestBookData.nextToken,
     ).then(data => {
-      const {items, nextToken: newNextToken} = data.listGuestBooks;
+      const {letters, nextToken: newNextToken} = data;
       setGuestBookData(prev => ({
-        guestMessages: [...prev.guestMessages, ...items],
+        guestMessages: [...prev.guestMessages, ...letters],
         nextToken: newNextToken,
       }));
     });

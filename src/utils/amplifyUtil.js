@@ -103,7 +103,6 @@ export async function queryLettersByPetIDPagination(
       const {items, nextToken} = response.data.listLetters; // includes items (array format), nextToken
       letterData.letters = items;
       letterData.nextToken = nextToken;
-      console.log('print fetch letters- first : ', letterData.letters);
 
       const lettersWithUserDetails = await Promise.all(
         letterData.letters.map(async letter => {
@@ -117,10 +116,62 @@ export async function queryLettersByPetIDPagination(
         }),
       );
 
-      console.log('print fetch letters- second : ', letterData.letters[0]);
+      console.log('print first fetched letter: ', letterData.letters[0]);
       return letterData;
     } catch (error) {
       console.log('error for list fetching: ', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+}
+
+export async function queryGuestBooksByPetIDPagination(
+  isLoading,
+  setIsLoading,
+  queryName,
+  sizeLimit,
+  petID,
+  token,
+) {
+  if (!isLoading) {
+    setIsLoading(true);
+    try {
+      const client = generateClient();
+      const response = await client.graphql({
+        query: queryName,
+        variables: {
+          petID: petID,
+          limit: sizeLimit,
+          nextToken: token,
+        },
+        authMode: 'userPool',
+      });
+
+      const letterData = {letters: [], nextToken: null};
+      const {items, nextToken} = response.data.listGuestBooks; // includes items (array format), nextToken
+      letterData.letters = items;
+      letterData.nextToken = nextToken;
+
+      const lettersWithUserDetails = await Promise.all(
+        letterData.letters.map(async letter => {
+          const userDetails = await client.graphql({
+            query: getUser,
+            variables: {id: letter.guestBookAuthorId},
+            authMode: 'userPool',
+          });
+          letter.userName = userDetails.data.getUser.name;
+          letter.profilePic = userDetails.data.getUser.profilePic;
+        }),
+      );
+
+      console.log(
+        'print first fetched guest messages : ',
+        letterData.letters[0],
+      );
+      return letterData;
+    } catch (error) {
+      console.log('error for list fetching, guestBook: ', error);
     } finally {
       setIsLoading(false);
     }
