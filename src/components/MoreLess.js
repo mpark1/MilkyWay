@@ -22,7 +22,7 @@ const MoreLessComponent = ({truncatedText, fullText, item, whichTab}) => {
             <EditOrDeleteButtons item={item} />
           </View>
         )}
-        {more && whichTab === 'Guestbook' && (
+        {more && whichTab === 'GuestBook' && (
           <View style={styles.editAndDeleteContainer}>
             <DeleteIcon item={item} />
           </View>

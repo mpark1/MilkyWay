@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@amuizz/read-more-text": "^1.1.2",
     "@aws-amplify/cli": "^12.8.2",
     "@aws-amplify/react-native": "^1.0.5",
     "@gorhom/bottom-sheet": "^4.5.1",
@@ -46,6 +47,7 @@
     "react-native-screens": "^3.27.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.0.2",
+    "react-native-video": "^5.2.1",
     "react-redux": "^9.0.2",
     "redux": "^5.0.0"
   },

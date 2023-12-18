@@ -1,11 +1,20 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  Text,
+  Image,
+} from 'react-native';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import {useSelector} from 'react-redux';
 import {listLetters} from '../../../graphql/queries';
+import ReadMoreText from '@amuizz/read-more-text';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import {queryListItemsByPetIDPagination} from '../../../utils/amplifyUtil';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Letters = ({navigation}) => {
   const pageSize = 3;
@@ -59,7 +68,7 @@ const Letters = ({navigation}) => {
       //           {'   '}
       //         </Text>
       //         <Text style={styles.letter.relationshipAndDate}>
-      //           {item.relationship} ({item.timestamp.substring(0, 10)})
+      //           {item.relationship} ({item.createdAt.substring(0, 10)})
       //         </Text>
       //       </View>
       //       <ReadMoreText
@@ -71,7 +80,6 @@ const Letters = ({navigation}) => {
       //         readLessStyle={styles.letter.seeLessOrMore.title}>
       //         {item.content}
       //       </ReadMoreText>
-      //
       //     </View>
       //   </View>
       // </View>
@@ -126,5 +134,73 @@ const styles = StyleSheet.create({
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,
     marginRight: Dimensions.get('window').width * 0.07,
+  },
+  letter: {
+    container: {
+      borderBottomWidth: 1,
+      borderColor: '#D9D9D9',
+      paddingHorizontal: 20,
+      paddingVertical: 13,
+    },
+    title: {
+      color: '#374957',
+      fontSize: scaleFontSize(17),
+      fontWeight: 'bold',
+      paddingBottom: 7,
+    },
+    flexDirectionRow: {
+      flexDirection: 'row',
+    },
+    profilePicContainer: {
+      height: 80,
+      width: 80,
+      marginTop: 8,
+    },
+    profilePic: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 40,
+    },
+    messageContainer: {
+      flex: 1,
+      paddingLeft: 5,
+      marginLeft: 25,
+    },
+    nameRelationshipDateContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-end',
+      marginBottom: 7,
+      // backgroundColor: '#EEEEEE',
+    },
+    name: {
+      fontWeight: 'bold',
+      fontSize: scaleFontSize(16),
+      color: '#374957',
+    },
+    relationshipAndDate: {
+      color: '#939393',
+      fontSize: scaleFontSize(16),
+    },
+    content: {
+      color: '#374957',
+      fontSize: scaleFontSize(16),
+      lineHeight: scaleFontSize(24),
+      paddingTop: 10,
+    },
+    editAndDeleteContainer: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      width: '100%',
+    },
+    actionButtonsContainer: {flexDirection: 'row', justifyContent: 'flex-end'},
+    seeLessOrMore: {
+      title: {
+        color: '#939393',
+        fontSize: scaleFontSize(14),
+        lineHeight: scaleFontSize(24),
+      },
+    },
   },
 });

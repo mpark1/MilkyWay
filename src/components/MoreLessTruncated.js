@@ -11,17 +11,17 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const {createdAt, relationship, title} = item;
   const text = item.content.trim();
 
-  // const handleTextLayout = event => {
-  //   const {lines} = event.nativeEvent;
-  //   if (lines.length > linesToTruncate) {
-  //     setIsTruncated(true);
-  //     let displayedText = lines
-  //       .slice(0, linesToTruncate)
-  //       .map(line => line.text)
-  //       .join('');
-  //     setClippedText(displayedText);
-  //   }
-  // };
+  const handleTextLayout = event => {
+    const {lines} = event.nativeEvent;
+    if (lines.length > linesToTruncate) {
+      setIsTruncated(true);
+      let displayedText = lines
+        .slice(0, linesToTruncate)
+        .map(line => line.text)
+        .join('');
+      setClippedText(displayedText);
+    }
+  };
 
   const renderText = () => {
     return isTruncated ? (
@@ -35,18 +35,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
       <Text
         style={styles.content}
         numberOfLines={linesToTruncate}
-        ellipsizeMode={'tail'}
-        onTextLayout={event => {
-          const {lines} = event.nativeEvent;
-          if (lines.length > 1) {
-            setIsTruncated(true);
-            let text = lines
-              .splice(0, linesToTruncate)
-              .map(line => line.text)
-              .join('');
-            setClippedText(text.substring(0, text.length - 3));
-          }
-        }}>
+        onTextLayout={handleTextLayout}>
         {text}
       </Text>
     );
@@ -71,7 +60,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           />
         </View>
         <View style={styles.collapsedTextContainer}>
-         {Platform.OS === 'ios' && (
+          {Platform.OS === 'ios' && (
             <Text
               style={{height: 0}}
               onTextLayout={event => {
@@ -82,7 +71,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
                     .splice(0, linesToTruncate)
                     .map(line => line.text)
                     .join('');
-                  setClippedText(text.substring(0, text.length - 6));
+                  setClippedText(text.substring(0, text.length - 4));
                 }
               }}>
               {text}
