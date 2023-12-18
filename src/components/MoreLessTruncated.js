@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View, Platform} from 'react-native';
 import MoreLessComponent from './MoreLess';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
@@ -71,7 +71,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           />
         </View>
         <View style={styles.collapsedTextContainer}>
-         {isiOS && (
+         {Platform.OS === 'ios' && (
             <Text
               style={{height: 0}}
               onTextLayout={event => {
