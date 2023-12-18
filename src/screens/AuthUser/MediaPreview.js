@@ -26,14 +26,12 @@ const MediaPreview = ({navigation, route}) => {
   const [mediaList, setMediaList] = useState(initialMediaList);
   console.log('mediaType: ', mediaType);
   console.log('imageList: ', mediaList);
-  console.log('age: ', age);
-
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const [selectedAge, setSelectedAge] = useState(age);
   const ageOptions = ages.map(item => ({
     label: item,
     value: item,
   }));
+  const [selectedAge, setSelectedAge] = useState(age);
 
   const handleRemoveItem = index => {
     const updatedList = [...mediaList];
@@ -75,7 +73,7 @@ const MediaPreview = ({navigation, route}) => {
               <Image
                 style={styles.image}
                 resizeMode={'cover'}
-                source={{uri: item.uri}}
+                source={{uri: item.path}}
               />
               <Pressable
                 style={styles.closeCircle}
@@ -106,7 +104,7 @@ const MediaPreview = ({navigation, route}) => {
       <View style={styles.video.container}>
         <Video
           source={{
-            uri: mediaList[0].uri, // 영상은 1개만 가능
+            uri: mediaList[0].path, // 영상은 1개만 가능
           }}
           style={styles.video.style}
           paused={true}

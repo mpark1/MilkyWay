@@ -6,7 +6,9 @@
     "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPT82oASbRfg5Ul3QCm7akL1QAVdb8ocNbpw&usqp=CAU",
     "relationship": "누나",
     "timestamp": "2023-11-25",
-    "content": "사랑하는 내 동생 마루야, 다시 만날때까지 건강하게 있어! 내 첫 고양이로 너를 만나서 정말 행복했어."
+    "content": "사랑하는 내 동생 마루야, \n다시 만날때까지 건강하게 있어! \n내 첫 고양이로 너를 만나서 정말 행복했어.",
+
+
 
   },
   {
@@ -16,7 +18,7 @@
     "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAeV8wwRC8rn2Nm0_fRH4LLd2aD0R1CI83cg&usqp=CAU",
     "relationship": "엄마",
     "timestamp": "2024-11-25",
-    "content": "엄마는 마루를 마음에 묻었어. 아직도 마루가 엄마를 떠났다는게 믿겨지지 않지만 그래도 씩씩하게 이겨내고 있어."
+    "content": "엄마는 마루를 마음에 묻었어. \n아직도 마루가\n 엄마를 떠났다는게\n 믿겨지지 않지만 그래도 씩씩하게 이겨내고 있어."
   },
   {
     "id": 3,
@@ -27,4 +29,22 @@
     "timestamp": "2024-11-25",
     "content": "마루야 오늘 옷장 정리하는데 너 장난감을 찾은거 있지, 너와의 추억거리가 집안 곳곳 남아있고 아직도 너의 예쁜 모습이 눈에 생생하다. 우리 씩씩하게 잘 지내니까 걱정말고 편히있어!"
   },
+  {
+    "id": 4,
+    "title": "마루야~",
+    "name": "이제니",
+    "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIu-TvnR2bIDEJWD5omG-P0FQzjiUabJ6uNA&usqp=CAU",
+    "relationship": "누나",
+    "timestamp": "2024-12-01",
+    "content": "첫 줄만 채워진 짧은 편지는 어떤가요"
+  },
+  {
+    "id": 5,
+    "title": "마루야~",
+    "name": "이제니",
+    "profilePic": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIu-TvnR2bIDEJWD5omG-P0FQzjiUabJ6uNA&usqp=CAU",
+    "relationship": "누나",
+    "timestamp": "2024-12-01",
+    "content": "마루야 오늘 옷장 정리하는데 너 장난감을 찾은거 있지, 너와의 추억거리"
+  }
 ]

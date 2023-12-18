@@ -18,17 +18,16 @@ const ChooseMedia = ({navigation}) => {
   const [mediaType, setMediaType] = useState('');
   const mediaTypeRef = useRef(mediaType);
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const [age, setAge] = useState('');
   const ageOptions = ages.map(item => ({
     label: item,
     value: item,
   }));
+  const [age, setAge] = useState(null);
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
 
   useEffect(() => {
-    // console.log('Media Type Updated:', mediaType);
     mediaTypeRef.current = mediaType;
   }, [mediaType]);
 
@@ -48,20 +47,31 @@ const ChooseMedia = ({navigation}) => {
   const onLaunchGallery = () => {
     let mediaList = [];
 
-    console.log('media type inside onLaunchGallery: ', mediaTypeRef.current);
-
     ImagePicker.openPicker({
       multiple: true,
       maxFiles: mediaTypeRef.current === 'photo' ? 4 : 1,
       mediaType: mediaTypeRef.current,
-      cropping: true,
+      cropping: false,
     })
-      .then(response => {
-        response.forEach(media => {
-          mediaList.push({
-            uri: media.sourceURL,
-          });
-        });
+      .then(async images => {
+        console.log('images: ', images);
+        for (const image of images) {
+          mediaList.push(
+            await ImagePicker.openCropper({
+              uri: image.sourceURL,
+              path: image.path,
+              width: 1000,
+              height: 1000,
+            }),
+          );
+        }
+
+        // response.forEach(media => {
+        //   mediaList.push({
+        //     uri: media.sourceURL,
+        //   });
+        // });
+
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
           mediaType: mediaTypeRef.current,
@@ -92,7 +102,7 @@ const ChooseMedia = ({navigation}) => {
       .catch(e => console.log('Error: ', e.message));
   };
 
-  const renderBottomSheetModalInner = useCallback(() => {
+  const renderBottomSheetModalInner = () => {
     return (
       <View style={styles.bottomSheet.inner}>
         <Pressable
@@ -109,9 +119,9 @@ const ChooseMedia = ({navigation}) => {
         </Pressable>
       </View>
     );
-  }, []);
+  };
 
-  const renderBottomSheetModal = useCallback(() => {
+  const renderBottomSheetModal = () => {
     return (
       <BottomSheetModal
         handleIndicatorStyle={styles.hideBottomSheetHandle}
@@ -124,7 +134,7 @@ const ChooseMedia = ({navigation}) => {
         children={renderBottomSheetModalInner()}
       />
     );
-  }, []);
+  };
 
   const renderSelectPhotoButton = () => {
     const plusButton = (
@@ -193,10 +203,11 @@ const ChooseMedia = ({navigation}) => {
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'연령을 선택해주세요'}
           items={ageOptions}
-          setValue={setAge}
           value={age}
+          setValue={setAge}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
+          listMode="SCROLLVIEW"
         />
       </View>
       <Text style={[styles.label, {marginBottom: 10}]}>사진 / 영상</Text>

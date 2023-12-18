@@ -1,0 +1,7 @@
+{
+  "amplifydev": {
+    "configLevel": "project",
+    "useProfile": true,
+    "profileName": "Min"
+  }
+}

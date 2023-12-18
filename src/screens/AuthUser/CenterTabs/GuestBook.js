@@ -12,6 +12,7 @@ import {
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
+import MoreLessTruncated from '../../../components/MoreLessTruncated';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 2;
@@ -76,11 +77,10 @@ const GuestBook = ({navigation}) => {
 
   const renderFlatListItem = useCallback(({item}) => {
     return (
-      <ShortGuestBookMessage
-        timestamp={item.timestamp}
-        profilePic={item.profilePic}
-        name={item.name}
-        message={item.message}
+      <MoreLessTruncated
+        item={item}
+        linesToTruncate={2}
+        whichTab={'GuestBook'}
       />
     );
   }, []);

@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-milkyway-amplifydev-94310-authRole",
+      "UnauthRoleArn": "arn:aws:iam::844329073537:role/amplify-milkyway-amplifydev-94310-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::844329073537:role/amplify-milkyway-amplifydev-94310-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-milkyway-amplifydev-94310-deployment",
+      "UnauthRoleName": "amplify-milkyway-amplifydev-94310-unauthRole",
+      "StackName": "amplify-milkyway-amplifydev-94310",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:844329073537:stack/amplify-milkyway-amplifydev-94310/97a32930-9950-11ee-8023-061d9f060a8c",
+      "AmplifyAppId": "d1q9vvmasuytsv"
+    }
+  }
+}

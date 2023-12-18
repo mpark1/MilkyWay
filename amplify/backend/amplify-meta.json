@@ -1,0 +1,106 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-milkyway-amplifydev-94310-authRole",
+      "UnauthRoleArn": "arn:aws:iam::844329073537:role/amplify-milkyway-amplifydev-94310-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::844329073537:role/amplify-milkyway-amplifydev-94310-authRole",
+      "Region": "ap-northeast-2",
+      "DeploymentBucketName": "amplify-milkyway-amplifydev-94310-deployment",
+      "UnauthRoleName": "amplify-milkyway-amplifydev-94310-unauthRole",
+      "StackName": "amplify-milkyway-amplifydev-94310",
+      "StackId": "arn:aws:cloudformation:ap-northeast-2:844329073537:stack/amplify-milkyway-amplifydev-94310/97a32930-9950-11ee-8023-061d9f060a8c",
+      "AmplifyAppId": "d1q9vvmasuytsv"
+    }
+  },
+  "api": {
+    "milkyway": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "milkywayb2dd3f99"
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authmilkywayb2dd3f99"
+              }
+            }
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDate": "2023-12-18T09:35:31.754Z",
+              "apiKeyExpirationDays": 7,
+              "description": ""
+            },
+            "authenticationType": "API_KEY"
+          }
+        }
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync"
+    }
+  },
+  "auth": {
+    "milkywayb2dd3f99": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": [
+            "REQUIRES_LOWERCASE",
+            "REQUIRES_NUMBERS",
+            "REQUIRES_UPPERCASE"
+          ]
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
+  "function": {
+    "createNewUserinDB": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput",
+            "GraphQLAPIEndpointOutput"
+          ],
+          "category": "api",
+          "resourceName": "milkyway"
+        },
+        {
+          "attributes": [
+            "UserPoolId"
+          ],
+          "category": "auth",
+          "resourceName": "milkywayb2dd3f99"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  }
+}
