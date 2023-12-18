@@ -71,6 +71,23 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           />
         </View>
         <View style={styles.collapsedTextContainer}>
+         {isiOS && (
+            <Text
+              style={{height: 0}}
+              onTextLayout={event => {
+                const {lines} = event.nativeEvent;
+                if (lines.length > linesToTruncate) {
+                  setIsTruncated(true);
+                  let text = lines
+                    .splice(0, linesToTruncate)
+                    .map(line => line.text)
+                    .join('');
+                  setClippedText(text.substring(0, text.length - 6));
+                }
+              }}>
+              {text}
+            </Text>
+          )}
           <View style={styles.nameRelationshipDateContainer}>
             <Text style={styles.name}>한가인{'   '}</Text>
             <Text style={styles.relationshipAndDate}>
