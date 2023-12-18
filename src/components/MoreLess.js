@@ -51,7 +51,12 @@ const styles = StyleSheet.create({
     right: 35,
     bottom: 3,
   },
-  actionButtonsContainer: {flexDirection: 'row', justifyContent: 'flex-end'},
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingTop: 5,
+  },
   seeLess: {
     title: {
       color: '#939393',

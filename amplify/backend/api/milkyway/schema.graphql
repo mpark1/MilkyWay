@@ -89,7 +89,8 @@ type Letter @model
     relationship: String!
     content: String!
     createdAt: String!
-    author: User @hasOne
+    letterAuthorId: ID!
+    author: User @hasOne (fields: ["letterAuthorId"])
     accessLevel: letterAccessLevel!
 }
 
@@ -105,4 +106,8 @@ type GuestBook @model
     content: String!
     createdAt: String!
     author: User @hasOne
+}
+
+type Query {
+    myCustomQuery(args: String): String # your custom queries here
 }

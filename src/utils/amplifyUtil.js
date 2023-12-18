@@ -1,6 +1,7 @@
 import {getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import {Alert} from 'react-native';
+import {getUser} from '../graphql/queries';
 
 export async function checkUser() {
   try {
@@ -76,7 +77,7 @@ export async function querySingleItem(queryName, variables) {
   }
 }
 
-export async function queryListItemsByPetIDPagination(
+export async function queryLettersByPetIDPagination(
   isLoading,
   setIsLoading,
   queryName,
@@ -97,9 +98,29 @@ export async function queryListItemsByPetIDPagination(
         },
         authMode: 'userPool',
       });
-      return response.data;
+
+      const letterData = {letters: [], nextToken: null};
+      const {items, nextToken} = response.data.listLetters; // includes items (array format), nextToken
+      letterData.letters = items;
+      letterData.nextToken = nextToken;
+      console.log('print fetch letters- first : ', letterData.letters);
+
+      const lettersWithUserDetails = await Promise.all(
+        letterData.letters.map(async letter => {
+          const userDetails = await client.graphql({
+            query: getUser,
+            variables: {id: letter.letterAuthorId},
+            authMode: 'userPool',
+          });
+          letter.userName = userDetails.data.getUser.name;
+          letter.profilePic = userDetails.data.getUser.profilePic;
+        }),
+      );
+
+      console.log('print fetch letters- second : ', letterData.letters[0]);
+      return letterData;
     } catch (error) {
-      console.log('error for fetching: ', error);
+      console.log('error for list fetching: ', error);
     } finally {
       setIsLoading(false);
     }

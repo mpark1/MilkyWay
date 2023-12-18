@@ -19,7 +19,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         .slice(0, linesToTruncate)
         .map(line => line.text)
         .join('');
-      setClippedText(displayedText);
+      setClippedText(displayedText.substring(0, displayedText.length - 4));
     }
   };
 
@@ -40,12 +40,12 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
       </Text>
     );
   };
-
-  const printCallback = useCallback(() => {
-    console.log('print fulltext', text);
-    console.log('print isTruncated? ', isTruncated);
-    console.log('print clippedText', clippedText);
-  }, [clippedText, isTruncated]);
+  //
+  // const printCallback = useCallback(() => {
+  //   console.log('print fulltext', text);
+  //   console.log('print isTruncated? ', isTruncated);
+  //   console.log('print clippedText', clippedText);
+  // }, [clippedText, isTruncated]);
 
   return (
     <View style={styles.letter}>
@@ -55,7 +55,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           <Image
             style={styles.profilePic}
             source={{
-              uri: 'https://mblogthumb-phinf.pstatic.net/MjAxNzEyMTZfNTIg/MDAxNTEzMzk4OTI1NTY5.Adb0MbO3WwvlP51KiOgKWPcPyRUYh7pbP1L5Zrp45lIg.Emli51gG8JdC7p-ooJBiYvcRvaP-sNnffoHejVLqGkYg.JPEG.samusiltour/_MG_8261.JPG?type=w800',
+              uri: item.profilePic,
             }}
           />
         </View>
@@ -78,13 +78,15 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             </Text>
           )}
           <View style={styles.nameRelationshipDateContainer}>
-            <Text style={styles.name}>한가인{'   '}</Text>
+            <Text style={styles.name}>
+              {item.userName}
+              {'   '}
+            </Text>
             <Text style={styles.relationshipAndDate}>
               {relationship} ({createdAt.substring(0, 10)})
             </Text>
           </View>
           {renderText()}
-          {printCallback()}
           <View style={styles.editAndDeleteContainer}>
             {whichTab === 'Letters' && !isTruncated && (
               <EditOrDeleteButtons item={item} />

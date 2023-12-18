@@ -13,7 +13,10 @@ import {useSelector} from 'react-redux';
 import {listLetters} from '../../../graphql/queries';
 import ReadMoreText from '@amuizz/read-more-text';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
-import {queryListItemsByPetIDPagination} from '../../../utils/amplifyUtil';
+import {
+  queryLettersByPetIDPagination,
+  queryListItemsByPetIDPagination,
+} from '../../../utils/amplifyUtil';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Letters = ({navigation}) => {
@@ -30,7 +33,7 @@ const Letters = ({navigation}) => {
   }, [petID]);
 
   const fetchLetters = async () => {
-    queryListItemsByPetIDPagination(
+    queryLettersByPetIDPagination(
       isLoadingLetters,
       setIsLoadingLetters,
       listLetters,
@@ -38,9 +41,9 @@ const Letters = ({navigation}) => {
       petID,
       lettersData.nextToken,
     ).then(data => {
-      const {items, nextToken: newNextToken} = data.listLetters;
+      const {letters, nextToken: newNextToken} = data;
       setLettersData(prev => ({
-        letters: [...prev.letters, ...items],
+        letters: [...prev.letters, ...letters],
         nextToken: newNextToken,
       }));
     });
@@ -49,40 +52,6 @@ const Letters = ({navigation}) => {
   const renderFlatListItem = useCallback(({item}) => {
     return (
       <MoreLessTruncated item={item} linesToTruncate={2} whichTab={'Letters'} />
-
-      // <View style={styles.letter.container}>
-      //   <Text style={styles.letter.title}>{item.title}</Text>
-      //   <View style={styles.letter.flexDirectionRow}>
-      //     <View style={styles.letter.profilePicContainer}>
-      //       <Image
-      //         style={styles.letter.profilePic}
-      //         source={{
-      //           uri: 'https://mblogthumb-phinf.pstatic.net/MjAxNzEyMTZfNTIg/MDAxNTEzMzk4OTI1NTY5.Adb0MbO3WwvlP51KiOgKWPcPyRUYh7pbP1L5Zrp45lIg.Emli51gG8JdC7p-ooJBiYvcRvaP-sNnffoHejVLqGkYg.JPEG.samusiltour/_MG_8261.JPG?type=w800',
-      //         }}
-      //       />
-      //     </View>
-      //     <View style={styles.letter.messageContainer}>
-      //       <View style={styles.letter.nameRelationshipDateContainer}>
-      //         <Text style={styles.letter.name}>
-      //           {item.name}
-      //           {'   '}
-      //         </Text>
-      //         <Text style={styles.letter.relationshipAndDate}>
-      //           {item.relationship} ({item.createdAt.substring(0, 10)})
-      //         </Text>
-      //       </View>
-      //       <ReadMoreText
-      //         style={styles.letter.content}
-      //         numberOfLines={2}
-      //         readMoreText={' 더보기'}
-      //         readLessText={' 닫기'}
-      //         readMoreStyle={styles.letter.seeLessOrMore.title}
-      //         readLessStyle={styles.letter.seeLessOrMore.title}>
-      //         {item.content}
-      //       </ReadMoreText>
-      //     </View>
-      //   </View>
-      // </View>
     );
   }, []);
 

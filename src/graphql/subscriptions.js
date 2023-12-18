@@ -138,6 +138,7 @@ export const onCreateLetter = /* GraphQL */ `
       relationship
       content
       createdAt
+      letterAuthorId
       author {
         id
         profilePic
@@ -150,7 +151,6 @@ export const onCreateLetter = /* GraphQL */ `
       }
       accessLevel
       updatedAt
-      letterAuthorId
       owner
       __typename
     }
@@ -168,6 +168,7 @@ export const onUpdateLetter = /* GraphQL */ `
       relationship
       content
       createdAt
+      letterAuthorId
       author {
         id
         profilePic
@@ -180,7 +181,6 @@ export const onUpdateLetter = /* GraphQL */ `
       }
       accessLevel
       updatedAt
-      letterAuthorId
       owner
       __typename
     }
@@ -198,6 +198,7 @@ export const onDeleteLetter = /* GraphQL */ `
       relationship
       content
       createdAt
+      letterAuthorId
       author {
         id
         profilePic
@@ -210,7 +211,6 @@ export const onDeleteLetter = /* GraphQL */ `
       }
       accessLevel
       updatedAt
-      letterAuthorId
       owner
       __typename
     }

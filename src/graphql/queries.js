@@ -230,6 +230,7 @@ export const getLetter = /* GraphQL */ `
       relationship
       content
       createdAt
+      letterAuthorId
       author {
         id
         profilePic
@@ -242,7 +243,6 @@ export const getLetter = /* GraphQL */ `
       }
       accessLevel
       updatedAt
-      letterAuthorId
       owner
       __typename
     }
@@ -272,9 +272,9 @@ export const listLetters = /* GraphQL */ `
         relationship
         content
         createdAt
+        letterAuthorId
         accessLevel
         updatedAt
-        letterAuthorId
         owner
         __typename
       }

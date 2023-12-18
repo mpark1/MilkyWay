@@ -88,6 +88,11 @@
       ],
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
+    },
+    "getLettersAndUsers": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   },
   "parameters": {
@@ -104,6 +109,22 @@
         {
           "category": "function",
           "resourceName": "createNewUserinDB"
+        }
+      ]
+    },
+    "AMPLIFY_function_getLettersAndUsers_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getLettersAndUsers"
+        }
+      ]
+    },
+    "AMPLIFY_function_getLettersAndUsers_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getLettersAndUsers"
         }
       ]
     }
