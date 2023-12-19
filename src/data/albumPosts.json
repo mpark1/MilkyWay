@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "category": 1,
+    "uri": ["https://www.wooripet.co.kr/data/file/freecat/thumb-3556131903_m4n857o9_9849f47179baec88e4d32c80b23836f9302f0187_600x800.jpg"],
+    "caption": "마루를 처음 봤을 때. 수건에 살포시 쌓여 있던 너에게 첫눈에 반했어.마루를 처음 봤을 때. 수건에 살포시",
+    "type": "photo"
+  },
+  {
+    "id": 2,
+    "category": 2,
+    "uri": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPsFeCcgIi_c30wiQR3ryHu5TdksKU1JoifQ&usqp=CAU"],
+    "caption": "우리 집 서열1위 질풍노도 마루 ㅎ 귀엽기만 한걸",
+    "type": "photo"
+  },
+  {
+    "id": 3,
+    "category": 3,
+    "uri": ["https://d2u3dcdbebyaiu.cloudfront.net/uploads/atch_img/473/0c62b319db06c5649bef90a79e037a43_res.jpeg"],
+    "caption": "",
+    "type": "photo"
+  },
+  {
+    "id": 4,
+    "category": 0,
+    "uri": ["http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"],
+    "caption": "영상 캡션이닷 재생 눌러주세요",
+    "type": "video"
+  },
+  {
+    "id": 5,
+    "category": 1,
+    "uri": ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSLZRhjZKLkYVFvsRVdfT9P2_F5Hyg2Ani8lqYTvfDl8dil9rS","https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQYHbgd5ljH2nzM3zjJa3P0McJ7FtS3slXxWboopm3lK3SHfoD-"],
+    "caption": "",
+    "type": "photo"
+  }
+]
