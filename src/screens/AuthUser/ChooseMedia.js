@@ -4,7 +4,8 @@ import {Button} from '@rneui/base';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 import DropDownPicker from 'react-native-dropdown-picker';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import {launchCamera} from 'react-native-image-picker';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -44,19 +45,32 @@ const ChooseMedia = ({navigation}) => {
     [],
   );
 
-  const onLaunchGallery = () => {
+  const onLaunchGallery = async () => {
     let mediaList = [];
 
     ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaTypeRef.current === 'photo' ? 4 : 1,
+      maxFiles: mediaTypeRef.current === 'photo' ? 8 : 1,
       mediaType: mediaTypeRef.current,
-      cropping: true,
     })
-      .then(response => {
-        response.forEach(media => {
+      .then(async res => {
+        console.log('response inside onSelectPhotosFromGallery: ', res);
+        res.forEach(media => {
+          // const resizedImage = await ImageResizer.createResizedImage(
+          //   uri, // path
+          //   300, // width
+          //   300, // height
+          //   'JPEG', // format
+          //   100, // quality
+          //   undefined, // rotation
+          //   uploadFileName, // outputPath
+          //   undefined, // keepMeta,
+          //   undefined, // options => object
+          // );
+
           mediaList.push({
-            uri: media.sourceURL,
+            filename: media.filename,
+            uri: media.sourceURL, // or media.path?
           });
         });
         bottomSheetModalRef.current?.close();
@@ -69,16 +83,20 @@ const ChooseMedia = ({navigation}) => {
       .catch(e => console.log('Error: ', e.message));
   };
 
-  const onLaunchCamera = () => {
+  const onLaunchCamera = async () => {
+    // 카메라 촬영 시 사진, 영상 모두 1개만 가능함
     let singleMedia = [];
-    ImagePicker.openCamera({
-      // width:300,
-      // height:400,
+    await launchCamera({
+      width: 300,
+      height: 400,
       mediaType: mediaTypeRef.current,
-      cropping: mediaTypeRef.current === 'photo', // cropping은 사진만 가능하게 (안드로이드에서 영상 크롭 안됨)
+      durationLimit: mediaTypeRef.current === 'video' ? 10 : undefined, // 초단위
+      // includeBase64: true,
+      // includeExtra: true,
     })
-      .then(response => {
-        singleMedia.push(response);
+      .then(res => {
+        console.log('response inside onLaunchCamera: ', res);
+        singleMedia.push({uri: res.assets[0].uri});
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
           mediaType: mediaTypeRef.current,
@@ -144,7 +162,7 @@ const ChooseMedia = ({navigation}) => {
           }}
           icon={plusButton}
         />
-        <Text style={styles.dashedBorderButton.guide}>(최대 4장)</Text>
+        <Text style={styles.dashedBorderButton.guide}>{' (최대 8장)'}</Text>
       </View>
     );
   };
@@ -181,20 +199,21 @@ const ChooseMedia = ({navigation}) => {
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       <View style={styles.ageField}>
-        <Text style={styles.label}>연령</Text>
+        <Text style={styles.label}>카테고리</Text>
         <DropDownPicker
           containerStyle={styles.dropDownPicker.containerStyle}
           style={styles.dropDownPicker.borderStyle}
           dropDownContainerStyle={styles.dropDownPicker.borderStyle}
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
-          placeholder={'연령을 선택해주세요'}
+          placeholder={'선택'}
           items={ageOptions}
           value={age}
           setValue={setAge}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
           listMode="SCROLLVIEW"
+          autoScroll={true}
         />
       </View>
       <Text style={[styles.label, {marginBottom: 10}]}>사진 / 영상</Text>
