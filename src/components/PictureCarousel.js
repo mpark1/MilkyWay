@@ -5,7 +5,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const PictureCarousel = ({picURI}) => {
   return (
-    <View style={{width: SCREEN_WIDTH}}>
+    <View>
       <FlatList
         horizontal={true}
         scrollEnabled={picURI.length > 1}
@@ -14,12 +14,6 @@ const PictureCarousel = ({picURI}) => {
         snapToAlignment={'center'}
         decelerationRate={'fast'}
         pagingEnabled={true}
-        onScroll={props => {
-          const offset = props.nativeEvent.contentOffset.x / SCREEN_WIDTH;
-          // if (offset !== activeIndex) {
-          //   setActiveIndex(offset);
-          // }
-        }}
         scrollEventThrottle={16}
         data={picURI}
         renderItem={({item}) => {

@@ -37,6 +37,7 @@
     "react-native-screens": "^3.27.0",
     "react-native-swiper": "^1.6.0",
     "react-native-tab-view": "^3.5.2",
+    "react-native-uuid": "^2.0.1",
     "react-native-vector-icons": "^10.0.2",
     "react-native-video": "^5.2.1",
     "react-redux": "^9.0.4"
