@@ -1,0 +1,69 @@
+import React, {useState} from 'react';
+import {View, FlatList, Image, StyleSheet, Dimensions} from 'react-native';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+const PictureCarousel = ({picURI}) => {
+  return (
+    <View style={{width: SCREEN_WIDTH}}>
+      <FlatList
+        horizontal={true}
+        scrollEnabled={picURI.length > 1}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={SCREEN_WIDTH}
+        snapToAlignment={'center'}
+        decelerationRate={'fast'}
+        pagingEnabled={true}
+        onScroll={props => {
+          const offset = props.nativeEvent.contentOffset.x / SCREEN_WIDTH;
+          // if (offset !== activeIndex) {
+          //   setActiveIndex(offset);
+          // }
+        }}
+        scrollEventThrottle={16}
+        data={picURI}
+        renderItem={({item}) => {
+          return (
+            <View style={styles.carouselEntryContainer}>
+              <Image
+                style={styles.img}
+                resizeMode={'cover'}
+                source={{uri: item}}
+              />
+            </View>
+          );
+        }}
+      />
+    </View>
+  );
+};
+
+export default PictureCarousel;
+
+const styles = StyleSheet.create({
+  carouselEntryContainer: {
+    width: SCREEN_WIDTH * 0.4,
+    height: SCREEN_WIDTH * 0.4,
+    marginRight: 10,
+    alignSelf: 'center',
+    backgroundColor: '#FFF',
+  },
+  img: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 5,
+  },
+  dotsContainer: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  dots: {
+    width: 5,
+    height: 5,
+    marginHorizontal: 3,
+    borderRadius: 5 / 2,
+  },
+});
