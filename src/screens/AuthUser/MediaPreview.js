@@ -9,47 +9,60 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
-import Video from 'react-native-video';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Video from 'react-native-video';
+
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 import BlueButton from '../../components/Buttons/BlueButton';
-import DropDownPicker from 'react-native-dropdown-picker';
 
 import ages from '../../data/ages.json';
 
 const MediaPreview = ({navigation, route}) => {
   const {mediaType, mediaList: initialMediaList, age} = route.params;
   const [mediaList, setMediaList] = useState(initialMediaList);
-  console.log('mediaType: ', mediaType);
   console.log('imageList: ', mediaList);
+
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
   const ageOptions = ages.map(item => ({
     label: item,
     value: item,
   }));
   const [selectedAge, setSelectedAge] = useState(age);
+  const [isVideoPaused, setIsVideoPaused] = useState(true);
+  const [description, setDescription] = useState('');
+  const canGoNext = selectedAge && mediaList.length > 0;
 
-  const handleRemoveItem = index => {
+  const onChangeDescription = useCallback(text => {
+    setDescription(text);
+  }, []);
+
+  const handleRemoveImage = index => {
     const updatedList = [...mediaList];
     updatedList.splice(index, 1);
     setMediaList(updatedList);
   };
 
+  const onTogglePlayVideo = () => {
+    setIsVideoPaused(!isVideoPaused);
+  };
+
   const renderAgeField = () => {
     return (
       <View style={styles.ageField}>
-        <Text style={styles.label}>연령</Text>
+        <Text style={styles.label}>카테고리</Text>
         <DropDownPicker
           containerStyle={styles.dropDownPicker.containerStyle}
           style={styles.dropDownPicker.borderStyle}
           dropDownContainerStyle={styles.dropDownPicker.borderStyle}
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
-          placeholder={'연령을 선택해주세요'}
+          placeholder={'선택'}
           items={ageOptions}
           value={selectedAge}
           setValue={setSelectedAge}
@@ -77,7 +90,7 @@ const MediaPreview = ({navigation, route}) => {
               />
               <Pressable
                 style={styles.closeCircle}
-                onPress={() => handleRemoveItem(index)}>
+                onPress={() => handleRemoveImage(index)}>
                 <AntDesign name="closecircle" size={20} color={'#6395E1'} />
               </Pressable>
             </View>
@@ -87,7 +100,7 @@ const MediaPreview = ({navigation, route}) => {
     );
   }, [mediaList]);
 
-  const renderEmptyImageList = useCallback(() => {
+  const renderEmptyImageList = () => {
     return (
       <View style={styles.noImagesOrVideo.container}>
         <Text style={styles.noImagesOrVideo.text}>
@@ -97,7 +110,7 @@ const MediaPreview = ({navigation, route}) => {
         </Text>
       </View>
     );
-  }, []);
+  };
 
   const renderVideo = () => {
     return (
@@ -107,11 +120,25 @@ const MediaPreview = ({navigation, route}) => {
             uri: mediaList[0].uri, // 영상은 1개만 가능
           }}
           style={styles.video.style}
-          paused={true}
+          paused={isVideoPaused}
           resizeMode={'cover'}
-          onLoad={e => console.log(e)}
-          repeat={false}
+          repeat={true}
         />
+        {isVideoPaused && (
+          <Pressable
+            onPress={onTogglePlayVideo}
+            style={styles.video.actionButton}>
+            <AntDesign name={'playcircleo'} color={'#FFF'} size={50} />
+          </Pressable>
+        )}
+
+        {!isVideoPaused && (
+          <Pressable
+            onPress={onTogglePlayVideo}
+            style={styles.video.actionButton}>
+            <AntDesign name={'pause'} color={'#FFF'} size={30} />
+          </Pressable>
+        )}
       </View>
     );
   };
@@ -122,7 +149,8 @@ const MediaPreview = ({navigation, route}) => {
         <Text style={[styles.label, {paddingBottom: 16}]}>스토리</Text>
         <TextInput
           style={styles.story.textInput}
-          placeholder={'사진을 보면 떠오르는 추억이 있나요? (최대 300자)'}
+          onChangeText={onChangeDescription}
+          placeholder={'사진을 보면 떠오르는 추억이 있나요? (최대 60자)'}
           placeholderTextColor={'#939393'}
           textAlign={'left'}
           textAlignVertical={'top'}
@@ -130,7 +158,8 @@ const MediaPreview = ({navigation, route}) => {
           autoCorrect={false}
           autoCapitalize={'none'}
           clearButtonMode={'while-editing'}
-          maxLength={300}
+          maxLength={60}
+          scrollEnabled={true}
         />
       </View>
     );
@@ -141,8 +170,8 @@ const MediaPreview = ({navigation, route}) => {
       <View style={styles.submitButton}>
         <BlueButton
           title={'등록하기'}
-          disabled={mediaList.length === 0}
-          // onPress={}
+          disabled={!canGoNext}
+          // onPress={resizeMediaAndUploadToDB}
         />
       </View>
     );
@@ -199,7 +228,11 @@ const styles = StyleSheet.create({
       borderColor: '#d9d9d9',
       minHeight: 30,
     },
-    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    placeholder: {
+      color: '#939393',
+      fontSize: scaleFontSize(16),
+      backgroundColor: '#FFF',
+    },
   },
   flatListContainer: {
     width: '100%',
@@ -221,6 +254,7 @@ const styles = StyleSheet.create({
       width: Dimensions.get('window').width * 0.8,
       height: Dimensions.get('window').width * 0.8,
       alignSelf: 'center',
+      justifyContent: 'center',
       marginBottom: Dimensions.get('window').height * 0.03,
     },
     style: {
@@ -230,6 +264,13 @@ const styles = StyleSheet.create({
       bottom: 0,
       right: 0,
       borderRadius: 5,
+    },
+    actionButton: {
+      position: 'absolute',
+      alignSelf: 'center',
+      borderRadius: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   },
   closeCircle: {
@@ -254,7 +295,7 @@ const styles = StyleSheet.create({
   story: {
     textInput: {
       width: '100%',
-      height: Dimensions.get('window').height * 0.2,
+      height: Dimensions.get('window').height * 0.1,
       borderWidth: 1,
       borderRadius: 5,
       borderColor: '#d9d9d9',
