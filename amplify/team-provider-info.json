@@ -25,8 +25,11 @@
         },
         "getLettersAndUsers": {
           "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",
-          "s3Key": "amplify-builds/getLettersAndUsers-6a7a3568776c67472f31-build.zip"
+          "s3Key": "amplify-builds/getLettersAndUsers-61464f724a4244574448-build.zip"
         }
+      },
+      "storage": {
+        "milkyWayImageStorage": {}
       }
     }
   },

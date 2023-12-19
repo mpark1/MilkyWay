@@ -75,7 +75,13 @@ const PetPage = ({navigation}) => {
       </View>
 
       <View style={styles.profilePicContainer}>
-        <Image style={styles.profilePic} source={{uri: petInfo.profilePic}} />
+        <Image
+          style={styles.profilePic}
+          source={{
+            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSceREFrbL87nsKQxJerouKhgKFcYVCaqEFw&usqp=CAU',
+          }}
+          resizeMode={'cover'}
+        />
       </View>
       {petInfo.id ? (
         <centerTab.Navigator
@@ -112,7 +118,7 @@ export default PetPage;
 const styles = StyleSheet.create({
   backgroundImageContainer: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.2,
+    height: Dimensions.get('window').height * 0.15,
   },
   backgroundImage: {
     width: '100%',
@@ -138,7 +144,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 130,
     height: 130,
-    top: Dimensions.get('window').height * 0.15,
+    top: Dimensions.get('window').height * 0.1,
     left: Dimensions.get('window').width * 0.03,
   },
   profilePic: {

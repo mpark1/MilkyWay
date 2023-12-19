@@ -282,7 +282,7 @@ const AddNewPet = ({navigation}) => {
             multiple={false}
             placeholderStyle={styles.dropDownPicker.placeholder}
             items={petOptions}
-            placeholder={'동물 종류를 선택해 주세요'}
+            placeholder={'선택'}
             setValue={setValue}
             value={value}
             open={open}

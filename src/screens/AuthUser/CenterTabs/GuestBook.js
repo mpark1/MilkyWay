@@ -11,7 +11,6 @@ import {
   queryGuestBooksByPetIDPagination,
   queryListItemsByPetIDPagination,
 } from '../../../utils/amplifyUtil';
-import {listGuestBooks} from '../../../graphql/queries';
 import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
@@ -36,7 +35,6 @@ const GuestBook = ({navigation}) => {
     queryGuestBooksByPetIDPagination(
       isLoadingLetters,
       setIsLoadingLetters,
-      listGuestBooks,
       pageSize,
       petID,
       guestBookData.nextToken,

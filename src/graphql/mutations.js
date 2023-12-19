@@ -339,3 +339,119 @@ export const deleteGuestBook = /* GraphQL */ `
     }
   }
 `;
+export const createAlbum = /* GraphQL */ `
+  mutation CreateAlbum(
+    $input: CreateAlbumInput!
+    $condition: ModelAlbumConditionInput
+  ) {
+    createAlbum(input: $input, condition: $condition) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const updateAlbum = /* GraphQL */ `
+  mutation UpdateAlbum(
+    $input: UpdateAlbumInput!
+    $condition: ModelAlbumConditionInput
+  ) {
+    updateAlbum(input: $input, condition: $condition) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const deleteAlbum = /* GraphQL */ `
+  mutation DeleteAlbum(
+    $input: DeleteAlbumInput!
+    $condition: ModelAlbumConditionInput
+  ) {
+    deleteAlbum(input: $input, condition: $condition) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const createImage = /* GraphQL */ `
+  mutation CreateImage(
+    $input: CreateImageInput!
+    $condition: ModelImageConditionInput
+  ) {
+    createImage(input: $input, condition: $condition) {
+      id
+      albumID
+      s3Key
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deleteImage = /* GraphQL */ `
+  mutation DeleteImage(
+    $input: DeleteImageInput!
+    $condition: ModelImageConditionInput
+  ) {
+    deleteImage(input: $input, condition: $condition) {
+      id
+      albumID
+      s3Key
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;

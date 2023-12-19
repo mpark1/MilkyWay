@@ -1,22 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Dimensions,
-  Text,
-  Image,
-} from 'react-native';
+import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import {useSelector} from 'react-redux';
-import {listLetters} from '../../../graphql/queries';
-import ReadMoreText from '@amuizz/read-more-text';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
-import {
-  queryLettersByPetIDPagination,
-  queryListItemsByPetIDPagination,
-} from '../../../utils/amplifyUtil';
+import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Letters = ({navigation}) => {
@@ -36,7 +24,6 @@ const Letters = ({navigation}) => {
     queryLettersByPetIDPagination(
       isLoadingLetters,
       setIsLoadingLetters,
-      listLetters,
       pageSize,
       petID,
       lettersData.nextToken,

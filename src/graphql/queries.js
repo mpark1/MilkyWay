@@ -339,3 +339,123 @@ export const listGuestBooks = /* GraphQL */ `
     }
   }
 `;
+export const getAlbum = /* GraphQL */ `
+  query GetAlbum($petID: ID!, $createdAt: String!, $id: ID!) {
+    getAlbum(petID: $petID, createdAt: $createdAt, id: $id) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const listAlbums = /* GraphQL */ `
+  query ListAlbums(
+    $petID: ID
+    $createdAtId: ModelAlbumPrimaryCompositeKeyConditionInput
+    $filter: ModelAlbumFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listAlbums(
+      petID: $petID
+      createdAtId: $createdAtId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        petID
+        category
+        caption
+        createdAt
+        updatedAt
+        albumAuthorId
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const albumByCategory = /* GraphQL */ `
+  query AlbumByCategory(
+    $category: Int!
+    $sortDirection: ModelSortDirection
+    $filter: ModelAlbumFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    albumByCategory(
+      category: $category
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        petID
+        category
+        caption
+        createdAt
+        updatedAt
+        albumAuthorId
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getImagesByAlbumID = /* GraphQL */ `
+  query GetImagesByAlbumID(
+    $albumID: ID
+    $id: ModelIDKeyConditionInput
+    $filter: ModelImageFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    getImagesByAlbumID(
+      albumID: $albumID
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        albumID
+        s3Key
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;

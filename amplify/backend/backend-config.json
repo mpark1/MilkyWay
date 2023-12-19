@@ -128,5 +128,22 @@
         }
       ]
     }
+  },
+  "storage": {
+    "milkyWayImageStorage": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn",
+            "LambdaExecutionRole"
+          ],
+          "category": "function",
+          "resourceName": "createNewUserinDB"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
   }
 }

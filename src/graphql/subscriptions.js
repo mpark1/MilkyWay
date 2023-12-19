@@ -297,3 +297,87 @@ export const onDeleteGuestBook = /* GraphQL */ `
     }
   }
 `;
+export const onCreateAlbum = /* GraphQL */ `
+  subscription OnCreateAlbum(
+    $filter: ModelSubscriptionAlbumFilterInput
+    $owner: String
+  ) {
+    onCreateAlbum(filter: $filter, owner: $owner) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const onUpdateAlbum = /* GraphQL */ `
+  subscription OnUpdateAlbum(
+    $filter: ModelSubscriptionAlbumFilterInput
+    $owner: String
+  ) {
+    onUpdateAlbum(filter: $filter, owner: $owner) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeleteAlbum = /* GraphQL */ `
+  subscription OnDeleteAlbum(
+    $filter: ModelSubscriptionAlbumFilterInput
+    $owner: String
+  ) {
+    onDeleteAlbum(filter: $filter, owner: $owner) {
+      id
+      petID
+      category
+      caption
+      createdAt
+      author {
+        id
+        profilePic
+        name
+        state
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      updatedAt
+      albumAuthorId
+      owner
+      __typename
+    }
+  }
+`;
