@@ -6,6 +6,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import {launchCamera} from 'react-native-image-picker';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
+import uuid from 'react-native-uuid';
+
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -55,24 +57,34 @@ const ChooseMedia = ({navigation}) => {
     })
       .then(async res => {
         console.log('response inside onSelectPhotosFromGallery: ', res);
-        res.forEach(media => {
-          // const resizedImage = await ImageResizer.createResizedImage(
-          //   uri, // path
-          //   300, // width
-          //   300, // height
-          //   'JPEG', // format
-          //   100, // quality
-          //   undefined, // rotation
-          //   uploadFileName, // outputPath
-          //   undefined, // keepMeta,
-          //   undefined, // options => object
-          // );
-
-          mediaList.push({
-            filename: media.filename,
-            uri: media.sourceURL, // or media.path?
+        for (const media of res) {
+          const resizedMedia = await ImageResizer.createResizedImage(
+            media.path, // path
+            300, // width
+            300, // height
+            'JPEG', // format
+            100, // quality
+            undefined, // rotation
+            'album/' + uuid.v4() + '.jpg', // outputPath
+            undefined, // keepMeta,
+            undefined, // options => object
+          ).then(resFromResizer => {
+            console.log('resFromResizer: ', resFromResizer);
+            mediaList.push({
+              filename: 'album/' + uuid.v4() + '.jpg',
+              uri: resFromResizer.uri,
+              contentType: 'image/jpeg',
+            });
           });
-        });
+
+          // mediaList.push({
+          //   filename:
+          //     mediaTypeRef.current === 'photo'
+          //       ? 'album/' + uuid.v4() + '.jpg'
+          //       : 'album/' + uuid.v4() + '.mp4',
+          //   uri: media.sourceURL, // or media.path?
+          // });
+        }
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
           mediaType: mediaTypeRef.current,
