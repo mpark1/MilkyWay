@@ -171,7 +171,7 @@ const MediaPreview = ({navigation, route}) => {
         <BlueButton
           title={'등록하기'}
           disabled={!canGoNext}
-          // onPress={resizeMediaAndUploadToDB}
+          // onPress={call uploadToS3}
         />
       </View>
     );
