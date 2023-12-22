@@ -8,12 +8,7 @@ import {
   Dimensions,
   TextInput,
 } from 'react-native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {
-  cameraOption,
-  imageLibraryOption,
-} from '../../constants/imagePickerOptions';
 import {Button} from '@rneui/base';
 import {deleteUser} from 'aws-amplify/auth';
 
@@ -26,6 +21,9 @@ import AlertBox from '../../components/AlertBox';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import ImagePicker from 'react-native-image-crop-picker';
+import {profilePicOption} from '../../constants/imagePickerOptions';
 
 const UserSettings = ({navigation, route}) => {
   const [profilePic, setProfilePic] = useState('');
@@ -39,24 +37,6 @@ const UserSettings = ({navigation, route}) => {
     setName(trimmedText);
   }, []);
 
-  const onResponseFromCameraOrGallery = res => {
-    if (res.didCancel || !res) {
-      return;
-    }
-    const uri = res.assets[0].uri;
-    console.log('uri: ', uri);
-    bottomSheetModalRef.current?.close();
-    setProfilePic(uri);
-  };
-
-  const onLaunchCamera = () => {
-    launchCamera(cameraOption, onResponseFromCameraOrGallery);
-  };
-
-  const onLaunchImageLibrary = () => {
-    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
-  };
-
   async function handleDeleteUser() {
     try {
       await deleteUser();
@@ -64,6 +44,30 @@ const UserSettings = ({navigation, route}) => {
       console.log(error);
     }
   }
+
+  const onResponseFromImagePicker = useCallback(async res => {
+    bottomSheetModalRef.current?.close();
+    if (res.didCancel || !res) {
+      return;
+    }
+    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
+      .then(r => {
+        setProfilePic(r.uri);
+      })
+      .catch(err => console.log(err.message));
+  }, []);
+
+  const onLaunchCamera = () => {
+    ImagePicker.openCamera(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log(err.message));
+  };
+
+  const onLaunchGallery = async () => {
+    ImagePicker.openPicker(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log('Error: ', err.message));
+  };
 
   const renderProfilePicField = () => {
     return (
@@ -100,7 +104,7 @@ const UserSettings = ({navigation, route}) => {
         </Pressable>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchImageLibrary()}>
+          onPress={() => onLaunchGallery()}>
           <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>갤러리</Text>
         </Pressable>
@@ -194,7 +198,8 @@ const UserSettings = ({navigation, route}) => {
             '탈퇴동의',
             handleDeleteUser(),
           )
-        }>
+        }
+      >
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>
           회원탈퇴
         </Text>

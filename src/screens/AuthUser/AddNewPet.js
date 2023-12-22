@@ -8,27 +8,28 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import globalStyle from '../../assets/styles/globalStyle';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {scaleFontSize} from '../../assets/styles/scaling';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {useDispatch} from 'react-redux';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import DatePicker from 'react-native-date-picker';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {Button} from '@rneui/base';
+import ImagePicker from 'react-native-image-crop-picker';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
+
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
+
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Backdrop from '../../components/Backdrop';
-import {
-  cameraOption,
-  imageLibraryOption,
-} from '../../constants/imagePickerOptions';
-import DatePicker from 'react-native-date-picker';
+
 import {getCurrentDate} from '../../utils/utils';
-import DropDownPicker from 'react-native-dropdown-picker';
 import PetTypes from '../../data/PetTypes.json';
 import deathCauses from '../../data/deathCauses.json';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {Button} from '@rneui/base';
 import AlertBox from '../../components/AlertBox';
-import {useDispatch} from 'react-redux';
+import Backdrop from '../../components/Backdrop';
+import {profilePicOption} from '../../constants/imagePickerOptions';
 import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 const AddNewPet = ({navigation}) => {
@@ -68,28 +69,35 @@ const AddNewPet = ({navigation}) => {
     value2 &&
     birthdayString !== 'YYYY-MM-DD' &&
     deathDayString !== 'YYYY-MM-DD';
-  const onResponseFromCameraOrGallery = res => {
-    if (res.didCancel || !res) {
-      return;
-    }
-    const uri = res.assets[0].uri;
-    console.log('uri: ', uri);
-    bottomSheetModalRef.current?.close();
-    setProfilePic(uri);
-  };
-
-  const onLaunchCamera = () => {
-    launchCamera(cameraOption, onResponseFromCameraOrGallery);
-  };
-
-  const onLaunchImageLibrary = () => {
-    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
-  };
 
   const renderBackdrop = useCallback(
     props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
     [],
   );
+
+  const onResponseFromImagePicker = useCallback(async res => {
+    bottomSheetModalRef.current?.close();
+    if (res.didCancel || !res) {
+      return;
+    }
+    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
+      .then(r => {
+        setProfilePic(r.uri);
+      })
+      .catch(err => console.log(err.message));
+  }, []);
+
+  const onLaunchCamera = () => {
+    ImagePicker.openCamera(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log(err.message));
+  };
+
+  const onLaunchGallery = async () => {
+    ImagePicker.openPicker(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log('Error: ', err.message));
+  };
 
   const renderBottomSheetModalInner = useCallback(() => {
     return (
@@ -102,7 +110,7 @@ const AddNewPet = ({navigation}) => {
         </Pressable>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchImageLibrary()}>
+          onPress={() => onLaunchGallery()}>
           <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>갤러리</Text>
         </Pressable>

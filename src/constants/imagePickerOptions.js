@@ -1,13 +1,6 @@
-export const imageLibraryOption = {
+export const profilePicOption = {
   mediaType: 'photo',
-  // includeBase64: true,
-  // includeExtra: true,
-  selectionLimit: 1,
-};
-
-export const cameraOption = {
-  mediaType: 'photo',
-  // includeBase64: true,
-  // includeExtra: true,
-  savedToPhotos: true,
+  cropping: true,
+  width: 600,
+  height: 600,
 };
