@@ -12,10 +12,7 @@ import {
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {
-  cameraOption,
-  imageLibraryOption,
-} from '../../constants/imagePickerOptions';
+import {profilePicOption} from '../../constants/imagePickerOptions';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -27,10 +24,11 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
 import {getCurrentDate} from '../../utils/utils';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Backdrop from '../../components/Backdrop';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import ImagePicker from 'react-native-image-crop-picker';
 import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
 import {deleteLetter, updatePet} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
@@ -65,16 +63,6 @@ const Settings = ({navigation, route}) => {
   );
   const [checkAll, setAll] = useState(petInfo.accessLevel === 'Public'); // defaults to all
 
-  const onResponseFromCameraOrGallery = res => {
-    if (res.didCancel || !res) {
-      return;
-    }
-    const uri = res.assets[0].uri;
-    console.log('uri: ', uri);
-    bottomSheetModalRef.current?.close();
-    setProfilePic(uri);
-  };
-
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
     setPetName(trimmedText);
@@ -84,12 +72,28 @@ const Settings = ({navigation, route}) => {
     setLastWord(text);
   }, []);
 
+  const onResponseFromImagePicker = useCallback(async res => {
+    bottomSheetModalRef.current?.close();
+    if (res.didCancel || !res) {
+      return;
+    }
+    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
+      .then(r => {
+        setProfilePic(r.uri);
+      })
+      .catch(err => console.log(err.message));
+  }, []);
+
   const onLaunchCamera = () => {
-    launchCamera(cameraOption, onResponseFromCameraOrGallery);
+    ImagePicker.openCamera(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log(err.message));
   };
 
-  const onLaunchImageLibrary = () => {
-    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
+  const onLaunchGallery = async () => {
+    ImagePicker.openPicker(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log('Error: ', err.message));
   };
 
   const onChangeDate = (date, option) => {
@@ -124,7 +128,7 @@ const Settings = ({navigation, route}) => {
         </Pressable>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchImageLibrary()}>
+          onPress={() => onLaunchGallery()}>
           <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>갤러리</Text>
         </Pressable>
