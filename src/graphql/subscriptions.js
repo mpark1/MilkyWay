@@ -318,6 +318,7 @@ export const onCreateAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner
@@ -346,6 +347,7 @@ export const onUpdateAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner
@@ -374,6 +376,7 @@ export const onDeleteAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner

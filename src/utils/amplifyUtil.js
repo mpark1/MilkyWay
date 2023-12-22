@@ -8,8 +8,8 @@ import {
   listGuestBooks,
   listLetters,
 } from '../graphql/queries';
-import {uploadData} from 'aws-amplify/storage';
-import { getUrl } from 'aws-amplify/storage';
+import {list, uploadData} from 'aws-amplify/storage';
+import {getUrl} from 'aws-amplify/storage';
 
 export async function checkUser() {
   try {
@@ -44,6 +44,7 @@ export async function mutationItem(
       });
       alertBox(alertMsg, '', '확인', alertFunc);
       console.log('response after query ', response);
+      return response;
     }
   } catch (error) {
     console.log('error during query: ', error);
@@ -184,50 +185,41 @@ export async function queryGuestBooksByPetIDPagination(
   }
 }
 
-export async function uploadImageToS3(
-  isLoading,
-  setIsLoading,
-  filename,
-  imageUri,
-) {
-  if (!isLoading) {
-    setIsLoading(true);
-    try {
-      const result = await uploadData({
-        key: filename,
-        data: imageUri,
-        options: {
-          accessLevel: 'protected', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
-          // onProgress // Optional progress callback.
-        },
-      }).result;
-      console.log('Succeeded on upload to S3: ', result);
-      setIsLoading(false);
-      return result;
-    } catch (error) {
-      console.log('Error uploading image to S3: ', error);
-      setIsLoading(false);
-    }
+export async function uploadImageToS3(filename, photoBlob, contentType) {
+  try {
+    const result = await uploadData({
+      key: filename,
+      data: photoBlob,
+      options: {
+        accessLevel: 'public', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
+        contentType: contentType,
+        // onProgress // Optional progress callback.
+      },
+    }).result;
+    console.log('Succeeded on upload to S3: ', result);
+    return result;
+  } catch (error) {
+    console.log('Error uploading image to S3: ', error);
   }
 }
 
 export async function queryAlbumsByPetIDPagination(
-  isLoading,
-  setIsLoading,
-  sizeLimit,
+  isLoadingAlbums,
+  setIsLoadingAlbums,
+  pageSize,
   petID,
   token,
 ) {
-  if (!isLoading) {
-    setIsLoading(true);
+  if (!isLoadingAlbums) {
     try {
-      //1-1 get album data from Album table in db
+      setIsLoadingAlbums(true);
+      //1 get album data from Album table in db
       const client = generateClient();
       const response = await client.graphql({
         query: listAlbums,
         variables: {
           petID: petID,
-          limit: sizeLimit,
+          limit: pageSize,
           nextToken: token,
         },
         authMode: 'userPool',
@@ -236,44 +228,45 @@ export async function queryAlbumsByPetIDPagination(
       const {items, nextToken} = response.data.listAlbums; // includes items (array format), nextToken
       albumData.albums = items;
       albumData.nextToken = nextToken;
-
-      //1-2. get images from Image table in db
-      const getImagesForAlbum = await Promise.all(
-        albumData.albums.map(async album => {
-          // album.s3KeyArray = [];
-          album.s3ImageUrlArray = [];
-          await client
-            .graphql({
-              query: getImagesByAlbumID,
-              variables: {id: album.id},
-              authMode: 'userPool',
-            })
-            .then(images =>
-              images.map(image => {
-              // retrieve images from S3
-                const getUrl = await getUrl({
-                  key: album.s3ImageUrlArray, // need to verify
-                  options: {
-                    accessLevel?: 'protected' , // can be 'private', 'protected', or 'guest' but defaults to `guest`
-                    targetIdentityId?: 'XXXXXXX', // id of another user, if `accessLevel` is `guest`
-                    validateObjectExistence?: false,  // defaults to false
-                    expiresIn?: 200 // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-                    useAccelerateEndpoint?: true; // Whether to use accelerate endpoint.
-                  },
-                });
-                // need to save this in s3ImageUrlArray
-            });
-        }),
-      );
       console.log(
-        'print first fetched image data for first album : ',
-        albumData.albums[0].s3imageArray[0],
+        'check if albums fetching from db is success: ',
+        albumData.albums[0],
       );
-      setIsLoading(false);
+
+      //2. get images from S3
+      // returns all image objects from s3 bucket
+      albumData.albums.map(async albumObj => {
+        const s3response = await list({
+          prefix: 'album/' + albumObj.id + '/',
+          options: {
+            accessLevel: 'public',
+          },
+        });
+        console.log(
+          'check if albums fetching first item from s3 is success: ',
+          s3response.items[0],
+        );
+        const urlPromises = s3response.items.map(async imageObj => {
+          const getUrlResult = await getUrl({
+            key: imageObj.key,
+            options: {
+              validateObjectExistence: false, // defaults to false
+              expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+              useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
+            },
+          });
+          return getUrlResult.url.href;
+        });
+        // save s3 images as an album object's attribute
+        albumObj.imageArray = [];
+        albumObj.imageArray = await Promise.all(urlPromises);
+        console.log('format of imageArray', typeof albumObj.imageArray);
+      });
+      setIsLoadingAlbums(false);
       return albumData;
     } catch (error) {
       console.log('error for list fetching, albums: ', error);
-      setIsLoading(false);
+      setIsLoadingAlbums(false);
     }
   }
 }

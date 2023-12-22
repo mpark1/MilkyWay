@@ -357,6 +357,7 @@ export const getAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner
@@ -387,6 +388,7 @@ export const listAlbums = /* GraphQL */ `
         category
         caption
         createdAt
+        imageType
         updatedAt
         albumAuthorId
         owner
@@ -418,39 +420,9 @@ export const albumByCategory = /* GraphQL */ `
         category
         caption
         createdAt
+        imageType
         updatedAt
         albumAuthorId
-        owner
-        __typename
-      }
-      nextToken
-      __typename
-    }
-  }
-`;
-export const getImagesByAlbumID = /* GraphQL */ `
-  query GetImagesByAlbumID(
-    $albumID: ID
-    $id: ModelIDKeyConditionInput
-    $filter: ModelImageFilterInput
-    $limit: Int
-    $nextToken: String
-    $sortDirection: ModelSortDirection
-  ) {
-    getImagesByAlbumID(
-      albumID: $albumID
-      id: $id
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      sortDirection: $sortDirection
-    ) {
-      items {
-        id
-        albumID
-        s3Key
-        createdAt
-        updatedAt
         owner
         __typename
       }

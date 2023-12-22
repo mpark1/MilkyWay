@@ -7,10 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-import {
-  queryGuestBooksByPetIDPagination,
-  queryListItemsByPetIDPagination,
-} from '../../../utils/amplifyUtil';
+import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';

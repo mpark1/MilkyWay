@@ -65,25 +65,25 @@ const ChooseMedia = ({navigation}) => {
             'JPEG', // format
             100, // quality
             undefined, // rotation
-            'album/' + uuid.v4() + '.jpg', // outputPath
+            'album/' + uuid.v4() + '.jpeg', // outputPath
             undefined, // keepMeta,
             undefined, // options => object
-          ).then(resFromResizer => {
+          ).then(async resFromResizer => {
             console.log('resFromResizer: ', resFromResizer);
+            const photo = await fetch(resFromResizer.uri);
+            const photoBlob = await photo.blob();
+
             mediaList.push({
-              filename: 'album/' + uuid.v4() + '.jpg',
+              filename:
+                mediaTypeRef.current === 'photo'
+                  ? uuid.v4() + '.jpeg'
+                  : uuid.v4() + '.mp4',
               uri: resFromResizer.uri,
-              contentType: 'image/jpeg',
+              blob: photoBlob,
+              contentType:
+                mediaTypeRef.current === 'photo' ? 'image/jpeg' : 'video/mp4',
             });
           });
-
-          // mediaList.push({
-          //   filename:
-          //     mediaTypeRef.current === 'photo'
-          //       ? 'album/' + uuid.v4() + '.jpg'
-          //       : 'album/' + uuid.v4() + '.mp4',
-          //   uri: media.sourceURL, // or media.path?
-          // });
         }
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {

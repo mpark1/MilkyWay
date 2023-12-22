@@ -360,6 +360,7 @@ export const createAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner
@@ -388,6 +389,7 @@ export const updateAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
       owner
@@ -416,40 +418,9 @@ export const deleteAlbum = /* GraphQL */ `
         owner
         __typename
       }
+      imageType
       updatedAt
       albumAuthorId
-      owner
-      __typename
-    }
-  }
-`;
-export const createImage = /* GraphQL */ `
-  mutation CreateImage(
-    $input: CreateImageInput!
-    $condition: ModelImageConditionInput
-  ) {
-    createImage(input: $input, condition: $condition) {
-      id
-      albumID
-      s3Key
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
-export const deleteImage = /* GraphQL */ `
-  mutation DeleteImage(
-    $input: DeleteImageInput!
-    $condition: ModelImageConditionInput
-  ) {
-    deleteImage(input: $input, condition: $condition) {
-      id
-      albumID
-      s3Key
-      createdAt
-      updatedAt
       owner
       __typename
     }

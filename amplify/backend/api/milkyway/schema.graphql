@@ -121,16 +121,5 @@ type Album @model
     caption: String
     createdAt: String!
     author: User @hasOne
-}
-
-type Image @model (queries: {list: "getImagesByAlbumID"}, mutations: {create: "createImage", delete: "deleteImage"}, subscriptions: null)
-@auth(
-    rules: [
-        { allow: owner},
-        { allow: private, operations: [read]}
-    ])
-{
-    id: ID!
-    albumID: ID! @primaryKey(sortKeyFields: ["id"])
-    s3Key: String!
+    imageType: Int!
 }

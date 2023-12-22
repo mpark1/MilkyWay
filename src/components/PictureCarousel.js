@@ -5,21 +5,15 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const PictureCarousel = ({picURI}) => {
   return (
-    <View style={{width: SCREEN_WIDTH}}>
+    <View>
       <FlatList
         horizontal={true}
-        scrollEnabled={picURI.length > 1}
+        scrollEnabled={true}
         showsHorizontalScrollIndicator={false}
         snapToInterval={SCREEN_WIDTH}
-        snapToAlignment={'center'}
+        snapToAlignment={'end'}
         decelerationRate={'fast'}
         pagingEnabled={true}
-        onScroll={props => {
-          const offset = props.nativeEvent.contentOffset.x / SCREEN_WIDTH;
-          // if (offset !== activeIndex) {
-          //   setActiveIndex(offset);
-          // }
-        }}
         scrollEventThrottle={16}
         data={picURI}
         renderItem={({item}) => {
@@ -44,7 +38,7 @@ const styles = StyleSheet.create({
   carouselEntryContainer: {
     width: SCREEN_WIDTH * 0.4,
     height: SCREEN_WIDTH * 0.4,
-    marginRight: 10,
+    marginRight: 5,
     alignSelf: 'center',
     backgroundColor: '#FFF',
   },

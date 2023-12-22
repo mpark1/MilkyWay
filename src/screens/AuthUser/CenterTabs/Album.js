@@ -1,61 +1,51 @@
 import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-} from 'react-native';
+import {View, Text, StyleSheet, FlatList, Pressable} from 'react-native';
 import {useSelector} from 'react-redux';
-
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import PictureCarousel from '../../../components/PictureCarousel';
-
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
-
-import mockData from '../../../data/albumPosts.json';
 import AlbumVideo from '../../../components/AlbumVideo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
+import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
 
 const Album = ({navigation}) => {
   const pageSize = 3;
-  // const petID = useSelector(state => state.user.currentPetID);
-  const [postsData, setPostsData] = useState({
-    posts: [],
+  const petID = useSelector(state => state.user.currentPetID);
+  const [albumData, setAlbumData] = useState({
+    albums: [],
     nextToken: null,
   });
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
-  const [isFetchComplete, setIsFetchComplete] = useState(true);
+  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
+  const [isFetchComplete, setIsFetchComplete] = useState(false);
 
-  // useEffect(() => {
-  //   fetchAlbum();
-  // }, [petID]);
+  useEffect(() => {
+    fetchAlbums();
+    console.log('first fetched data is done!');
+    setIsFetchComplete(true);
+  }, [petID]);
 
-  // const fetchAlbum = async () => {
-  //   queryPostsByPetIDPagination(
-  //     isLoadingPosts,
-  //     setIsLoadingPosts,
-  //     listPosts,
-  //     pageSize,
-  //     petID,
-  //     postsData.nextToken,
-  //   ).then(data => {
-  //     const {posts, nextToken: newNextToken} = data;
-  //     setPostsData(prev => ({
-  //       posts: [...prev.posts, ...posts],
-  //       nextToken: newNextToken,
-  //     }));
-  //   });
-  // };
+  const fetchAlbums = async () => {
+    queryAlbumsByPetIDPagination(
+      isLoadingAlbums,
+      setIsLoadingAlbums,
+      pageSize,
+      petID,
+      albumData.nextToken,
+    ).then(data => {
+      const {albums, nextToken: newNextToken} = data;
+      setAlbumData(prev => ({
+        albums: [...prev.albums, ...albums],
+        nextToken: newNextToken,
+      }));
+    });
+  };
 
   const renderDottedBorderButton = () => {
     return (
       isFetchComplete &&
-      postsData.length === 0 && (
+      albumData.albums.length === 0 && (
         <DashedBorderButton
           title={'추억 등록하기'}
           titleColor={'gray'}
@@ -65,47 +55,63 @@ const Album = ({navigation}) => {
       )
     );
   };
+
+  const onEndReached = async () => {
+    if (albumData.nextToken !== null) {
+      await fetchAlbums();
+    }
+  };
+
   return (
-    <View
-      style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
-      <FlatList
-        style={styles.flatListContainer}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={renderDottedBorderButton}
-        data={mockData}
-        renderItem={({item}) => {
-          return (
-            <View style={styles.flatListItemContainer}>
-              {item.type === 'photo' && <PictureCarousel picURI={item.uri} />}
-              {item.type === 'video' && <AlbumVideo source={item.uri[0]} />}
-              <View>
-                <Text style={[styles.caption, {marginVertical: 10}]}>
-                  {item.category !== 0
-                    ? '                 ' + item.caption
-                    : item.caption}
-                </Text>
-                <Text
-                  style={styles.tag}
-                  onPress={() => {
-                    // 태그별 모아보기용 쿼리 부르기
-                    console.log('tag pressed');
-                  }}>
-                  {albumCategoryMapping[item.category]}
-                </Text>
+    isFetchComplete &&
+    albumData.albums.length > 0 && (
+      <View
+        style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
+        <FlatList
+          style={styles.flatListContainer}
+          onMomentumScrollBegin={() => setIsLoadingAlbums(false)}
+          onEndReachedThreshold={0.8}
+          onEndReached={onEndReached}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={renderDottedBorderButton}
+          data={albumData.albums}
+          renderItem={({item}) => {
+            return (
+              <View style={styles.flatListItemContainer}>
+                {item.imageType === 0 ? (
+                  <PictureCarousel picURI={item.imageArray} />
+                ) : (
+                  <AlbumVideo source={item.imageArray[0]} />
+                )}
+                <View>
+                  <Text style={[styles.caption, {marginVertical: 10}]}>
+                    {item.category !== 0
+                      ? '                 ' + item.caption
+                      : item.caption}
+                  </Text>
+                  <Text
+                    style={styles.tag}
+                    onPress={() => {
+                      // 태그별 모아보기용 쿼리 부르기
+                      console.log('tag pressed');
+                    }}>
+                    {albumCategoryMapping[item.category]}
+                  </Text>
+                </View>
               </View>
-            </View>
-          );
-        }}
-      />
-      <View style={styles.plusButtonContainer}>
-        <Pressable
-          onPress={() => {
-            navigation.navigate('ChooseMedia');
-          }}>
-          <AntDesign name={'pluscircle'} size={45} color={'#6395E1'} />
-        </Pressable>
+            );
+          }}
+        />
+        <View style={styles.plusButtonContainer}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('ChooseMedia');
+            }}>
+            <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
+          </Pressable>
+        </View>
       </View>
-    </View>
+    )
   );
 };
 
@@ -115,8 +121,10 @@ const styles = StyleSheet.create({
   spacer: {paddingHorizontal: 15},
   plusButtonContainer: {
     position: 'absolute',
-    right: 15,
-    top: 15,
+    right: 10,
+    bottom: 10,
+    backgroundColor: '#FFF',
+    borderRadius: 50,
   },
   flatListContainer: {
     paddingVertical: 15,

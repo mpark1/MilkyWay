@@ -22,10 +22,21 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 
 import ages from '../../data/ages.json';
+import {mutationItem, uploadImageToS3} from '../../utils/amplifyUtil';
+import {useSelector} from 'react-redux';
+import {createAlbum, createImage} from '../../graphql/mutations';
+import {generateClient} from 'aws-amplify/api';
+import {albumCategory} from '../../constants/albumCategoryMapping';
+import {getUrl, list} from 'aws-amplify/storage';
+import AlertBox from '../../components/AlertBox';
 
 const MediaPreview = ({navigation, route}) => {
   const {mediaType, mediaList: initialMediaList, age} = route.params;
+  const petID = useSelector(state => state.user.currentPetID);
+  const userID = useSelector(state => state.user.cognitoUsername);
+
   const [mediaList, setMediaList] = useState(initialMediaList);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
   console.log('imageList: ', mediaList);
 
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
@@ -37,6 +48,7 @@ const MediaPreview = ({navigation, route}) => {
   const [isVideoPaused, setIsVideoPaused] = useState(true);
   const [description, setDescription] = useState('');
   const canGoNext = selectedAge && mediaList.length > 0;
+  const [s3Images, setS3Images] = useState([]);
 
   const onChangeDescription = useCallback(text => {
     setDescription(text);
@@ -165,13 +177,97 @@ const MediaPreview = ({navigation, route}) => {
     );
   };
 
+  function navigationPage() {
+    navigation.pop(2);
+  }
+
+  const onSubmit = async () => {
+    // 1. create a new album item
+    const newAlbumInput = {
+      petID: petID,
+      category: albumCategory[selectedAge],
+      caption: description,
+      albumAuthorId: userID,
+      imageType: mediaType === 'photo' ? 0 : 1,
+    };
+
+    try {
+      if (!isCallingAPI) {
+        setIsCallingAPI(true);
+        const client = generateClient();
+        const response = await client.graphql({
+          query: createAlbum,
+          variables: {input: newAlbumInput},
+          authMode: 'userPool',
+        });
+        console.log('response after create album ', response);
+        const albumID = response.data.createAlbum.id;
+
+        mediaList.map(async item => {
+          const s3Result = await uploadImageToS3(
+            'album/' + albumID + '/' + item.filename,
+            item.blob,
+            item.contentType,
+          );
+          console.log('print s3 result value: ', s3Result);
+        });
+        AlertBox(
+          '앨범이 성공적으로 등록되었습니다.',
+          '',
+          '확인',
+          navigationPage,
+        );
+      }
+    } catch (error) {
+      console.log('error during query: ', error);
+    } finally {
+      setIsCallingAPI(false);
+    }
+  };
+
+  // const retrieveImagesfromS3 = async () => {
+  //   try {
+  //     // returns all image objects from s3 bucket
+  //     const response = await list({
+  //       prefix: 'album/',
+  //       options: {
+  //         accessLevel: 'protected',
+  //       },
+  //     });
+  //     console.log('retrieved photo objects from S3:', response.items);
+  //
+  //     // iterate all objects and get urls
+  //     const returnImagesArray = [];
+  //     response.items.map(async imageObj => {
+  //       const getUrlResult = await getUrl({
+  //         key: imageObj.key,
+  //         options: {
+  //           accessLevel: 'protected', // can be 'private', 'protected', or 'guest' but defaults to `guest`
+  //           validateObjectExistence: false, // defaults to false
+  //           expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+  //           useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
+  //         },
+  //       });
+  //       returnImagesArray.push(getUrlResult.url);
+  //       console.log('signed URL: ', getUrlResult);
+  //     });
+  //     // save return arrays to the useState.
+  //     setS3Images(returnImagesArray);
+  //   } catch (error) {
+  //     console.log('Error ', error);
+  //   } finally {
+  //     navigation.navigate('SamplePage', {uri: s3Images[0]});
+  //     console.log('print passed uri in the preview page: ', s3Images[0]);
+  //   }
+  // };
+
   const renderSubmitButton = () => {
     return (
       <View style={styles.submitButton}>
         <BlueButton
           title={'등록하기'}
           disabled={!canGoNext}
-          // onPress={call uploadToS3}
+          onPress={onSubmit}
         />
       </View>
     );

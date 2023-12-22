@@ -2,7 +2,7 @@
   "version": "1",
   "cognitoConfig": {
     "identityPoolName": "milkywayb2dd3f99_identitypool_b2dd3f99",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "milkywb2dd3f99",
     "userPoolName": "milkywayb2dd3f99_userpool_b2dd3f99",
     "autoVerifiedAttributes": [
