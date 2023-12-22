@@ -30,5 +30,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: scaleFontSize(18),
     color: '#6395E1',
+    paddingRight: 15,
   },
 });

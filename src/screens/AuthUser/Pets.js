@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
   ImageBackground,
@@ -22,6 +22,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Pets = ({navigation}) => {
   const [pets, setPets] = useState([]);
   const userID = useSelector(state => state.user.cognitoUsername);
+  const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
@@ -43,10 +44,11 @@ const Pets = ({navigation}) => {
         console.log('error for getting pets from db: ', error);
       }
     };
-    fetchPets().then(
-      response => setPets(response),
+    fetchPets().then(response => {
+      setPets(response);
+      setIsFetchPetsComplete(true);
       // response.map(pet => storeDataAsyncStorage(pet));
-    );
+    });
   }, []);
 
   // const storeDataAsyncStorage = async pet => {
@@ -65,6 +67,22 @@ const Pets = ({navigation}) => {
   //   }
   // };
 
+  const renderAddNewPetButton = useCallback(() => {
+    return (
+      isFetchPetsComplete && (
+        <View style={styles.addNewPetButtonContainer}>
+          <DashedBorderButton
+            type={'regular'}
+            title={'새로운 추모공간 만들기'}
+            circleSize={40}
+            titleColor={'white'}
+            onPress={() => navigation.navigate('AddNewPet')}
+          />
+        </View>
+      )
+    );
+  }, [isFetchPetsComplete]);
+
   return (
     <SafeAreaView style={globalStyle.flex}>
       <ImageBackground
@@ -77,30 +95,24 @@ const Pets = ({navigation}) => {
           <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
           <Text style={styles.settings}>나의 계정 관리</Text>
         </Pressable>
-        <View style={styles.flatListContainer}>
-          <FlatList
-            data={pets}
-            renderItem={({item}) => (
-              <PetCard
-                petID={item.id}
-                profilePic={item.profilePic}
-                name={item.name}
-                birthday={item.birthday}
-                deathDay={item.deathDay}
-                lastWord={item.lastWord}
-              />
-            )}
-            ListFooterComponent={() => (
-              <DashedBorderButton
-                type={'regular'}
-                title={'새로운 추모공간 만들기'}
-                circleSize={40}
-                titleColor={'white'}
-                onPress={() => navigation.navigate('AddNewPet')}
-              />
-            )}
-          />
-        </View>
+        {isFetchPetsComplete && pets.length > 0 && (
+          <View style={styles.flatListContainer}>
+            <FlatList
+              data={pets}
+              renderItem={({item}) => (
+                <PetCard
+                  petID={item.id}
+                  profilePic={item.profilePic}
+                  name={item.name}
+                  birthday={item.birthday}
+                  deathDay={item.deathDay}
+                  lastWord={item.lastWord}
+                />
+              )}
+            />
+          </View>
+        )}
+        {renderAddNewPetButton()}
       </ImageBackground>
     </SafeAreaView>
   );
@@ -130,4 +142,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'center',
   },
+  addNewPetButtonContainer: {paddingHorizontal: 15, marginVertical: 15},
 });
