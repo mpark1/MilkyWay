@@ -1,5 +1,12 @@
 import React, {useState} from 'react';
-import {View, FlatList, Image, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  FlatList,
+  Image,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -8,7 +15,7 @@ const PictureCarousel = ({picURI}) => {
     <View>
       <FlatList
         horizontal={true}
-        scrollEnabled={picURI.length > 1}
+        scrollEnabled={picURI.length > 2}
         showsHorizontalScrollIndicator={false}
         snapToInterval={SCREEN_WIDTH}
         snapToAlignment={'center'}
