@@ -30,7 +30,7 @@ const PetPage = ({navigation}) => {
   const petID = useSelector(state => state.user.currentPetID);
 
   useEffect(() => {
-    querySingleItem(getPet, {id: petID, SK: userID}).then(response =>
+    querySingleItem(getPet, {id: petID}).then(response =>
       setPetInfo(response.getPet),
     );
   }, [petID]);
@@ -48,10 +48,12 @@ const PetPage = ({navigation}) => {
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
         </Pressable>
-        <Pressable
-          onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
-          <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
-        </Pressable>
+        {petInfo.owner === userID && (
+          <Pressable
+            onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
+            <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
+          </Pressable>
+        )}
       </View>
     );
   };
