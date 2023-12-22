@@ -40,12 +40,6 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
       </Text>
     );
   };
-  //
-  // const printCallback = useCallback(() => {
-  //   console.log('print fulltext', text);
-  //   console.log('print isTruncated? ', isTruncated);
-  //   console.log('print clippedText', clippedText);
-  // }, [clippedText, isTruncated]);
 
   return (
     <View style={styles.letter}>

@@ -225,42 +225,6 @@ const MediaPreview = ({navigation, route}) => {
     }
   };
 
-  // const retrieveImagesfromS3 = async () => {
-  //   try {
-  //     // returns all image objects from s3 bucket
-  //     const response = await list({
-  //       prefix: 'album/',
-  //       options: {
-  //         accessLevel: 'protected',
-  //       },
-  //     });
-  //     console.log('retrieved photo objects from S3:', response.items);
-  //
-  //     // iterate all objects and get urls
-  //     const returnImagesArray = [];
-  //     response.items.map(async imageObj => {
-  //       const getUrlResult = await getUrl({
-  //         key: imageObj.key,
-  //         options: {
-  //           accessLevel: 'protected', // can be 'private', 'protected', or 'guest' but defaults to `guest`
-  //           validateObjectExistence: false, // defaults to false
-  //           expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-  //           useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
-  //         },
-  //       });
-  //       returnImagesArray.push(getUrlResult.url);
-  //       console.log('signed URL: ', getUrlResult);
-  //     });
-  //     // save return arrays to the useState.
-  //     setS3Images(returnImagesArray);
-  //   } catch (error) {
-  //     console.log('Error ', error);
-  //   } finally {
-  //     navigation.navigate('SamplePage', {uri: s3Images[0]});
-  //     console.log('print passed uri in the preview page: ', s3Images[0]);
-  //   }
-  // };
-
   const renderSubmitButton = () => {
     return (
       <View style={styles.submitButton}>

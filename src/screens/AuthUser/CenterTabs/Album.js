@@ -18,16 +18,19 @@ const Album = ({navigation}) => {
     nextToken: null,
   });
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
-  const [isFetchComplete, setIsFetchComplete] = useState(false);
+  const [isAlubmFetchComplete, setAlubmIsFetchComplete] = useState(false);
 
   useEffect(() => {
-    fetchAlbums();
-    console.log('first fetched data is done!');
-    setIsFetchComplete(true);
+    const firstFetch = async () => {
+      await fetchAlbums();
+      console.log('first fetch album worked.');
+      setAlubmIsFetchComplete(true);
+    };
+    firstFetch();
   }, [petID]);
 
   const fetchAlbums = async () => {
-    queryAlbumsByPetIDPagination(
+    await queryAlbumsByPetIDPagination(
       isLoadingAlbums,
       setIsLoadingAlbums,
       pageSize,
@@ -44,14 +47,16 @@ const Album = ({navigation}) => {
 
   const renderDottedBorderButton = () => {
     return (
-      isFetchComplete &&
+      isAlubmFetchComplete &&
       albumData.albums.length === 0 && (
-        <DashedBorderButton
-          title={'추억 등록하기'}
-          titleColor={'gray'}
-          circleSize={30}
-          onPress={() => navigation.navigate('ChooseMedia')}
-        />
+        <View style={{paddingTop: 15}}>
+          <DashedBorderButton
+            title={'추억 등록하기'}
+            titleColor={'gray'}
+            circleSize={30}
+            onPress={() => navigation.navigate('ChooseMedia')}
+          />
+        </View>
       )
     );
   };
@@ -63,55 +68,55 @@ const Album = ({navigation}) => {
   };
 
   return (
-    isFetchComplete &&
-    albumData.albums.length > 0 && (
-      <View
-        style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
-        <FlatList
-          style={styles.flatListContainer}
-          onMomentumScrollBegin={() => setIsLoadingAlbums(false)}
-          onEndReachedThreshold={0.8}
-          onEndReached={onEndReached}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={renderDottedBorderButton}
-          data={albumData.albums}
-          renderItem={({item}) => {
-            return (
-              <View style={styles.flatListItemContainer}>
-                {item.imageType === 0 ? (
-                  <PictureCarousel picURI={item.imageArray} />
-                ) : (
-                  <AlbumVideo source={item.imageArray[0]} />
-                )}
-                <View>
-                  <Text style={[styles.caption, {marginVertical: 10}]}>
-                    {item.category !== 0
-                      ? '                 ' + item.caption
-                      : item.caption}
-                  </Text>
-                  <Text
-                    style={styles.tag}
-                    onPress={() => {
-                      // 태그별 모아보기용 쿼리 부르기
-                      console.log('tag pressed');
-                    }}>
-                    {albumCategoryMapping[item.category]}
-                  </Text>
+    <View
+      style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
+      {renderDottedBorderButton()}
+      {isAlubmFetchComplete && albumData.albums.length > 0 && (
+        <View style={styles.flatListContainer}>
+          <FlatList
+            onMomentumScrollBegin={() => setIsLoadingAlbums(false)}
+            onEndReachedThreshold={0.8}
+            onEndReached={onEndReached}
+            showsVerticalScrollIndicator={false}
+            data={albumData.albums}
+            renderItem={({item}) => {
+              return (
+                <View style={styles.flatListItemContainer}>
+                  {item.imageType === 0 ? (
+                    <PictureCarousel picURI={item.imageArray} />
+                  ) : (
+                    <AlbumVideo source={item.imageArray[0]} />
+                  )}
+                  <View>
+                    <Text style={[styles.caption, {marginVertical: 10}]}>
+                      {item.category !== 0
+                        ? '                 ' + item.caption
+                        : item.caption}
+                    </Text>
+                    <Text
+                      style={styles.tag}
+                      onPress={() => {
+                        // 태그별 모아보기용 쿼리 부르기
+                        console.log('tag pressed');
+                      }}>
+                      {albumCategoryMapping[item.category]}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            );
-          }}
-        />
-        <View style={styles.plusButtonContainer}>
-          <Pressable
-            onPress={() => {
-              navigation.navigate('ChooseMedia');
-            }}>
-            <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
-          </Pressable>
+              );
+            }}
+          />
+          <View style={styles.plusButtonContainer}>
+            <Pressable
+              onPress={() => {
+                navigation.navigate('ChooseMedia');
+              }}>
+              <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
+            </Pressable>
+          </View>
         </View>
-      </View>
-    )
+      )}
+    </View>
   );
 };
 

@@ -6,6 +6,7 @@ import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import globalStyle from '../../../assets/styles/globalStyle';
 
 const Letters = ({navigation}) => {
   const pageSize = 3;
@@ -15,9 +16,14 @@ const Letters = ({navigation}) => {
     nextToken: null,
   });
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
+  const [isLetterFetchComplete, setIsLetterFetchComplete] = useState(false);
 
   useEffect(() => {
-    fetchLetters();
+    const firstFetch = async () => {
+      await fetchLetters();
+      setIsLetterFetchComplete(true);
+    };
+    firstFetch();
   }, [petID]);
 
   const fetchLetters = async () => {
@@ -44,20 +50,23 @@ const Letters = ({navigation}) => {
 
   const renderWriteLetterButton = useCallback(() => {
     return (
-      <View
-        style={{
-          paddingHorizontal: 15,
-        }}>
-        <DashedBorderButton
-          type={'thin'}
-          title={'편지쓰기'}
-          titleColor={'gray'}
-          circleSize={30}
-          onPress={() => navigation.navigate('WriteLetter')}
-        />
-      </View>
+      isLetterFetchComplete &&
+      lettersData.letters.length === 0 && (
+        <View
+          style={{
+            padding: 15,
+          }}>
+          <DashedBorderButton
+            type={'thin'}
+            title={'편지쓰기'}
+            titleColor={'gray'}
+            circleSize={30}
+            onPress={() => navigation.navigate('WriteLetter')}
+          />
+        </View>
+      )
     );
-  }, []);
+  }, [isLetterFetchComplete, lettersData.letters]);
 
   const onEndReached = async () => {
     if (lettersData.nextToken !== null) {
@@ -66,16 +75,20 @@ const Letters = ({navigation}) => {
   };
 
   return (
-    <View style={styles.flatListContainer}>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-        onEndReachedThreshold={0.8}
-        onEndReached={onEndReached}
-        data={lettersData.letters}
-        renderItem={renderFlatListItem}
-        ListHeaderComponent={renderWriteLetterButton}
-      />
+    <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+      {renderWriteLetterButton()}
+      {isLetterFetchComplete && lettersData.letters.length > 0 && (
+        <View style={styles.flatListContainer}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+            onEndReachedThreshold={0.8}
+            onEndReached={onEndReached}
+            data={lettersData.letters}
+            renderItem={renderFlatListItem}
+          />
+        </View>
+      )}
     </View>
   );
 };

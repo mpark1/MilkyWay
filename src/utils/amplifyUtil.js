@@ -7,6 +7,7 @@ import {
   listAlbums,
   listGuestBooks,
   listLetters,
+  petsByAccessLevel,
 } from '../graphql/queries';
 import {list, uploadData} from 'aws-amplify/storage';
 import {getUrl} from 'aws-amplify/storage';
@@ -124,7 +125,11 @@ export async function queryLettersByPetIDPagination(
         }),
       );
 
-      console.log('print first fetched letter: ', letterData.letters[0]);
+      // console.log(
+      //   'print first fetched letter: ',
+      //   typeof letterData.letters[0],
+      //   letterData.letters[0],
+      // );
       setIsLoading(false);
       return letterData;
     } catch (error) {
@@ -191,7 +196,7 @@ export async function uploadImageToS3(filename, photoBlob, contentType) {
       key: filename,
       data: photoBlob,
       options: {
-        accessLevel: 'public', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
+        accessLevel: 'protected', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
         contentType: contentType,
         // onProgress // Optional progress callback.
       },
@@ -239,7 +244,7 @@ export async function queryAlbumsByPetIDPagination(
         const s3response = await list({
           prefix: 'album/' + albumObj.id + '/',
           options: {
-            accessLevel: 'public',
+            accessLevel: 'protected',
           },
         });
         console.log(
@@ -250,6 +255,7 @@ export async function queryAlbumsByPetIDPagination(
           const getUrlResult = await getUrl({
             key: imageObj.key,
             options: {
+              accessLevel: 'protected',
               validateObjectExistence: false, // defaults to false
               expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
               useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
@@ -267,6 +273,63 @@ export async function queryAlbumsByPetIDPagination(
     } catch (error) {
       console.log('error for list fetching, albums: ', error);
       setIsLoadingAlbums(false);
+    }
+  }
+}
+
+export async function queryPetsPagination(
+  isLoadingPets,
+  setIsLoadingPets,
+  pageSize,
+  token,
+) {
+  if (!isLoadingPets) {
+    try {
+      setIsLoadingPets(true);
+      //1 get pet data from Pets table in db
+      const client = generateClient();
+      const response = await client.graphql({
+        query: petsByAccessLevel,
+        variables: {
+          accessLevel: 'Public',
+          limit: pageSize,
+          nextToken: token,
+        },
+        authMode: 'userPool',
+      });
+      const petsData = {pets: [], nextToken: null};
+      const {items, nextToken} = response.data.petsByAccessLevel; // includes items (array format), nextToken
+      petsData.pets = items;
+      petsData.nextToken = nextToken;
+      console.log(
+        'print first pet fetched from db is success: ',
+        petsData.pets[0],
+      );
+
+      //2. get profile image from S3
+      // returns all image objects from s3 bucket
+      // const urlPromises = petsData.pets.map(async petObj => {
+      //   const getUrlResult = await getUrl({
+      //     key: petObj.profilePic,
+      //     options: {
+      //       accessLevel: 'protected',
+      //       validateObjectExistence: false, // defaults to false
+      //       expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+      //       useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
+      //     },
+      //   });
+      //   petObj.profilePic = getUrlResult.url.href;
+      //   console.log(
+      //     'print pet profile pic, type and value: ',
+      //     typeof petObj.profilePic,
+      //     petObj.profilePic,
+      //   );
+      // });
+      // setIsLoadingPets(false);
+      return petsData;
+    } catch (error) {
+      console.log('error for fetching pets for community: ', error);
+      setIsLoadingPets(false);
     }
   }
 }

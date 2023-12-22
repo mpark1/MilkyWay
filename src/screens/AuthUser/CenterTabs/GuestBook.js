@@ -11,6 +11,7 @@ import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
+import globalStyle from '../../../assets/styles/globalStyle';
 
 const GuestBook = ({navigation}) => {
   const pageSize = 3;
@@ -22,10 +23,14 @@ const GuestBook = ({navigation}) => {
   });
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
   const [fetchedData, setFetchedData] = useState(false);
+  const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
-    fetchMessages();
-    setFetchedData(true);
+    const firstFetch = async () => {
+      await fetchMessages();
+      setIsFetchComplete(true);
+    };
+    firstFetch();
   }, [petID]);
 
   const fetchMessages = async () => {
@@ -46,20 +51,22 @@ const GuestBook = ({navigation}) => {
 
   const renderLeaveMessageButton = useCallback(() => {
     return (
-      <View
-        style={{
-          paddingHorizontal: 15,
-        }}>
-        <DashedBorderButton
-          type={'thin'}
-          title={'추모 메세지 쓰기'}
-          titleColor={'gray'}
-          circleSize={30}
-          onPress={() => bottomSheetModalRef.current?.present()}
-        />
-      </View>
+      isFetchComplete && (
+        <View
+          style={{
+            padding: 15,
+          }}>
+          <DashedBorderButton
+            type={'thin'}
+            title={'추모 메세지 쓰기'}
+            titleColor={'gray'}
+            circleSize={30}
+            onPress={() => bottomSheetModalRef.current?.present()}
+          />
+        </View>
+      )
     );
-  }, []);
+  }, [isFetchComplete]);
 
   const onEndReached = async () => {
     if (guestBookData.nextToken !== null) {
@@ -80,19 +87,19 @@ const GuestBook = ({navigation}) => {
   }, []);
 
   return (
-    <View style={styles.flatListContainer}>
-      {!fetchedData ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          onEndReachedThreshold={0.7}
-          onEndReached={onEndReached}
-          data={guestBookData.guestMessages}
-          renderItem={renderFlatListItem}
-          ListHeaderComponent={renderLeaveMessageButton}
-          onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-        />
+    <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+      {renderLeaveMessageButton()}
+      {isFetchComplete && guestBookData.guestMessages.length > 0 && (
+        <View style={styles.flatListContainer}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            onEndReachedThreshold={0.7}
+            onEndReached={onEndReached}
+            data={guestBookData.guestMessages}
+            renderItem={renderFlatListItem}
+            onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+          />
+        </View>
       )}
       <BottomSheetModalTextInputWrapper
         petID={petID}
