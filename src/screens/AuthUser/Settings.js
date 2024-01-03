@@ -63,6 +63,8 @@ const Settings = ({navigation, route}) => {
   );
   const [checkAll, setAll] = useState(petInfo.accessLevel === 'Public'); // defaults to all
 
+  const [isToolTipOpen, setIsToolTipOpen] = useState(false);
+
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
     setPetName(trimmedText);
