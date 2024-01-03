@@ -17,7 +17,7 @@ import {profilePicOption} from '../../constants/imagePickerOptions';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
-import {Button, Icon} from '@rneui/base';
+import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 
 import globalStyle from '../../assets/styles/globalStyle';
@@ -278,13 +278,31 @@ const Settings = ({navigation, route}) => {
       <View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <Text style={styles.label}>추모공간 접근 설정</Text>
-          <Pressable onPress={() => {}}>
+          <Tooltip
+            visible={isToolTipOpen}
+            backgroundColor={'#EEE'}
+            onOpen={() => {
+              setIsToolTipOpen(true);
+            }}
+            onClose={() => {
+              setIsToolTipOpen(false);
+            }}
+            containerStyle={styles.toolTipContainer}
+            popover={
+              <Text>
+                {
+                  '초대받은 사람만 - 관리자에게 초대장을 받은 사용자만 접근 가능합니다.\n\n전체공개 - 은하수 앱의 모든 사용자가 접근 가능합니다.'
+                }
+              </Text>
+            }
+            withOverlay={false}
+            closeOnlyOnBackdropPress={true}>
             <Ionicons
               name={'information-circle-outline'}
               color={'#000'}
               size={24}
             />
-          </Pressable>
+          </Tooltip>
         </View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <CheckBox
@@ -600,5 +618,9 @@ const styles = StyleSheet.create({
   },
   hideBottomSheetHandle: {
     height: 0,
+  },
+  toolTipContainer: {
+    width: '50%',
+    height: Dimensions.get('window').height * 0.19,
   },
 });
