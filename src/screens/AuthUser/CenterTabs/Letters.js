@@ -8,7 +8,8 @@ import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 
-const Letters = ({navigation}) => {
+const Letters = ({navigation, route}) => {
+  const {isFamily} = route.params;
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
   const [lettersData, setLettersData] = useState({
@@ -44,7 +45,13 @@ const Letters = ({navigation}) => {
 
   const renderFlatListItem = useCallback(({item}) => {
     return (
-      <MoreLessTruncated item={item} linesToTruncate={2} whichTab={'Letters'} />
+      item.accessLevel === 'PUBLIC' && (
+        <MoreLessTruncated
+          item={item}
+          linesToTruncate={2}
+          whichTab={'Letters'}
+        />
+      )
     );
   }, []);
 
@@ -76,7 +83,7 @@ const Letters = ({navigation}) => {
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      {renderWriteLetterButton()}
+      {isFamily && renderWriteLetterButton()}
       {isLetterFetchComplete && lettersData.letters.length > 0 && (
         <View style={styles.flatListContainer}>
           <FlatList

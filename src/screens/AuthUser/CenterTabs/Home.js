@@ -19,9 +19,8 @@ import {getIntroductionMessage} from '../../../graphql/queries';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
 
 const Home = ({navigation, route}) => {
-  const {lastWord, petID} = route.params;
+  const {lastWord, petID, isManager} = route.params;
   const [introductionMsg, setIntroductionMsg] = useState('');
-  // const originalMsgCopy = introductionMsg;
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
@@ -74,11 +73,12 @@ const Home = ({navigation, route}) => {
 
   const showIntroductionMessage = () => {
     return !introductionMsg ? (
-      renderDottedBorderButton()
+      isManager && renderDottedBorderButton()
     ) : (
       <View style={styles.introductionMsg.container}>
         <View style={styles.introductionMsg.titleWithActionButtons}>
           <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
+          isManager && (
           <View style={styles.introductionMsg.editAndDeleteContainer}>
             <Pressable onPress={() => bottomSheetModalRef2.current?.present()}>
               <EvilIcons name={'pencil'} color={'#373737'} size={26} />
@@ -87,6 +87,7 @@ const Home = ({navigation, route}) => {
               <EvilIcons name={'trash'} color={'#373737'} size={26} />
             </Pressable>
           </View>
+          )
         </View>
         <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
       </View>

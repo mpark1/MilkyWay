@@ -46,6 +46,7 @@ const SignIn = ({navigation}) => {
       });
       const userId = await checkUser();
       dispatch(setCognitoUsername(userId));
+
       console.log('sign-in result: ', isSignedIn, nextStep);
       // 미인증 계정 인증화면으로 보내기
       if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {

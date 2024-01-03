@@ -10,7 +10,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
 import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
 
-const Album = ({navigation}) => {
+const Album = ({navigation, route}) => {
+  const {isFamily} = route.params;
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
   const [albumData, setAlbumData] = useState({
@@ -70,7 +71,7 @@ const Album = ({navigation}) => {
   return (
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
-      {renderDottedBorderButton()}
+      isFamily && {renderDottedBorderButton()}
       {isAlubmFetchComplete && albumData.albums.length > 0 && (
         <View style={styles.flatListContainer}>
           <FlatList
@@ -106,6 +107,7 @@ const Album = ({navigation}) => {
               );
             }}
           />
+          isFamily && (
           <View style={styles.plusButtonContainer}>
             <Pressable
               onPress={() => {
@@ -114,6 +116,7 @@ const Album = ({navigation}) => {
               <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
             </Pressable>
           </View>
+          )
         </View>
       )}
     </View>

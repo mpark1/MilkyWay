@@ -1,10 +1,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
+  Text,
   Dimensions,
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
@@ -12,8 +14,10 @@ import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
 import globalStyle from '../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 
-const GuestBook = ({navigation}) => {
+const GuestBook = ({navigation, route}) => {
+  const {isPublic, isManager} = route.params; // boolean
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -51,7 +55,8 @@ const GuestBook = ({navigation}) => {
 
   const renderLeaveMessageButton = useCallback(() => {
     return (
-      isFetchComplete && (
+      isFetchComplete &&
+      isPublic && (
         <View
           style={{
             padding: 15,
@@ -66,7 +71,7 @@ const GuestBook = ({navigation}) => {
         </View>
       )
     );
-  }, [isFetchComplete]);
+  }, [isFetchComplete, isPublic]);
 
   const onEndReached = async () => {
     if (guestBookData.nextToken !== null) {
@@ -86,29 +91,52 @@ const GuestBook = ({navigation}) => {
     );
   }, []);
 
+  const renderIfPrivate = () => {
+    return (
+      <View style={styles.flatListContainer}>
+        <Text style={styles.ifPrivate}>
+          비공개 추모공간의 방명록 입니다. 추모공간 관리자는 공간의 접근 권한을
+          설정할 수 있습니다. 전체공개로 변경 시 가족 외의 사용자가 방명록에
+          추모 메세지를 남겨 함께 애도할 수 있습니다.
+        </Text>
+        isManager && (
+        <Pressable onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.navigateToSettings}>접근 권한 변경하러 가기</Text>
+        </Pressable>
+        )
+      </View>
+    );
+  };
+
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      {renderLeaveMessageButton()}
-      {isFetchComplete && guestBookData.guestMessages.length > 0 && (
-        <View style={styles.flatListContainer}>
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            onEndReachedThreshold={0.7}
-            onEndReached={onEndReached}
-            data={guestBookData.guestMessages}
-            renderItem={renderFlatListItem}
-            onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+      {isPublic ? (
+        <View>
+          {renderLeaveMessageButton()}
+          {isFetchComplete && guestBookData.guestMessages.length > 0 && (
+            <View style={styles.flatListContainer}>
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                onEndReachedThreshold={0.7}
+                onEndReached={onEndReached}
+                data={guestBookData.guestMessages}
+                renderItem={renderFlatListItem}
+                onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+              />
+            </View>
+          )}
+          <BottomSheetModalTextInputWrapper
+            petID={petID}
+            whichTab={'GuestBook'}
+            option={'Create'}
+            bottomSheetModalRef={bottomSheetModalRef}
+            originalMsg={''}
+            userID={userID}
           />
         </View>
+      ) : (
+        renderIfPrivate()
       )}
-      <BottomSheetModalTextInputWrapper
-        petID={petID}
-        whichTab={'GuestBook'}
-        option={'Create'}
-        bottomSheetModalRef={bottomSheetModalRef}
-        originalMsg={''}
-        userID={userID}
-      />
     </View>
   );
 };
@@ -123,5 +151,14 @@ const styles = StyleSheet.create({
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,
     marginRight: Dimensions.get('window').width * 0.07,
+  },
+  ifPrivate: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
+  },
+  navigateToSettings: {
+    color: '#374957',
+    fontSize: scaleFontSize(17),
+    paddingVertical: 7,
   },
 });

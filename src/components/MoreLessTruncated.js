@@ -4,8 +4,10 @@ import MoreLessComponent from './MoreLess';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
+import {useSelector} from 'react-redux';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
+  const userID = useSelector(state => state.user.cognitoUsername);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const {createdAt, relationship, title} = item;
@@ -82,12 +84,12 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           </View>
           {renderText()}
           <View style={styles.editAndDeleteContainer}>
-            {whichTab === 'Letters' && !isTruncated && (
-              <EditOrDeleteButtons item={item} />
-            )}
-            {whichTab === 'GuestBook' && !isTruncated && (
-              <DeleteIcon item={item} />
-            )}
+            {whichTab === 'Letters' &&
+              !isTruncated &&
+              item.author === userID && <EditOrDeleteButtons item={item} />}
+            {whichTab === 'GuestBook' &&
+              !isTruncated &&
+              item.author === userID && <DeleteIcon item={item} />}
           </View>
         </View>
       </View>

@@ -18,7 +18,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {getPet} from '../../graphql/queries';
+import {getPet, getPetFamily} from '../../graphql/queries';
 import {useDispatch, useSelector} from 'react-redux';
 import {querySingleItem} from '../../utils/amplifyUtil';
 
@@ -29,15 +29,37 @@ const PetPage = ({navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const petID = useSelector(state => state.user.currentPetID);
 
+  const [isManager, setIsManager] = useState(false);
+  const [isFamily, setIsFamily] = useState(false);
+
   useEffect(() => {
     querySingleItem(getPet, {id: petID}).then(response =>
       setPetInfo(response.getPet),
     );
+
+    /* 가족관계 확인 */
+    try {
+      getPetFamily({
+        familyMemberID: userID,
+        petID: petID,
+      });
+      setIsFamily(true);
+
+      // 매니저인지 확인
+      if (petInfo.owner === userID) {
+        setIsManager(true);
+      }
+    } catch (error) {
+      console.log('Error fetching pet family', error);
+      // 가족이 아닐 경우 DB 기록이 없는데 null 또는 에러 반환되는지 확인 해야함
+      setIsFamily(false);
+    }
   }, [petID]);
 
   const renderBellEnvelopeSettingsIcons = () => {
+    // 매니저일 경우에만 보여주기
     return (
-      petInfo.owner === userID && (
+      isManager && (
         <View style={styles.iconsWrapper}>
           <Pressable onPress={() => navigation.navigate('Notifications')}>
             <MaterialCommunityIcons
@@ -49,10 +71,14 @@ const PetPage = ({navigation}) => {
           <Pressable>
             <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
           </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
-            <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
-          </Pressable>
+          {petInfo.owner === userID && (
+            <Pressable
+              onPress={() =>
+                navigation.navigate('Settings', {petInfo: petInfo})
+              }>
+              <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
+            </Pressable>
+          )}
         </View>
       )
     );
@@ -102,11 +128,31 @@ const PetPage = ({navigation}) => {
             initialParams={{
               petID: petInfo.id,
               lastWord: petInfo.lastWord,
+              isManager: isManager,
             }}
           />
-          <centerTab.Screen name={'가족의 편지'} component={Letters} />
-          <centerTab.Screen name={'앨범'} component={Album} />
-          <centerTab.Screen name={'방명록'} component={GuestBook} />
+          <centerTab.Screen
+            name={'가족의 편지'}
+            component={Letters}
+            initialParams={{
+              isFamily: isFamily,
+            }}
+          />
+          <centerTab.Screen
+            name={'앨범'}
+            component={Album}
+            initialParams={{
+              isFamily: isFamily,
+            }}
+          />
+          <centerTab.Screen
+            name={'방명록'}
+            component={GuestBook}
+            initialParams={{
+              isPublic: petInfo.accessLevel === 'Public',
+              isManager: isManager,
+            }}
+          />
         </centerTab.Navigator>
       ) : (
         <ActivityIndicator size="large" color="#0000ff" />
