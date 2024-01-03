@@ -2,10 +2,9 @@
 // this is an auto generated file. This will be overwritten
 
 export const getPet = /* GraphQL */ `
-  query GetPet($id: ID!, $SK: String!) {
-    getPet(id: $id, SK: $SK) {
+  query GetPet($id: ID!) {
+    getPet(id: $id) {
       id
-      SK
       profilePic
       name
       birthday
@@ -26,7 +25,6 @@ export const getPet = /* GraphQL */ `
 export const listPets = /* GraphQL */ `
   query ListPets(
     $id: ID
-    $SK: ModelStringKeyConditionInput
     $filter: ModelPetFilterInput
     $limit: Int
     $nextToken: String
@@ -34,7 +32,6 @@ export const listPets = /* GraphQL */ `
   ) {
     listPets(
       id: $id
-      SK: $SK
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -42,7 +39,6 @@ export const listPets = /* GraphQL */ `
     ) {
       items {
         id
-        SK
         profilePic
         name
         birthday
@@ -82,7 +78,6 @@ export const petByName = /* GraphQL */ `
     ) {
       items {
         id
-        SK
         profilePic
         name
         birthday
@@ -120,7 +115,6 @@ export const petsByAccessLevel = /* GraphQL */ `
     ) {
       items {
         id
-        SK
         profilePic
         name
         birthday
@@ -141,34 +135,38 @@ export const petsByAccessLevel = /* GraphQL */ `
     }
   }
 `;
-export const petsByUser = /* GraphQL */ `
-  query PetsByUser(
-    $managerID: ID!
-    $sortDirection: ModelSortDirection
-    $filter: ModelPetFilterInput
+export const getPetFamily = /* GraphQL */ `
+  query GetPetFamily($familyMemberID: ID!, $petID: ID!) {
+    getPetFamily(familyMemberID: $familyMemberID, petID: $petID) {
+      petID
+      familyMemberID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const listPetFamilies = /* GraphQL */ `
+  query ListPetFamilies(
+    $familyMemberID: ID
+    $petID: ModelIDKeyConditionInput
+    $filter: ModelPetFamilyFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    petsByUser(
-      managerID: $managerID
-      sortDirection: $sortDirection
+    listPetFamilies(
+      familyMemberID: $familyMemberID
+      petID: $petID
       filter: $filter
       limit: $limit
       nextToken: $nextToken
+      sortDirection: $sortDirection
     ) {
       items {
-        id
-        SK
-        profilePic
-        name
-        birthday
-        deathDay
-        lastWord
-        accessLevel
-        state
-        deathCause
-        petType
-        managerID
+        petID
+        familyMemberID
         createdAt
         updatedAt
         owner
@@ -191,29 +189,14 @@ export const getIntroductionMessage = /* GraphQL */ `
     }
   }
 `;
-export const getPetFamily = /* GraphQL */ `
-  query GetPetFamily($petID: ID!, $familyMemberID: ID!) {
-    getPetFamily(petID: $petID, familyMemberID: $familyMemberID) {
-      petID
-      familyMemberID
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
 export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
       id
+      email
       profilePic
       name
       state
-      petList {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -233,6 +216,7 @@ export const getLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -292,6 +276,7 @@ export const getGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -349,6 +334,7 @@ export const getAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state

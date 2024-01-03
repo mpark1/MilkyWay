@@ -3,10 +3,12 @@ import {generateClient} from 'aws-amplify/api';
 import {Alert} from 'react-native';
 import {
   getImagesByAlbumID,
+  getPet,
   getUser,
   listAlbums,
   listGuestBooks,
   listLetters,
+  listPetFamilies,
   petsByAccessLevel,
 } from '../graphql/queries';
 import {list, uploadData} from 'aws-amplify/storage';
@@ -306,29 +308,55 @@ export async function queryPetsPagination(
         petsData.pets[0],
       );
 
-      //2. get profile image from S3
-      // returns all image objects from s3 bucket
-      // const urlPromises = petsData.pets.map(async petObj => {
-      //   const getUrlResult = await getUrl({
-      //     key: petObj.profilePic,
-      //     options: {
-      //       accessLevel: 'protected',
-      //       validateObjectExistence: false, // defaults to false
-      //       expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-      //       useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
-      //     },
-      //   });
-      //   petObj.profilePic = getUrlResult.url.href;
-      //   console.log(
-      //     'print pet profile pic, type and value: ',
-      //     typeof petObj.profilePic,
-      //     petObj.profilePic,
-      //   );
-      // });
-      // setIsLoadingPets(false);
       return petsData;
     } catch (error) {
       console.log('error for fetching pets for community: ', error);
+      setIsLoadingPets(false);
+    }
+  }
+}
+
+export async function queryMyPetsPagination(
+  userID,
+  isLoadingPets,
+  setIsLoadingPets,
+  pageSize,
+  token,
+) {
+  if (!isLoadingPets) {
+    try {
+      setIsLoadingPets(true);
+      //1 get pet data from Pets table in db
+      const client = generateClient();
+      const response = await client.graphql({
+        query: listPetFamilies,
+        variables: {
+          familyMemberID: userID,
+          limit: pageSize,
+          nextToken: token,
+        },
+        authMode: 'userPool',
+      });
+      const petsData = {petFamily: [], pets: [], nextToken: null};
+      const {items, nextToken} = response.data.listPetFamilies; // includes items (array format), nextToken
+      petsData.petFamily = items;
+      petsData.nextToken = nextToken;
+      console.log('print first pet id fetched from db: ', items);
+
+      const fetchPetDetails = await Promise.all(
+        petsData.petFamily.map(async petFamilyItem => {
+          const petDetails = await client.graphql({
+            query: getPet,
+            variables: {id: petFamilyItem.petID},
+            authMode: 'userPool',
+          });
+          return petDetails.data.getPet;
+        }),
+      );
+      petsData.pets = await Promise.all(fetchPetDetails);
+      return petsData;
+    } catch (error) {
+      console.log('error for fetching my pets from db: ', error);
       setIsLoadingPets(false);
     }
   }

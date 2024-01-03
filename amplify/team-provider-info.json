@@ -13,7 +13,8 @@
     },
     "categories": {
       "auth": {
-        "milkywayb2dd3f99": {}
+        "milkywayb2dd3f99": {},
+        "userPoolGroups": {}
       },
       "api": {
         "milkyway": {}
@@ -21,7 +22,7 @@
       "function": {
         "createNewUserinDB": {
           "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",
-          "s3Key": "amplify-builds/createNewUserinDB-59525a78323841504f39-build.zip"
+          "s3Key": "amplify-builds/createNewUserinDB-374c38546663447a646e-build.zip"
         },
         "getLettersAndUsers": {
           "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",

@@ -8,7 +8,6 @@ export const onCreatePet = /* GraphQL */ `
   ) {
     onCreatePet(filter: $filter, owner: $owner) {
       id
-      SK
       profilePic
       name
       birthday
@@ -33,7 +32,6 @@ export const onUpdatePet = /* GraphQL */ `
   ) {
     onUpdatePet(filter: $filter, owner: $owner) {
       id
-      SK
       profilePic
       name
       birthday
@@ -44,6 +42,36 @@ export const onUpdatePet = /* GraphQL */ `
       deathCause
       petType
       managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onCreatePetFamily = /* GraphQL */ `
+  subscription OnCreatePetFamily(
+    $filter: ModelSubscriptionPetFamilyFilterInput
+    $owner: String
+  ) {
+    onCreatePetFamily(filter: $filter, owner: $owner) {
+      petID
+      familyMemberID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeletePetFamily = /* GraphQL */ `
+  subscription OnDeletePetFamily(
+    $filter: ModelSubscriptionPetFamilyFilterInput
+    $owner: String
+  ) {
+    onDeletePetFamily(filter: $filter, owner: $owner) {
+      petID
+      familyMemberID
       createdAt
       updatedAt
       owner
@@ -96,36 +124,6 @@ export const onDeletePetIntroduction = /* GraphQL */ `
     }
   }
 `;
-export const onCreatePetFamily = /* GraphQL */ `
-  subscription OnCreatePetFamily(
-    $filter: ModelSubscriptionPetFamilyFilterInput
-    $owner: String
-  ) {
-    onCreatePetFamily(filter: $filter, owner: $owner) {
-      petID
-      familyMemberID
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
-export const onDeletePetFamily = /* GraphQL */ `
-  subscription OnDeletePetFamily(
-    $filter: ModelSubscriptionPetFamilyFilterInput
-    $owner: String
-  ) {
-    onDeletePetFamily(filter: $filter, owner: $owner) {
-      petID
-      familyMemberID
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
 export const onCreateLetter = /* GraphQL */ `
   subscription OnCreateLetter(
     $filter: ModelSubscriptionLetterFilterInput
@@ -141,6 +139,7 @@ export const onCreateLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -171,6 +170,7 @@ export const onUpdateLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -201,6 +201,7 @@ export const onDeleteLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -228,6 +229,7 @@ export const onCreateGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -255,6 +257,7 @@ export const onUpdateGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -282,6 +285,7 @@ export const onDeleteGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -310,6 +314,7 @@ export const onCreateAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -339,6 +344,7 @@ export const onUpdateAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -368,6 +374,7 @@ export const onDeleteAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state

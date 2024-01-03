@@ -15,8 +15,7 @@ type Pet @model (mutations: {create: "createPet", update: "updatePet"})
     ])
 
 {
-    id: ID! @primaryKey(sortKeyFields: ["SK"])
-    SK: String!
+    id: ID! @primaryKey
     profilePic: String
     name: String @index(name: "byName", queryField: "petByName", sortKeyFields: ["id"])
     birthday: String
@@ -26,7 +25,19 @@ type Pet @model (mutations: {create: "createPet", update: "updatePet"})
     state: petState
     deathCause: String
     petType: String
-    managerID: ID! @index(name: "byUser", queryField: "petsByUser")
+    managerID: ID!
+}
+
+type PetFamily @model (
+    mutations: {create: "createPetFamily", delete: "deletePetFamily"})
+@auth(
+    rules: [
+        { allow: owner},
+        { allow: private, operations: [read]}
+    ])
+{
+    petID: ID!
+    familyMemberID: ID! @primaryKey(sortKeyFields: ["petID"])
 }
 
 type PetIntroduction @model (queries: {get: "getIntroductionMessage"})
@@ -38,18 +49,6 @@ type PetIntroduction @model (queries: {get: "getIntroductionMessage"})
 {
     petID: ID! @primaryKey
     introductionMsg: String!
-}
-
-type PetFamily @model (queries: {get: "getPetFamily"},
-    mutations: {create: "createPetFamily", delete: "deletePetFamily"})
-@auth(
-    rules: [
-        { allow: owner},
-        { allow: private, operations: [read]}
-    ])
-{
-    petID: ID! @primaryKey(sortKeyFields: ["familyMemberID"])
-    familyMemberID: ID!
 }
 
 enum userState {
@@ -65,10 +64,10 @@ type User @model(queries: {get: "getUser"}, mutations: {create: "createUser", up
     ])
 {
     id: ID! @primaryKey
+    email: String!
     profilePic: String
     name: String!
     state: userState!
-    petList: [Pet] @hasMany(indexName: "byUser", fields: ["id"])
 }
 
 enum letterAccessLevel {

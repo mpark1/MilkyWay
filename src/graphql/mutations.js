@@ -8,7 +8,6 @@ export const createPet = /* GraphQL */ `
   ) {
     createPet(input: $input, condition: $condition) {
       id
-      SK
       profilePic
       name
       birthday
@@ -33,7 +32,6 @@ export const updatePet = /* GraphQL */ `
   ) {
     updatePet(input: $input, condition: $condition) {
       id
-      SK
       profilePic
       name
       birthday
@@ -44,6 +42,36 @@ export const updatePet = /* GraphQL */ `
       deathCause
       petType
       managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const createPetFamily = /* GraphQL */ `
+  mutation CreatePetFamily(
+    $input: CreatePetFamilyInput!
+    $condition: ModelPetFamilyConditionInput
+  ) {
+    createPetFamily(input: $input, condition: $condition) {
+      petID
+      familyMemberID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deletePetFamily = /* GraphQL */ `
+  mutation DeletePetFamily(
+    $input: DeletePetFamilyInput!
+    $condition: ModelPetFamilyConditionInput
+  ) {
+    deletePetFamily(input: $input, condition: $condition) {
+      petID
+      familyMemberID
       createdAt
       updatedAt
       owner
@@ -96,36 +124,6 @@ export const deletePetIntroduction = /* GraphQL */ `
     }
   }
 `;
-export const createPetFamily = /* GraphQL */ `
-  mutation CreatePetFamily(
-    $input: CreatePetFamilyInput!
-    $condition: ModelPetFamilyConditionInput
-  ) {
-    createPetFamily(input: $input, condition: $condition) {
-      petID
-      familyMemberID
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
-export const deletePetFamily = /* GraphQL */ `
-  mutation DeletePetFamily(
-    $input: DeletePetFamilyInput!
-    $condition: ModelPetFamilyConditionInput
-  ) {
-    deletePetFamily(input: $input, condition: $condition) {
-      petID
-      familyMemberID
-      createdAt
-      updatedAt
-      owner
-      __typename
-    }
-  }
-`;
 export const createUser = /* GraphQL */ `
   mutation CreateUser(
     $input: CreateUserInput!
@@ -133,13 +131,10 @@ export const createUser = /* GraphQL */ `
   ) {
     createUser(input: $input, condition: $condition) {
       id
+      email
       profilePic
       name
       state
-      petList {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -154,13 +149,10 @@ export const updateUser = /* GraphQL */ `
   ) {
     updateUser(input: $input, condition: $condition) {
       id
+      email
       profilePic
       name
       state
-      petList {
-        nextToken
-        __typename
-      }
       createdAt
       updatedAt
       owner
@@ -183,6 +175,7 @@ export const createLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -213,6 +206,7 @@ export const updateLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -243,6 +237,7 @@ export const deleteLetter = /* GraphQL */ `
       letterAuthorId
       author {
         id
+        email
         profilePic
         name
         state
@@ -270,6 +265,7 @@ export const createGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -297,6 +293,7 @@ export const updateGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -324,6 +321,7 @@ export const deleteGuestBook = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -352,6 +350,7 @@ export const createAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -381,6 +380,7 @@ export const updateAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state
@@ -410,6 +410,7 @@ export const deleteAlbum = /* GraphQL */ `
       createdAt
       author {
         id
+        email
         profilePic
         name
         state

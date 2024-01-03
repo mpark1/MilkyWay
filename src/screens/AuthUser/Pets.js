@@ -11,45 +11,62 @@ import {
 } from 'react-native';
 import {generateClient} from 'aws-amplify/api';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {petsByUser} from '../../graphql/queries';
+import {getPet, getUser, petsByUser} from '../../graphql/queries';
 import {useSelector} from 'react-redux';
 import globalStyle from '../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import PetCard from '../../components/PetCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  queryLettersByPetIDPagination,
+  queryMyPetsPagination,
+  querySingleItem,
+} from '../../utils/amplifyUtil';
 
 const Pets = ({navigation}) => {
-  const [pets, setPets] = useState([]);
   const userID = useSelector(state => state.user.cognitoUsername);
+  const petID = useSelector(state => state.user.currentPetID);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
+  const [petData, setPetData] = useState({
+    pets: [],
+    nextToken: null,
+  });
+  const pageSize = 6;
+  const [isLoadingPets, setIsLoadingPets] = useState(false);
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        const client = generateClient();
-        const response = await client.graphql({
-          query: petsByUser,
-          variables: {managerID: userID},
-          authMode: 'userPool',
-        });
-        const petData = response.data.petsByUser.items;
-        console.log(
-          'num of pets getting pets from db: ',
-          response.data.petsByUser.items.length,
-        );
-        return petData;
-      } catch (error) {
-        console.log('error for getting pets from db: ', error);
-      }
-    };
-    fetchPets().then(response => {
-      setPets(response);
+    const firstFetch = async () => {
+      await fetchPets();
       setIsFetchPetsComplete(true);
-      // response.map(pet => storeDataAsyncStorage(pet));
-    });
+    };
+    firstFetch();
+    console.log('is fetch complete? ', isFetchPetsComplete);
   }, []);
+
+  const fetchPets = async () => {
+    await queryMyPetsPagination(
+      userID,
+      isLoadingPets,
+      setIsLoadingPets,
+      pageSize,
+      petData.nextToken,
+    ).then(data => {
+      const {pets, nextToken: newNextToken} = data;
+      setPetData(prev => ({
+        pets: [...prev.pets, ...pets],
+        nextToken: newNextToken,
+      }));
+    });
+  };
+
+  const fetchUser = async () => {
+    querySingleItem(getUser, {id: userID}).then(response =>
+      setUserInfo(response.getUser),
+    );
+  };
 
   // const storeDataAsyncStorage = async pet => {
   //   try {
@@ -69,19 +86,19 @@ const Pets = ({navigation}) => {
 
   const renderAddNewPetButton = useCallback(() => {
     return (
-      isFetchPetsComplete && (
-        <View style={styles.addNewPetButtonContainer}>
-          <DashedBorderButton
-            type={'regular'}
-            title={'새로운 추모공간 만들기'}
-            circleSize={40}
-            titleColor={'white'}
-            onPress={() => navigation.navigate('AddNewPet')}
-          />
-        </View>
-      )
+      // isFetchPetsComplete && (
+      <View style={styles.addNewPetButtonContainer}>
+        <DashedBorderButton
+          type={'regular'}
+          title={'새로운 추모공간 만들기'}
+          circleSize={40}
+          titleColor={'white'}
+          onPress={() => navigation.navigate('AddNewPet')}
+        />
+      </View>
     );
-  }, [isFetchPetsComplete]);
+    // );
+  }, []);
 
   return (
     <SafeAreaView style={globalStyle.flex}>
@@ -95,10 +112,10 @@ const Pets = ({navigation}) => {
           <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
           <Text style={styles.settings}>나의 계정 관리</Text>
         </Pressable>
-        {isFetchPetsComplete && pets.length > 0 && (
+        {isFetchPetsComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
-              data={pets}
+              data={petData.pets}
               renderItem={({item}) => (
                 <PetCard
                   petID={item.id}

@@ -198,8 +198,7 @@ const UserSettings = ({navigation, route}) => {
             '탈퇴동의',
             handleDeleteUser(),
           )
-        }
-      >
+        }>
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>
           회원탈퇴
         </Text>

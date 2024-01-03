@@ -37,24 +37,24 @@ const PetPage = ({navigation}) => {
 
   const renderBellEnvelopeSettingsIcons = () => {
     return (
-      <View style={styles.iconsWrapper}>
-        <Pressable onPress={() => navigation.navigate('Notifications')}>
-          <MaterialCommunityIcons
-            name="bell-outline"
-            size={24}
-            color={'#FFF'}
-          />
-        </Pressable>
-        <Pressable>
-          <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
-        </Pressable>
-        {petInfo.owner === userID && (
+      petInfo.owner === userID && (
+        <View style={styles.iconsWrapper}>
+          <Pressable onPress={() => navigation.navigate('Notifications')}>
+            <MaterialCommunityIcons
+              name="bell-outline"
+              size={24}
+              color={'#FFF'}
+            />
+          </Pressable>
+          <Pressable>
+            <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
+          </Pressable>
           <Pressable
             onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
             <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
           </Pressable>
-        )}
-      </View>
+        </View>
+      )
     );
   };
 

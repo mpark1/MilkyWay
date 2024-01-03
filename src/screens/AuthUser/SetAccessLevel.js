@@ -7,10 +7,12 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {useDispatch, useSelector} from 'react-redux';
 import {setNewPetAccessLevel} from '../../redux/slices/NewPet';
-import {createPet} from '../../graphql/mutations';
+import {createPet, createPetFamily} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {setCurrentPetID} from '../../redux/slices/User';
+import {mutationItem} from '../../utils/amplifyUtil';
 
 const SetAccessLevel = ({navigation}) => {
   const dispatch = useDispatch();
@@ -20,21 +22,16 @@ const SetAccessLevel = ({navigation}) => {
   const [checkPrivate, setPrivate] = useState(false);
   const [checkAll, setAll] = useState(true); // defaults to all
   const [isCallingAPI, setIsCallingAPI] = useState(false);
-  const [petID, setPetID] = useState('');
 
   const onSubmit = () => {
-    // save info into redux
-    dispatch(setNewPetAccessLevel(checkAll));
     //upload pet info in db
     createNewPet();
-    // save in async storage
-    // storeDataAsyncStorage();
     return AlertBox(
       '추모공간이 성공적으로 만들어졌습니다.',
       '',
       '내 추모공간으로 이동',
       () => {
-        navigation.navigate('Pets');
+        navigation.pop(2);
       },
     );
   };
@@ -42,7 +39,6 @@ const SetAccessLevel = ({navigation}) => {
   const createNewPet = async () => {
     const newPetDetails = {
       name: name,
-      SK: userID,
       birthday: birthday,
       deathDay: deathDay,
       profilePic: profilePic,
@@ -53,20 +49,41 @@ const SetAccessLevel = ({navigation}) => {
       managerID: userID,
       state: 'ACTIVE',
     };
+
     try {
       if (!isCallingAPI) {
         setIsCallingAPI(true);
         const client = generateClient();
-        const response = await client.graphql({
+        // 1. create a new item in Pet table
+        const newPetResponse = await client.graphql({
           query: createPet,
           variables: {input: newPetDetails},
           authMode: 'userPool',
         });
-        setPetID(response.data.createPet.id);
-        console.log('response for adding new pet to db: ', response);
+        console.log(
+          'print if create new pet is successful: ',
+          newPetResponse.data.createPet,
+        );
+        const newPetID = newPetResponse.data.createPet.id;
+        // 2. create anew item in PetFamily table
+        const newPetFamilyResponse = await client.graphql({
+          query: createPetFamily,
+          variables: {
+            input: {
+              petID: newPetResponse.data.createPet.id,
+              familyMemberID: userID,
+            },
+          },
+          authMode: 'userPool',
+        });
+        dispatch(setCurrentPetID(newPetID));
+        console.log(
+          'print if create new petFamily is successful: ',
+          newPetFamilyResponse.data.createPetFamily,
+        );
       }
     } catch (error) {
-      console.log('error for adding new pet to db: ', error);
+      console.log('error while creating a new pet in db: ', error);
     } finally {
       setIsCallingAPI(false);
     }
