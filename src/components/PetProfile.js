@@ -9,53 +9,13 @@ import {
 } from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Tooltip} from '@rneui/base';
 
 const PetProfile = ({name, birthday, deathDay}) => {
-  const [isToolTipOpen, setIsToolTipOpen] = React.useState(false);
-  // return (
-  //   <Tooltip
-  //     visible={open}
-  //     onOpen={() => {
-  //       setOpen(true);
-  //     }}
-  //     onClose={() => {
-  //       setOpen(false);
-  //     }}
-  //     {...props}
-  //   />
-  // );
-
   return (
     <View style={styles.infoContainer}>
       <View style={styles.nameAndStarContainer}>
         <Text style={styles.name}>{name}</Text>
-
-        <Tooltip
-          visible={isToolTipOpen}
-          backgroundColor={'#EEE'}
-          onOpen={() => {
-            setIsToolTipOpen(true);
-          }}
-          onClose={() => {
-            setIsToolTipOpen(false);
-          }}
-          textStyle={{fontSize: scaleFontSize(10)}}
-          containerStyle={{
-            width: 250,
-            height: 150,
-          }}
-          popover={
-            <Text>
-              {
-                '초대받은 사람만 - 관리자에게 초대장을 받은 사용자만 접근 가능합니다.\n\n전체공개 - 은하수 앱의 모든 사용자가 접근 가능합니다.'
-              }
-            </Text>
-          }
-          withOverlay={false}
-          closeOnlyOnBackdropPress={true}>
-          <Ionicons name={'star-outline'} color={'#000'} size={18} />
-        </Tooltip>
+        <Ionicons name={'star-outline'} color={'#000'} size={18} />
       </View>
 
       <View>

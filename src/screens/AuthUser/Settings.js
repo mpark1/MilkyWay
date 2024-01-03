@@ -29,7 +29,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
-import Modal from 'react-native-modal';
 // import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
 // import {deleteLetter, updatePet} from '../../graphql/mutations';
 // import {generateClient} from 'aws-amplify/api';
