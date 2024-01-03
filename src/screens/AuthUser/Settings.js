@@ -17,7 +17,7 @@ import {profilePicOption} from '../../constants/imagePickerOptions';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
-import {Button, Icon} from '@rneui/base';
+import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 
 import globalStyle from '../../assets/styles/globalStyle';
@@ -29,6 +29,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
+import Modal from 'react-native-modal';
 // import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
 // import {deleteLetter, updatePet} from '../../graphql/mutations';
 // import {generateClient} from 'aws-amplify/api';
@@ -38,11 +39,11 @@ const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const [isCallingDeleteAPI, setIsCallingDeleteAPI] = useState(false);
 
-  const {petInfo} = route.params;
+  // const {petInfo} = route.params;
 
-  const [profilePic, setProfilePic] = useState(petInfo.profilePic);
-  const [petName, setPetName] = useState(petInfo.name);
-  const [lastWord, setLastWord] = useState(petInfo.lastWord);
+  const [profilePic, setProfilePic] = useState('petInfo.profilePic');
+  const [petName, setPetName] = useState('이름');
+  const [lastWord, setLastWord] = useState('마지막 인사');
 
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -52,16 +53,16 @@ const Settings = ({navigation, route}) => {
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
   const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
 
-  const [birthdayString, setBirthdayString] = useState(petInfo.birthday);
-  const [deathDayString, setDeathDayString] = useState(petInfo.deathDay);
+  const [birthdayString, setBirthdayString] = useState('2020-12-01');
+  const [deathDayString, setDeathDayString] = useState('2024-01-01');
 
   const [birthday, setBirthday] = useState(new Date(birthdayString));
   const [deathDay, setDeathDay] = useState(new Date(deathDayString));
 
-  const [checkPrivate, setPrivate] = useState(
-    petInfo.accessLevel === 'Private',
-  );
-  const [checkAll, setAll] = useState(petInfo.accessLevel === 'Public'); // defaults to all
+  const [checkPrivate, setPrivate] = useState(true);
+  const [checkAll, setAll] = useState(false); // defaults to all
+
+  const [isToolTipOpen, setIsToolTipOpen] = useState(false);
 
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
@@ -270,19 +271,36 @@ const Settings = ({navigation, route}) => {
       </View>
     );
   };
-
   const renderAccessLevelField = () => {
     return (
       <View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <Text style={styles.label}>추모공간 접근 설정</Text>
-          <Pressable onPress={() => {}}>
+          <Tooltip
+            visible={isToolTipOpen}
+            backgroundColor={'#EEE'}
+            onOpen={() => {
+              setIsToolTipOpen(true);
+            }}
+            onClose={() => {
+              setIsToolTipOpen(false);
+            }}
+            containerStyle={styles.toolTipContainer}
+            popover={
+              <Text>
+                {
+                  '초대받은 사람만 - 관리자에게 초대장을 받은 사용자만 접근 가능합니다.\n\n전체공개 - 은하수 앱의 모든 사용자가 접근 가능합니다.'
+                }
+              </Text>
+            }
+            withOverlay={false}
+            closeOnlyOnBackdropPress={true}>
             <Ionicons
               name={'information-circle-outline'}
               color={'#000'}
               size={24}
             />
-          </Pressable>
+          </Tooltip>
         </View>
         <View style={styles.accessLevelField.flexDirectionRow}>
           <CheckBox
@@ -598,5 +616,9 @@ const styles = StyleSheet.create({
   },
   hideBottomSheetHandle: {
     height: 0,
+  },
+  toolTipContainer: {
+    width: '50%',
+    height: Dimensions.get('window').height * 0.19,
   },
 });
