@@ -8,7 +8,7 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
+// import {useDispatch} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DatePicker from 'react-native-date-picker';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -30,10 +30,10 @@ import deathCauses from '../../data/deathCauses.json';
 import AlertBox from '../../components/AlertBox';
 import Backdrop from '../../components/Backdrop';
 import {profilePicOption} from '../../constants/imagePickerOptions';
-import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
+// import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 const AddNewPet = ({navigation}) => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [profilePic, setProfilePic] = useState('');
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);

@@ -20,9 +20,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Pets = ({navigation}) => {
   /* 로그인한 사용자의 모든 반려동물(Pet objects) 가져오기 */
-  // useEffect(()=>{
-  //   const fetchPets
-  // })
 
   const pageSize = 3;
   const [pageNumber, setPageNumber] = useState(1);

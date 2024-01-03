@@ -29,10 +29,10 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
-import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
-import {deleteLetter, updatePet} from '../../graphql/mutations';
-import {generateClient} from 'aws-amplify/api';
-import AlertBox from '../../components/AlertBox';
+// import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
+// import {deleteLetter, updatePet} from '../../graphql/mutations';
+// import {generateClient} from 'aws-amplify/api';
+// import AlertBox from '../../components/AlertBox';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);

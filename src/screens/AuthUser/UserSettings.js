@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {Button} from '@rneui/base';
-import {deleteUser} from 'aws-amplify/auth';
+// import {deleteUser} from 'aws-amplify/auth';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
@@ -39,7 +39,7 @@ const UserSettings = ({navigation, route}) => {
 
   async function handleDeleteUser() {
     try {
-      await deleteUser();
+      // await deleteUser();
     } catch (error) {
       console.log(error);
     }
