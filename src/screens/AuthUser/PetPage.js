@@ -42,24 +42,22 @@ const PetPage = ({navigation, route}) => {
   const renderBellEnvelopeSettingsIcons = () => {
     // 매니저일 경우에만 보여주기
     return (
-      isManager && (
-        <View style={styles.iconsWrapper}>
-          <Pressable onPress={() => navigation.navigate('Notifications')}>
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={24}
-              color={'#FFF'}
-            />
-          </Pressable>
-          <Pressable>
-            <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
-          </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
-            <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
-          </Pressable>
-        </View>
-      )
+      <View style={styles.iconsWrapper}>
+        <Pressable onPress={() => navigation.navigate('Notifications')}>
+          <MaterialCommunityIcons
+            name="bell-outline"
+            size={24}
+            color={'#FFF'}
+          />
+        </Pressable>
+        <Pressable>
+          <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
+        </Pressable>
+        <Pressable
+          onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
+          <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
+        </Pressable>
+      </View>
     );
   };
 
@@ -71,7 +69,7 @@ const PetPage = ({navigation, route}) => {
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
-        {renderBellEnvelopeSettingsIcons()}
+        isManager && {renderBellEnvelopeSettingsIcons()}
       </View>
       <View style={styles.profileContainer}>
         <PetProfile
@@ -128,8 +126,8 @@ const PetPage = ({navigation, route}) => {
             name={'방명록'}
             component={GuestBook}
             initialParams={{
-              isPublic: petInfo.accessLevel === 'Public',
-              isManager: isManager,
+              isPublicSpace: petInfo.accessLevel === 'Public',
+              isFamily: isFamily,
             }}
           />
         </centerTab.Navigator>

@@ -17,7 +17,7 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const GuestBook = ({navigation, route}) => {
-  const {isPublic, isManager} = route.params; // boolean
+  const {isPublicSpace, isFamily} = route.params;
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -55,8 +55,7 @@ const GuestBook = ({navigation, route}) => {
 
   const renderLeaveMessageButton = useCallback(() => {
     return (
-      isFetchComplete &&
-      isPublic && (
+      isFetchComplete && (
         <View
           style={{
             padding: 15,
@@ -71,7 +70,7 @@ const GuestBook = ({navigation, route}) => {
         </View>
       )
     );
-  }, [isFetchComplete, isPublic]);
+  }, [isFetchComplete]);
 
   const onEndReached = async () => {
     if (guestBookData.nextToken !== null) {
@@ -110,9 +109,9 @@ const GuestBook = ({navigation, route}) => {
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      {isPublic ? (
+      {isPublicSpace ? (
         <View>
-          {renderLeaveMessageButton()}
+          !isFamily && {renderLeaveMessageButton()}
           {isFetchComplete && guestBookData.guestMessages.length > 0 && (
             <View style={styles.flatListContainer}>
               <FlatList
