@@ -1,10 +1,12 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {Image, StyleSheet, Text, View, Platform} from 'react-native';
+import {useSelector} from 'react-redux';
+
 import MoreLessComponent from './MoreLess';
-import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
-import {useSelector} from 'react-redux';
+
+import {scaleFontSize} from '../assets/styles/scaling';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);

@@ -1,12 +1,14 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
+import {useSelector} from 'react-redux';
+
+import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-import {useSelector} from 'react-redux';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
-import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
-import {scaleFontSize} from '../../../assets/styles/scaling';
+
 import globalStyle from '../../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Letters = ({navigation, route}) => {
   const isFamily = route.params.isFamily;

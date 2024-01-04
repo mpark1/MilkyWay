@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList, Pressable} from 'react-native';
 import {useSelector} from 'react-redux';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import PictureCarousel from '../../../components/PictureCarousel';
+import AlbumVideo from '../../../components/AlbumVideo';
+
+import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
+import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
-import AlbumVideo from '../../../components/AlbumVideo';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
-import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
 
 const Album = ({navigation, route}) => {
   const {isFamily} = route.params;

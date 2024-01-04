@@ -8,11 +8,13 @@ import {
   ActivityIndicator,
   Pressable,
 } from 'react-native';
-import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
-import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
+import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
+
+import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
+
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
