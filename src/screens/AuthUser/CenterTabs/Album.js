@@ -24,7 +24,7 @@ const Album = ({navigation, route}) => {
   useEffect(() => {
     const firstFetch = async () => {
       await fetchAlbums();
-      console.log('first fetch album worked.');
+      console.log('Album tab is rendered');
       setAlubmIsFetchComplete(true);
     };
     firstFetch();
@@ -71,7 +71,7 @@ const Album = ({navigation, route}) => {
   return (
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
-      isFamily && {renderDottedBorderButton()}
+      {isFamily && renderDottedBorderButton()}
       {isAlubmFetchComplete && albumData.albums.length > 0 && (
         <View style={styles.flatListContainer}>
           <FlatList
@@ -107,16 +107,16 @@ const Album = ({navigation, route}) => {
               );
             }}
           />
-          isFamily && (
-          <View style={styles.plusButtonContainer}>
-            <Pressable
-              onPress={() => {
-                navigation.navigate('ChooseMedia');
-              }}>
-              <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
-            </Pressable>
-          </View>
-          )
+          {isFamily && (
+            <View style={styles.plusButtonContainer}>
+              <Pressable
+                onPress={() => {
+                  navigation.navigate('ChooseMedia');
+                }}>
+                <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
+              </Pressable>
+            </View>
+          )}
         </View>
       )}
     </View>

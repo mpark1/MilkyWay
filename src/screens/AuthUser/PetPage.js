@@ -21,40 +21,52 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {getPet} from '../../graphql/queries';
 import {useDispatch, useSelector} from 'react-redux';
 import {querySingleItem} from '../../utils/amplifyUtil';
+import {
+  setIsManager,
+  setPetGeneralInfo,
+  setPetID,
+} from '../../redux/slices/Pet';
 
 const centerTab = createMaterialTopTabNavigator();
 
 const PetPage = ({navigation, route}) => {
-  const isFamily = route.params;
-  const [petInfo, setPetInfo] = useState({});
+  //true or false
+  const isFamily = route.params.isFamily;
+  const dispatch = useDispatch();
+  const {name, birthday, deathday} = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
-  const petID = useSelector(state => state.user.currentPetID);
-
-  const [isManager, setIsManager] = useState(false);
+  const petID = useSelector(state => state.pet.id);
+  const isManager = useSelector(state => state.pet.manager);
+  const [isFecthComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
+    // console.log('print petId: ', petID);
     querySingleItem(getPet, {id: petID}).then(response => {
-      setPetInfo(response.getPet);
-      setIsManager(petInfo.owner === userID);
+      const pet = response.getPet;
+      dispatch(
+        setPetGeneralInfo({
+          name: pet.name,
+          birthday: pet.birthday,
+          deathday: pet.deathDay,
+          profilePic: pet.profilePic,
+          lastWord: pet.lastWord,
+          accessLevel: pet.accessLevel,
+        }),
+      );
+      dispatch(setIsManager(pet.owner === userID));
+      setIsFetchComplete(true);
     });
-  }, [petID]);
+    console.log('Petpage is rendered');
+  }, []);
 
   const renderBellEnvelopeSettingsIcons = () => {
     // 매니저일 경우에만 보여주기
     return (
       <View style={styles.iconsWrapper}>
-        <Pressable onPress={() => navigation.navigate('Notifications')}>
-          <MaterialCommunityIcons
-            name="bell-outline"
-            size={24}
-            color={'#FFF'}
-          />
-        </Pressable>
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
         </Pressable>
-        <Pressable
-          onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
+        <Pressable onPress={() => navigation.navigate('Settings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
         </Pressable>
       </View>
@@ -69,14 +81,10 @@ const PetPage = ({navigation, route}) => {
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
-        isManager && {renderBellEnvelopeSettingsIcons()}
+        {isManager && renderBellEnvelopeSettingsIcons()}
       </View>
       <View style={styles.profileContainer}>
-        <PetProfile
-          name={petInfo.name}
-          birthday={petInfo.birthday}
-          deathDay={petInfo.deathDay}
-        />
+        <PetProfile name={name} birthday={birthday} deathday={deathday} />
       </View>
 
       <View style={styles.profilePicContainer}>
@@ -88,7 +96,7 @@ const PetPage = ({navigation, route}) => {
           resizeMode={'cover'}
         />
       </View>
-      {petInfo.id ? (
+      {isFecthComplete ? (
         <centerTab.Navigator
           screenOptions={{
             tabBarLabelStyle: {fontSize: scaleFontSize(18)},
@@ -99,15 +107,7 @@ const PetPage = ({navigation, route}) => {
             },
             lazy: true,
           }}>
-          <centerTab.Screen
-            name={'홈'}
-            component={Home}
-            initialParams={{
-              petID: petInfo.id,
-              lastWord: petInfo.lastWord,
-              isManager: isManager,
-            }}
-          />
+          <centerTab.Screen name={'홈'} component={Home} />
           <centerTab.Screen
             name={'가족의 편지'}
             component={Letters}
@@ -126,7 +126,6 @@ const PetPage = ({navigation, route}) => {
             name={'방명록'}
             component={GuestBook}
             initialParams={{
-              isPublicSpace: petInfo.accessLevel === 'Public',
               isFamily: isFamily,
             }}
           />
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
     right: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    width: 90,
+    width: 60,
     justifyContent: 'space-between',
   },
   profileContainer: {

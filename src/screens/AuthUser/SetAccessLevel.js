@@ -13,6 +13,7 @@ import AlertBox from '../../components/AlertBox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setCurrentPetID} from '../../redux/slices/User';
 import {mutationItem} from '../../utils/amplifyUtil';
+import {setPetID} from '../../redux/slices/Pet';
 
 const SetAccessLevel = ({navigation}) => {
   const dispatch = useDispatch();
@@ -76,7 +77,7 @@ const SetAccessLevel = ({navigation}) => {
           },
           authMode: 'userPool',
         });
-        dispatch(setCurrentPetID(newPetID));
+        dispatch(setPetID(newPetID));
         console.log(
           'print if create new petFamily is successful: ',
           newPetFamilyResponse.data.createPetFamily,

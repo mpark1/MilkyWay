@@ -12,6 +12,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/core';
 import {useDispatch} from 'react-redux';
 import {setCurrentPetID} from '../redux/slices/User';
+import {resetPet, setPetID} from '../redux/slices/Pet';
 
 const PetCard = ({
   petID,
@@ -28,7 +29,8 @@ const PetCard = ({
   return (
     <Pressable
       onPress={() => {
-        dispatch(setCurrentPetID(petID));
+        dispatch(resetPet());
+        dispatch(setPetID(petID));
         navigation.navigate('PetPage', {isFamily: isFamily});
       }}>
       <View style={styles.lowOpacityCard} />

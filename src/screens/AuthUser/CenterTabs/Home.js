@@ -17,18 +17,28 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from '../../../components/DeleteAlertBox';
 import {getIntroductionMessage} from '../../../graphql/queries';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
+import {setIntroduction} from '../../../redux/slices/Pet';
+import {useDispatch, useSelector} from 'react-redux';
 
-const Home = ({navigation, route}) => {
-  const {lastWord, petID, isManager} = route.params;
-  const [introductionMsg, setIntroductionMsg] = useState('');
+const Home = ({navigation}) => {
+  const dispatch = useDispatch();
+  const petID = useSelector(state => state.pet.id);
+  const isManager = useSelector(state => state.pet.manager);
+  const introductionMsg = useSelector(state => state.pet.introductionMsg);
+  const lastWord = useSelector(state => state.pet.lastWord);
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   useEffect(() => {
-    querySingleItem(getIntroductionMessage, {petID: petID}).then(response =>
-      setIntroductionMsg(response.getIntroductionMessage.introductionMsg),
-    );
-    setFetchedData(true);
+    querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
+      console.log('print intro message: ', response);
+      response.getIntroductionMessage !== null &&
+        dispatch(
+          setIntroduction(response.getIntroductionMessage.introductionMsg),
+        );
+      setFetchedData(true);
+    });
+    console.log('Home tab is rendered');
   }, []);
 
   const renderLastWord = () => {
@@ -69,29 +79,35 @@ const Home = ({navigation, route}) => {
       '추모의 메세지가 삭제되었습니다.',
       'none',
     );
+    dispatch(setIntroduction(''));
   };
 
   const showIntroductionMessage = () => {
-    return !introductionMsg ? (
-      isManager && renderDottedBorderButton()
-    ) : (
+    return (
       <View style={styles.introductionMsg.container}>
         <View style={styles.introductionMsg.titleWithActionButtons}>
           <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
-          isManager && (
-          <View style={styles.introductionMsg.editAndDeleteContainer}>
-            <Pressable onPress={() => bottomSheetModalRef2.current?.present()}>
-              <EvilIcons name={'pencil'} color={'#373737'} size={26} />
-            </Pressable>
-            <Pressable onPress={() => DeleteAlertBox(onDeleteMessage)}>
-              <EvilIcons name={'trash'} color={'#373737'} size={26} />
-            </Pressable>
-          </View>
-          )
+          {isManager && (
+            <View style={styles.introductionMsg.editAndDeleteContainer}>
+              <Pressable
+                onPress={() => bottomSheetModalRef2.current?.present()}>
+                <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+              </Pressable>
+              <Pressable onPress={() => DeleteAlertBox(onDeleteMessage)}>
+                <EvilIcons name={'trash'} color={'#373737'} size={26} />
+              </Pressable>
+            </View>
+          )}
         </View>
         <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
       </View>
     );
+  };
+
+  const checkIntroductionMessage = () => {
+    return introductionMsg.length === 0
+      ? isManager && renderDottedBorderButton()
+      : showIntroductionMessage();
   };
 
   return (
@@ -103,7 +119,7 @@ const Home = ({navigation, route}) => {
         {!fetchedData ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
-          showIntroductionMessage()
+          checkIntroductionMessage()
         )}
       </View>
       {!introductionMsg ? (
@@ -233,7 +249,7 @@ const styles = StyleSheet.create({
       paddingBottom: 10,
     },
     text: {
-      fontSize: scaleFontSize(16),
+      fontSize: scaleFontSize(18),
       lineHeight: scaleFontSize(28),
       paddingLeft: 10,
     },

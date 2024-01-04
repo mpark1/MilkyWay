@@ -12,7 +12,7 @@ import {
 import {generateClient} from 'aws-amplify/api';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getPet, getUser, petsByUser} from '../../graphql/queries';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import globalStyle from '../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
@@ -23,12 +23,14 @@ import {
   queryMyPetsPagination,
   querySingleItem,
 } from '../../utils/amplifyUtil';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {setOwnerDetails} from '../../redux/slices/User';
 
 const Pets = ({navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
-  const petID = useSelector(state => state.user.currentPetID);
+  const petID = useSelector(state => state.pet.id);
+  const dispatch = useDispatch();
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
   const [petData, setPetData] = useState({
     pets: [],
     nextToken: null,
@@ -41,11 +43,10 @@ const Pets = ({navigation}) => {
     const firstFetch = async () => {
       await fetchPets();
       setIsFetchPetsComplete(true);
+      console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
     firstFetch();
-    console.log('is fetch pets complete? ', isFetchPetsComplete);
     fetchUser();
-    console.log('is fetch user complete? ', userInfo);
   }, []);
 
   const fetchPets = async () => {
@@ -65,8 +66,14 @@ const Pets = ({navigation}) => {
   };
 
   const fetchUser = async () => {
-    querySingleItem(getUser, {id: userID}).then(response =>
-      setUserInfo(response.getUser),
+    await querySingleItem(getUser, {id: userID}).then(response =>
+      dispatch(
+        setOwnerDetails({
+          name: response.data.getUser.name,
+          profilePic: response.data.getUser.profilePic,
+          email: response.data.getUser.email,
+        }),
+      ),
     );
   };
 
@@ -108,12 +115,21 @@ const Pets = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <Pressable
-          style={styles.settingsContainer}
-          onPress={() => navigation.navigate('UserSettings')}>
-          <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
-          <Text style={styles.settings}>나의 계정 관리</Text>
-        </Pressable>
+        <View style={styles.icons}>
+          <Pressable
+            style={styles.settingsContainer}
+            onPress={() => navigation.navigate('UserSettings')}>
+            <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
+            <Text style={styles.settings}>나의 계정 관리</Text>
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('Notifications')}>
+            <MaterialCommunityIcons
+              name="bell-outline"
+              size={20}
+              color={'#FFF'}
+            />
+          </Pressable>
+        </View>
         {isFetchPetsComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -147,14 +163,19 @@ const styles = StyleSheet.create({
   settingsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 10,
-    paddingTop: 10,
   },
   settings: {
     color: '#FFF',
-    fontSize: scaleFontSize(14),
+    fontSize: scaleFontSize(16),
     marginLeft: 7,
     fontWeight: '600',
+  },
+  icons: {
+    paddingTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   flatListContainer: {
     paddingTop: Dimensions.get('window').height * 0.02,

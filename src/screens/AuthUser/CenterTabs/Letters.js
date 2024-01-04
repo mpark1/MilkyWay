@@ -9,7 +9,7 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 
 const Letters = ({navigation, route}) => {
-  const {isFamily} = route.params;
+  const isFamily = route.params.isFamily;
   const pageSize = 3;
   const petID = useSelector(state => state.user.currentPetID);
   const [lettersData, setLettersData] = useState({
@@ -25,6 +25,7 @@ const Letters = ({navigation, route}) => {
       setIsLetterFetchComplete(true);
     };
     firstFetch();
+    console.log('Letters tab is rendered');
   }, [petID]);
 
   const fetchLetters = async () => {

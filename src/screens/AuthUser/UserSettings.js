@@ -24,10 +24,12 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
 import {profilePicOption} from '../../constants/imagePickerOptions';
+import {useSelector} from 'react-redux';
 
-const UserSettings = ({navigation, route}) => {
-  const [profilePic, setProfilePic] = useState('');
-  const [name, setName] = useState('');
+const UserSettings = ({navigation}) => {
+  const {name, email, profilePic} = useSelector(state => state.user);
+  const [userProfilePic, setProfilePic] = useState(profilePic);
+  const [userName, setName] = useState(name);
 
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -74,7 +76,7 @@ const UserSettings = ({navigation, route}) => {
       <View style={styles.profilePicAndButtonWrapper}>
         {profilePic ? (
           <View style={styles.profilePicPlaceholder}>
-            <Image style={styles.profilePic} source={{uri: profilePic}} />
+            <Image style={styles.profilePic} source={{uri: userProfilePic}} />
           </View>
         ) : (
           <View style={styles.profilePicPlaceholder} />
@@ -134,12 +136,12 @@ const UserSettings = ({navigation, route}) => {
           <Text style={styles.label}>이름</Text>
           <TextInput
             style={styles.textInput}
-            placeholder={'회원 이름'}
+            placeholder={userName}
             placeholderTextColor={'#000'}
             autoCorrect={false}
             blurOnSubmit={true}
             onChangeText={onChangeName}
-            value={name}
+            value={userName}
             // maxLength={}
           />
         </View>
@@ -154,7 +156,7 @@ const UserSettings = ({navigation, route}) => {
           <Text style={styles.label}>이메일</Text>
           <TextInput
             style={styles.textInput}
-            placeholder={'email@domain.com'}
+            placeholder={email}
             placeholderTextColor={'#939393'}
             editable={false}
           />

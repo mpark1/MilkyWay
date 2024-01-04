@@ -15,7 +15,8 @@ import {
   createPetIntroduction,
   updatePetIntroduction,
 } from '../graphql/mutations';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {setIntroduction} from '../redux/slices/Pet';
 
 const INTRO_MSG_PLACEHOLDER =
   '추모의 메세지를 입력해주세요. (아래 예시글)\n\n사랑하는 [이름]이 세상을 떠났습니다. [이름]은 태어난지 1주일만에 저희 집에 와서 저희와는 가족같이 지냈습니다. 솔직히 아직도 [이름]이 별이 되었다는게 믿어지지 않습니다. ' +
@@ -35,6 +36,7 @@ const BottomSheetModalTextInputWrapper = ({
   const [newMessage, setNewMessage] = useState(originalMsg);
   const onChangeNewMessage = useCallback(text => setNewMessage(text), []);
   const userName = useSelector(state => state.user.name);
+  const dispatch = useDispatch();
 
   const snapPoints = useMemo(() => ['53%'], []);
 
@@ -128,10 +130,13 @@ const BottomSheetModalTextInputWrapper = ({
     switch (whichTab) {
       case 'Home':
         if (option === 'Create') {
+          // update in db
           createIntroduction();
         } else if (option === 'Update') {
+          // update in db
           updateIntroduction();
         }
+        dispatch(setIntroduction(newMessage));
         break;
       case 'GuestBook':
         submitGuestMessage();

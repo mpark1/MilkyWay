@@ -1,32 +1,39 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
+  id: '',
   name: '',
   birthday: '',
-  deathDay: '',
+  deathday: '',
   petType: '',
   profilePic: '',
   deathCause: '',
   lastWord: '',
   accessLevel: true, // true for public and false for private
   introductionMsg: '',
+  manager: false,
 };
 
 const Pet = createSlice({
   name: 'pet',
   initialState: initialState,
   reducers: {
-    setNewPetGeneralInfo: (state, action) => {
+    setPetGeneralInfo: (state, action) => {
       state.name = action.payload.name;
       state.birthday = action.payload.birthday;
-      state.deathDay = action.payload.deathDay;
-      state.petType = action.payload.petType;
+      state.deathday = action.payload.deathday;
       state.profilePic = action.payload.profilePic;
-      state.deathCause = action.payload.deathCause;
       state.lastWord = action.payload.lastWord;
-    },
-    setNewPetAccessLevel: (state, action) => {
       state.accessLevel = action.payload.accessLevel;
+    },
+    setIsManager: (state, action) => {
+      state.manager = action.payload;
+    },
+    setPetID: (state, action) => {
+      state.id = action.payload;
+    },
+    setIntroduction: (state, action) => {
+      state.introductionMsg = action.payload;
     },
     resetPet: state => {
       return initialState;
@@ -34,6 +41,11 @@ const Pet = createSlice({
   },
 });
 
-export const {setNewPetAccessLevel, setNewPetGeneralInfo, resetPet} =
-  Pet.actions;
+export const {
+  setPetID,
+  setIntroduction,
+  setIsManager,
+  setPetGeneralInfo,
+  resetPet,
+} = Pet.actions;
 export default Pet.reducer;

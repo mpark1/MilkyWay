@@ -17,16 +17,16 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const GuestBook = ({navigation, route}) => {
-  const {isPublicSpace, isFamily} = route.params;
+  const {isFamily} = route.params;
   const pageSize = 3;
-  const petID = useSelector(state => state.user.currentPetID);
+  const {accessLevel, isManager} = useSelector(state => state.pet);
+  const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
   const [guestBookData, setGuestBookData] = useState({
     guestMessages: [],
     nextToken: null,
   });
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
-  const [fetchedData, setFetchedData] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
@@ -34,6 +34,7 @@ const GuestBook = ({navigation, route}) => {
       await fetchMessages();
       setIsFetchComplete(true);
     };
+    console.log('GuestBook tab is rendered');
     firstFetch();
   }, [petID]);
 
@@ -98,32 +99,51 @@ const GuestBook = ({navigation, route}) => {
           설정할 수 있습니다. 전체공개로 변경 시 가족 외의 사용자가 방명록에
           추모 메세지를 남겨 함께 애도할 수 있습니다.
         </Text>
-        isManager && (
-        <Pressable onPress={() => navigation.navigate('Settings')}>
-          <Text style={styles.navigateToSettings}>접근 권한 변경하러 가기</Text>
-        </Pressable>
-        )
+        {isManager && (
+          <Pressable onPress={() => navigation.navigate('Settings')}>
+            <Text style={styles.navigateToSettings}>
+              접근 권한 변경하러 가기
+            </Text>
+          </Pressable>
+        )}
       </View>
+    );
+  };
+
+  const renderFamilyComponent = () => {
+    return (
+      guestBookData.guestMessages.length === 0 && (
+        <View>
+          <Text style={styles.emptyGuestBook}>등록된 방명록이 없습니다.</Text>
+        </View>
+      )
+    );
+  };
+  const renderGuestBooks = () => {
+    return (
+      isFetchComplete && (
+        <View style={styles.flatListContainer}>
+          {guestBookData.guestMessages.length > 0 && (
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              onEndReachedThreshold={0.7}
+              onEndReached={onEndReached}
+              data={guestBookData.guestMessages}
+              renderItem={renderFlatListItem}
+              onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+            />
+          )}
+        </View>
+      )
     );
   };
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      {isPublicSpace ? (
+      {accessLevel ? (
         <View>
-          {!isFamily && renderLeaveMessageButton()}
-          {isFetchComplete && guestBookData.guestMessages.length > 0 && (
-            <View style={styles.flatListContainer}>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                onEndReachedThreshold={0.7}
-                onEndReached={onEndReached}
-                data={guestBookData.guestMessages}
-                renderItem={renderFlatListItem}
-                onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-              />
-            </View>
-          )}
+          {!isFamily ? renderLeaveMessageButton() : renderFamilyComponent()}
+          {renderGuestBooks()}
           <BottomSheetModalTextInputWrapper
             petID={petID}
             whichTab={'GuestBook'}
@@ -154,6 +174,12 @@ const styles = StyleSheet.create({
   ifPrivate: {
     color: '#374957',
     fontSize: scaleFontSize(18),
+  },
+  emptyGuestBook: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
+    lineHeight: scaleFontSize(24),
+    padding: 15,
   },
   navigateToSettings: {
     color: '#374957',

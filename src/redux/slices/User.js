@@ -5,7 +5,6 @@ const initialState = {
   profilePic: '',
   email: '',
   name: '',
-  currentPetID: '',
 };
 
 const User = createSlice({
@@ -22,9 +21,6 @@ const User = createSlice({
       state.profilePic = action.payload.profilePic;
       state.email = action.payload.email;
       state.name = action.payload.name;
-    },
-    setCurrentPetID: (state, action) => {
-      state.currentPetID = action.payload;
     },
     signoutUser: state => {
       return {

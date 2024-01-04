@@ -18,9 +18,7 @@ import {getUrl} from 'aws-amplify/storage';
 export async function checkUser() {
   try {
     const {userId} = await getCurrentUser();
-    console.log('userid: ', userId);
     if (userId) {
-      console.log('userId from getCurrentUser', userId);
       return userId;
     }
   } catch (error) {
@@ -47,7 +45,6 @@ export async function mutationItem(
         authMode: 'userPool',
       });
       alertBox(alertMsg, '', '확인', alertFunc);
-      console.log('response after query ', response);
       return response;
     }
   } catch (error) {
@@ -83,7 +80,6 @@ export async function querySingleItem(queryName, variables) {
       authMode: 'userPool',
     });
     const petData = response.data;
-    console.log('get selected pet data from db: ', petData);
     return petData;
   } catch (error) {
     console.log('error for getting pet data from db: ', error);
@@ -128,11 +124,6 @@ export async function queryLettersByPetIDPagination(
         }),
       );
 
-      // console.log(
-      //   'print first fetched letter: ',
-      //   typeof letterData.letters[0],
-      //   letterData.letters[0],
-      // );
       setIsLoading(false);
       return letterData;
     } catch (error) {
@@ -180,10 +171,6 @@ export async function queryGuestBooksByPetIDPagination(
         }),
       );
 
-      console.log(
-        'print first fetched guest messages : ',
-        letterData.letters[0],
-      );
       setIsLoading(false);
       return letterData;
     } catch (error) {
@@ -236,10 +223,6 @@ export async function queryAlbumsByPetIDPagination(
       const {items, nextToken} = response.data.listAlbums; // includes items (array format), nextToken
       albumData.albums = items;
       albumData.nextToken = nextToken;
-      console.log(
-        'check if albums fetching from db is success: ',
-        albumData.albums[0],
-      );
 
       //2. get images from S3
       // returns all image objects from s3 bucket
@@ -250,10 +233,10 @@ export async function queryAlbumsByPetIDPagination(
             accessLevel: 'protected',
           },
         });
-        console.log(
-          'check if albums fetching first item from s3 is success: ',
-          s3response.items[0],
-        );
+        // console.log(
+        //   'check if albums fetching first item from s3 is success: ',
+        //   s3response.items[0],
+        // );
         const urlPromises = s3response.items.map(async imageObj => {
           const getUrlResult = await getUrl({
             key: imageObj.key,
@@ -269,7 +252,7 @@ export async function queryAlbumsByPetIDPagination(
         // save s3 images as an album object's attribute
         albumObj.imageArray = [];
         albumObj.imageArray = await Promise.all(urlPromises);
-        console.log('format of imageArray', typeof albumObj.imageArray);
+        // console.log('format of imageArray', typeof albumObj.imageArray);
       });
       setIsLoadingAlbums(false);
       return albumData;
@@ -304,10 +287,10 @@ export async function queryPetsPagination(
       const {items, nextToken} = response.data.petsByAccessLevel; // includes items (array format), nextToken
       petsData.pets = items;
       petsData.nextToken = nextToken;
-      console.log(
-        'print first pet fetched from db is success: ',
-        petsData.pets[0],
-      );
+      // console.log(
+      //   'print first pet fetched from db is success: ',
+      //   petsData.pets[0],
+      // );
 
       return petsData;
     } catch (error) {
@@ -342,7 +325,6 @@ export async function queryMyPetsPagination(
       const {items, nextToken} = response.data.listPetFamilies; // includes items (array format), nextToken
       petsData.petFamily = items;
       petsData.nextToken = nextToken;
-      console.log('print first pet id fetched from db: ', items);
 
       const fetchPetDetails = await Promise.all(
         petsData.petFamily.map(async petFamilyItem => {

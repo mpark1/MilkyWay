@@ -3,7 +3,7 @@ import {View, Image, Text, Dimensions, StyleSheet} from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const PetProfile = ({name, birthday, deathDay}) => {
+const PetProfile = ({name, birthday, deathday}) => {
   return (
     <View style={styles.infoContainer}>
       <View style={styles.nameAndStarContainer}>
@@ -18,7 +18,7 @@ const PetProfile = ({name, birthday, deathDay}) => {
         </Text>
         <Text style={styles.dates}>
           기일{'     '}
-          {deathDay}
+          {deathday}
         </Text>
       </View>
     </View>

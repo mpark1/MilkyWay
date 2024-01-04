@@ -33,16 +33,19 @@ import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
 import {deleteLetter, updatePet} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
+import {useDispatch, useSelector} from 'react-redux';
+import {setPetGeneralInfo} from '../../redux/slices/Pet';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const [isCallingDeleteAPI, setIsCallingDeleteAPI] = useState(false);
 
-  const {petInfo} = route.params;
-
-  const [profilePic, setProfilePic] = useState(petInfo.profilePic);
-  const [petName, setPetName] = useState(petInfo.name);
-  const [lastWord, setLastWord] = useState(petInfo.lastWord);
+  const {id, name, profilePic, lastWord, birthday, deathday, accessLevel} =
+    useSelector(state => state.pet);
+  const dispatch = useDispatch();
+  const [newProfilePic, setProfilePic] = useState(profilePic);
+  const [petName, setPetName] = useState(name);
+  const [newLastWord, setLastWord] = useState(lastWord);
 
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -52,16 +55,14 @@ const Settings = ({navigation, route}) => {
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
   const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
 
-  const [birthdayString, setBirthdayString] = useState(petInfo.birthday);
-  const [deathDayString, setDeathDayString] = useState(petInfo.deathDay);
+  const [birthdayString, setBirthdayString] = useState(birthday);
+  const [deathDayString, setDeathDayString] = useState(deathday);
 
-  const [birthday, setBirthday] = useState(new Date(birthdayString));
-  const [deathDay, setDeathDay] = useState(new Date(deathDayString));
+  const [newBirthday, setBirthday] = useState(new Date(birthdayString));
+  const [newDeathDay, setDeathDay] = useState(new Date(deathDayString));
 
-  const [checkPrivate, setPrivate] = useState(
-    petInfo.accessLevel === 'Private',
-  );
-  const [checkAll, setAll] = useState(petInfo.accessLevel === 'Public'); // defaults to all
+  const [checkPrivate, setPrivate] = useState(accessLevel === 'Private');
+  const [checkAll, setAll] = useState(accessLevel === 'Public'); // defaults to all
 
   const [isToolTipOpen, setIsToolTipOpen] = useState(false);
 
@@ -159,7 +160,7 @@ const Settings = ({navigation, route}) => {
         <Image
           resizeMode={'cover'}
           style={styles.profilePic}
-          source={{uri: profilePic}}
+          source={{uri: newProfilePic}}
         />
         <Pressable
           style={styles.changeProfilePicButton}
@@ -198,7 +199,7 @@ const Settings = ({navigation, route}) => {
         open={
           option === 'birthday' ? isBirthdayPickerOpen : isDeathDayPickerOpen
         }
-        date={option === 'birthday' ? birthday : deathDay}
+        date={option === 'birthday' ? newBirthday : newDeathDay}
         maximumDate={
           option === 'birthday'
             ? new Date(deathDayString)
@@ -259,7 +260,7 @@ const Settings = ({navigation, route}) => {
         <Text style={styles.label}>마지막 인사</Text>
         <TextInput
           style={styles.lastWordField.textInput}
-          value={lastWord}
+          value={newLastWord}
           multiline={true}
           textAlign={'left'}
           textAlignVertical={'top'}
@@ -369,8 +370,7 @@ const Settings = ({navigation, route}) => {
 
   const deletePetApi = async () => {
     const deletePetInput = {
-      id: petInfo.id,
-      SK: petInfo.SK,
+      id: id,
       state: 'INACTIVE',
     };
     mutationItem(
@@ -387,18 +387,28 @@ const Settings = ({navigation, route}) => {
   }
 
   function popPage() {
+    // update redux
+    dispatch(
+      setPetGeneralInfo({
+        name: petName,
+        birthday: birthdayString,
+        deathday: deathDayString,
+        profilePic: newProfilePic,
+        lastWord: newLastWord,
+        accessLevel: checkPrivate ? 'Private' : 'Public',
+      }),
+    );
     navigation.pop();
   }
 
   const onUpdatePetInfo = () => {
     const newPetInput = {
-      id: petInfo.id,
-      SK: petInfo.SK,
-      profilePic: profilePic,
+      id: id,
+      profilePic: newProfilePic,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
-      lastWord: lastWord,
+      lastWord: newLastWord,
       state: 'ACTIVE',
       accessLevel: checkPrivate ? 'Private' : 'Public',
     };
