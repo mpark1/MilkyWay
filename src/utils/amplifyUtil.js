@@ -4,6 +4,7 @@ import {Alert} from 'react-native';
 import {
   getImagesByAlbumID,
   getPet,
+  getPetFamily,
   getUser,
   listAlbums,
   listGuestBooks,
@@ -359,5 +360,36 @@ export async function queryMyPetsPagination(
       console.log('error for fetching my pets from db: ', error);
       setIsLoadingPets(false);
     }
+  }
+}
+
+export async function checkFamily(
+  userID,
+  petID,
+  setIsFamily,
+  petInfo,
+  setIsManager,
+) {
+  /* 가족관계 확인 */
+  try {
+    const client = generateClient();
+    const response = await client.graphql({
+      query: getPetFamily,
+      variables: {
+        familyMemberID: userID,
+        petID: petID,
+      },
+      authMode: 'userPool',
+    });
+    setIsFamily(true);
+
+    // 매니저인지 확인
+    if (petInfo.owner === userID) {
+      setIsManager(true);
+    }
+  } catch (error) {
+    console.log('Error fetching pet family', error);
+    // 가족이 아닐 경우 DB 기록이 없는데 null 또는 에러 반환되는지 확인 해야함
+    setIsFamily(false);
   }
 }

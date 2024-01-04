@@ -18,65 +18,46 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {getPet, getPetFamily} from '../../graphql/queries';
+import {getPet} from '../../graphql/queries';
 import {useDispatch, useSelector} from 'react-redux';
 import {querySingleItem} from '../../utils/amplifyUtil';
 
 const centerTab = createMaterialTopTabNavigator();
 
-const PetPage = ({navigation}) => {
+const PetPage = ({navigation, route}) => {
+  const isFamily = route.params;
   const [petInfo, setPetInfo] = useState({});
   const userID = useSelector(state => state.user.cognitoUsername);
   const petID = useSelector(state => state.user.currentPetID);
 
   const [isManager, setIsManager] = useState(false);
-  const [isFamily, setIsFamily] = useState(false);
 
   useEffect(() => {
-    querySingleItem(getPet, {id: petID}).then(response =>
-      setPetInfo(response.getPet),
-    );
-
-    /* 가족관계 확인 */
-    try {
-      getPetFamily({
-        familyMemberID: userID,
-        petID: petID,
-      });
-      setIsFamily(true);
-
-      // 매니저인지 확인
-      if (petInfo.owner === userID) {
-        setIsManager(true);
-      }
-    } catch (error) {
-      console.log('Error fetching pet family', error);
-      // 가족이 아닐 경우 DB 기록이 없는데 null 또는 에러 반환되는지 확인 해야함
-      setIsFamily(false);
-    }
+    querySingleItem(getPet, {id: petID}).then(response => {
+      setPetInfo(response.getPet);
+      setIsManager(petInfo.owner === userID);
+    });
   }, [petID]);
 
   const renderBellEnvelopeSettingsIcons = () => {
     // 매니저일 경우에만 보여주기
     return (
-      isManager && (
-        <View style={styles.iconsWrapper}>
-          <Pressable onPress={() => navigation.navigate('Notifications')}>
-            <MaterialCommunityIcons
-              name="bell-outline"
-              size={24}
-              color={'#FFF'}
-            />
-          </Pressable>
-          <Pressable>
-            <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
-          </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
-            <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
-          </Pressable>
-        </View>
-      )
+      <View style={styles.iconsWrapper}>
+        <Pressable onPress={() => navigation.navigate('Notifications')}>
+          <MaterialCommunityIcons
+            name="bell-outline"
+            size={24}
+            color={'#FFF'}
+          />
+        </Pressable>
+        <Pressable>
+          <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
+        </Pressable>
+        <Pressable
+          onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
+          <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
+        </Pressable>
+      </View>
     );
   };
 
@@ -88,7 +69,7 @@ const PetPage = ({navigation}) => {
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
-        {renderBellEnvelopeSettingsIcons()}
+        isManager && {renderBellEnvelopeSettingsIcons()}
       </View>
       <View style={styles.profileContainer}>
         <PetProfile
@@ -145,8 +126,8 @@ const PetPage = ({navigation}) => {
             name={'방명록'}
             component={GuestBook}
             initialParams={{
-              isPublic: petInfo.accessLevel === 'Public',
-              isManager: isManager,
+              isPublicSpace: petInfo.accessLevel === 'Public',
+              isFamily: isFamily,
             }}
           />
         </centerTab.Navigator>

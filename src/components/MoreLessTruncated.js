@@ -86,10 +86,10 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           <View style={styles.editAndDeleteContainer}>
             {whichTab === 'Letters' &&
               !isTruncated &&
-              item.author === userID && <EditOrDeleteButtons item={item} />}
+              item.owner === userID && <EditOrDeleteButtons item={item} />}
             {whichTab === 'GuestBook' &&
               !isTruncated &&
-              item.author === userID && <DeleteIcon item={item} />}
+              item.owner === userID && <DeleteIcon item={item} />}
           </View>
         </View>
       </View>
