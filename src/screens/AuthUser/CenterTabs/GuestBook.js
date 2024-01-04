@@ -111,7 +111,7 @@ const GuestBook = ({navigation, route}) => {
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       {isPublicSpace ? (
         <View>
-          !isFamily && {renderLeaveMessageButton()}
+          {!isFamily && renderLeaveMessageButton()}
           {isFetchComplete && guestBookData.guestMessages.length > 0 && (
             <View style={styles.flatListContainer}>
               <FlatList
