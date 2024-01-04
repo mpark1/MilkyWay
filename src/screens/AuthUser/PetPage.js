@@ -71,14 +71,10 @@ const PetPage = ({navigation}) => {
           <Pressable>
             <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
           </Pressable>
-          {petInfo.owner === userID && (
-            <Pressable
-              onPress={() =>
-                navigation.navigate('Settings', {petInfo: petInfo})
-              }>
-              <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
-            </Pressable>
-          )}
+          <Pressable
+            onPress={() => navigation.navigate('Settings', {petInfo: petInfo})}>
+            <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
+          </Pressable>
         </View>
       )
     );
