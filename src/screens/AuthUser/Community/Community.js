@@ -73,6 +73,7 @@ const Community = ({navigation}) => {
                   birthday={item.birthday}
                   deathDay={item.deathDay}
                   lastWord={item.lastWord}
+                  isFamily={false}
                 />
               )}
             />

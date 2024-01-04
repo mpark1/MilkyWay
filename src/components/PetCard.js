@@ -13,7 +13,15 @@ import {useNavigation} from '@react-navigation/core';
 import {useDispatch} from 'react-redux';
 import {setCurrentPetID} from '../redux/slices/User';
 
-const PetCard = ({petID, profilePic, name, birthday, deathDay, lastWord}) => {
+const PetCard = ({
+  petID,
+  profilePic,
+  name,
+  birthday,
+  deathDay,
+  lastWord,
+  isFamily,
+}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -21,7 +29,7 @@ const PetCard = ({petID, profilePic, name, birthday, deathDay, lastWord}) => {
     <Pressable
       onPress={() => {
         dispatch(setCurrentPetID(petID));
-        navigation.navigate('PetPage');
+        navigation.navigate('PetPage', {isFamily: isFamily});
       }}>
       <View style={styles.lowOpacityCard} />
       <View

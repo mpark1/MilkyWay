@@ -43,7 +43,9 @@ const Pets = ({navigation}) => {
       setIsFetchPetsComplete(true);
     };
     firstFetch();
-    console.log('is fetch complete? ', isFetchPetsComplete);
+    console.log('is fetch pets complete? ', isFetchPetsComplete);
+    fetchUser();
+    console.log('is fetch user complete? ', userInfo);
   }, []);
 
   const fetchPets = async () => {
@@ -124,6 +126,7 @@ const Pets = ({navigation}) => {
                   birthday={item.birthday}
                   deathDay={item.deathDay}
                   lastWord={item.lastWord}
+                  isFamily={true}
                 />
               )}
             />
