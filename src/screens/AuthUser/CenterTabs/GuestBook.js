@@ -90,7 +90,7 @@ const GuestBook = ({navigation, route}) => {
     );
   }, []);
 
-  const renderIfPrivate = () => {
+  const renderIfPrivateSpace = () => {
     return (
       <View style={styles.flatListContainer}>
         <Text style={styles.ifPrivate}>
@@ -134,7 +134,7 @@ const GuestBook = ({navigation, route}) => {
           />
         </View>
       ) : (
-        renderIfPrivate()
+        renderIfPrivateSpace()
       )}
     </View>
   );
