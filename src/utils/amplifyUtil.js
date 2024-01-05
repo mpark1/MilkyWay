@@ -1,4 +1,4 @@
-import {getCurrentUser} from 'aws-amplify/auth';
+import {getCurrentUser, fetchAuthSession} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import {Alert} from 'react-native';
 import {
@@ -21,6 +21,16 @@ export async function checkUser() {
     if (userId) {
       return userId;
     }
+  } catch (error) {
+    console.error('Error checking getCurrentUser:', error);
+    return null;
+  }
+}
+
+export async function getIdentityID() {
+  try {
+    const {identityId} = await fetchAuthSession();
+    return identityId;
   } catch (error) {
     console.error('Error checking getCurrentUser:', error);
     return null;
@@ -231,6 +241,7 @@ export async function queryAlbumsByPetIDPagination(
           prefix: 'album/' + albumObj.id + '/',
           options: {
             accessLevel: 'protected',
+            targetIdentityId: albumObj.authorIdentityID,
           },
         });
         // console.log(

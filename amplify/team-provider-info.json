@@ -22,7 +22,7 @@
       "function": {
         "createNewUserinDB": {
           "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",
-          "s3Key": "amplify-builds/createNewUserinDB-374c38546663447a646e-build.zip"
+          "s3Key": "amplify-builds/createNewUserinDB-73306b5a64513531334a-build.zip"
         },
         "getLettersAndUsers": {
           "deploymentBucketName": "amplify-milkyway-dev-114256-deployment",

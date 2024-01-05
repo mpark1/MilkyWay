@@ -18,10 +18,6 @@ export default function RootNavigation() {
     let response = null;
     const executeCheckUser = async () => {
       response = await checkUser();
-      // console.log(
-      //   'insdie useEffect, root navigation page, after checkuser function',
-      //   response,
-      // );
       if (response) {
         dispatch(setCognitoUsername(response));
       } else {

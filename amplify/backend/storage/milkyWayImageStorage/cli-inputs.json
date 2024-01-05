@@ -2,15 +2,11 @@
   "resourceName": "milkyWayImageStorage",
   "policyUUID": "b4bf8471",
   "bucketName": "milkywayde81bc1ad1ab4e048cd7b09af4ac1c3d",
-  "storageAccess": "authAndGuest",
-  "guestAccess": [
-    "READ"
-  ],
+  "storageAccess": "auth",
+  "guestAccess": [],
   "authAccess": [
     "CREATE_AND_UPDATE",
     "READ",
     "DELETE"
-  ],
-  "triggerFunction": "createNewUserinDB",
-  "groupAccess": {}
+  ]
 }

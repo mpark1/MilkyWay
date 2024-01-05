@@ -13,7 +13,7 @@ import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
 const Album = ({navigation, route}) => {
   const {isFamily} = route.params;
   const pageSize = 3;
-  const petID = useSelector(state => state.user.currentPetID);
+  const petID = useSelector(state => state.pet.id);
   const [albumData, setAlbumData] = useState({
     albums: [],
     nextToken: null,

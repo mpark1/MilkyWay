@@ -119,6 +119,6 @@ type Album @model
     category: Int @index(name: "albumCategory", queryField: "albumByCategory")
     caption: String
     createdAt: String!
-    author: User @hasOne
+    authorIdentityID: String!
     imageType: Int!
 }

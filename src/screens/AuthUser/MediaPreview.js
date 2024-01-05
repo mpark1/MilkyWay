@@ -22,7 +22,11 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 
 import ages from '../../data/ages.json';
-import {mutationItem, uploadImageToS3} from '../../utils/amplifyUtil';
+import {
+  getIdentityID,
+  mutationItem,
+  uploadImageToS3,
+} from '../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
 import {createAlbum, createImage} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
@@ -32,7 +36,7 @@ import AlertBox from '../../components/AlertBox';
 
 const MediaPreview = ({navigation, route}) => {
   const {mediaType, mediaList: initialMediaList, age} = route.params;
-  const petID = useSelector(state => state.user.currentPetID);
+  const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
 
   const [mediaList, setMediaList] = useState(initialMediaList);
@@ -182,12 +186,14 @@ const MediaPreview = ({navigation, route}) => {
   }
 
   const onSubmit = async () => {
+    // get author's identity ID
+    const identityId = await getIdentityID();
     // 1. create a new album item
     const newAlbumInput = {
       petID: petID,
       category: albumCategory[selectedAge],
       caption: description,
-      albumAuthorId: userID,
+      authorIdentityID: identityId,
       imageType: mediaType === 'photo' ? 0 : 1,
     };
 
