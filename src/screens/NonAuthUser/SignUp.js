@@ -27,6 +27,8 @@ import {
   cameraOption,
   imageLibraryOption,
 } from '../../constants/imagePickerOptions';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import uuid from 'react-native-uuid';
 
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
@@ -250,6 +252,16 @@ const SignUp = ({navigation}) => {
     // 3. amplfiy 회원가입 api
     if (!isSignUp) {
       setIsSignUp(true);
+
+      const resizedProfilePic = await ImageResizer.createResizedImage(
+        profilePic, // path
+        300, // width
+        300, // height
+        'JPEG', // format
+        100, // quality
+      );
+      const profilePicKey = '/profilePic/' + uuid.v4() + '.jpeg';
+
       try {
         const {isSignUpComplete, userId, nextStep} = await signUp({
           username: email,
@@ -257,7 +269,8 @@ const SignUp = ({navigation}) => {
           options: {
             userAttributes: {
               name,
-              'custom:profilePic': profilePic,
+              'custom:profilePic': resizedProfilePic.uri,
+              'custom:profilePicKey': profilePicKey,
             },
             // optional
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
