@@ -10,7 +10,7 @@ export default function BottomTabs() {
   return (
     <Tab.Navigator screenOptions={{headerShown: false}}>
       <Tab.Screen name={'내 추모공간'} component={MyMilkyWay} />
-      <Tab.Screen name={'추모공간'} component={CommunityNavigation} />
+      <Tab.Screen name={'커뮤니티'} component={CommunityNavigation} />
     </Tab.Navigator>
   );
 }

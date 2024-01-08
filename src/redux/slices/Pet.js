@@ -9,7 +9,7 @@ const initialState = {
   profilePic: '',
   deathCause: '',
   lastWord: '',
-  accessLevel: true, // true for public and false for private
+  accessLevel: '', // 'Public' or 'Private'
   introductionMsg: '',
   manager: false,
 };
@@ -19,12 +19,14 @@ const Pet = createSlice({
   initialState: initialState,
   reducers: {
     setPetGeneralInfo: (state, action) => {
+      state.id = action.payload.id;
       state.name = action.payload.name;
       state.birthday = action.payload.birthday;
       state.deathday = action.payload.deathday;
       state.profilePic = action.payload.profilePic;
       state.lastWord = action.payload.lastWord;
       state.accessLevel = action.payload.accessLevel;
+      state.manager = action.payload.accessLevel;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;

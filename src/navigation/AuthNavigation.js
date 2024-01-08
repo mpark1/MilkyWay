@@ -7,8 +7,6 @@ import ChooseMedia from '../screens/AuthUser/ChooseMedia';
 import WriteLetter from '../screens/AuthUser/WriteLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
-import Notifications from '../screens/AuthUser/Notifications';
-
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditLetter from '../screens/AuthUser/EditLetter';
 import {createStackNavigator} from '@react-navigation/stack';
@@ -51,13 +49,6 @@ const AuthNavigation = () => {
           component={Settings}
           options={{
             headerTitle: '설정',
-          }}
-        />
-        <Stack.Screen
-          name={'Notifications'}
-          component={Notifications}
-          options={{
-            headerTitle: '알림',
           }}
         />
         <Stack.Screen

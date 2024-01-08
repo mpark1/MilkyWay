@@ -10,28 +10,53 @@ import {
 import {scaleFontSize} from '../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/core';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {setCurrentPetID} from '../redux/slices/User';
-import {resetPet, setPetID} from '../redux/slices/Pet';
+import {
+  resetPet,
+  setIsManager,
+  setPetGeneralInfo,
+  setPetID,
+} from '../redux/slices/Pet';
 
-const PetCard = ({
-  petID,
-  profilePic,
-  name,
-  birthday,
-  deathDay,
-  lastWord,
-  isFamily,
-}) => {
+const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const userID = useSelector(state => state.user.cognitoUsername);
+  const {
+    id,
+    profilePic,
+    name,
+    birthday,
+    deathDay,
+    lastWord,
+    accessLevel,
+    owner,
+  } = item;
+
+  const onSubmit = () => {
+    // reset pet redux slice
+    dispatch(resetPet());
+    // update pet redux
+    dispatch(
+      setPetGeneralInfo({
+        id: id,
+        name: name,
+        birthday: birthday,
+        deathday: deathDay,
+        profilePic: profilePic,
+        lastWord: lastWord,
+        accessLevel: accessLevel,
+      }),
+    );
+    dispatch(setIsManager(owner === userID));
+    navigation.navigate('PetPage', {isFamily: isFamily});
+  };
 
   return (
     <Pressable
       onPress={() => {
-        dispatch(resetPet());
-        dispatch(setPetID(petID));
-        navigation.navigate('PetPage', {isFamily: isFamily});
+        onSubmit();
       }}>
       <View style={styles.lowOpacityCard} />
       <View

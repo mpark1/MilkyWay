@@ -3,6 +3,7 @@ import React from 'react';
 // screens
 import Pets from '../screens/AuthUser/Pets';
 import PetPage from '../screens/AuthUser/PetPage';
+import Notifications from '../screens/AuthUser/Notifications';
 
 // styles
 import {scaleFontSize} from '../assets/styles/scaling';
@@ -46,6 +47,13 @@ const MyMilkyWay = () => {
         component={ChangePassword}
         options={{
           headerTitle: '비밀번호 변경',
+        }}
+      />
+      <Stack.Screen
+        name={'Notifications'}
+        component={Notifications}
+        options={{
+          headerTitle: '알림',
         }}
       />
       <Stack.Screen

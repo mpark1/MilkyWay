@@ -121,6 +121,10 @@ export async function queryLettersByPetIDPagination(
       const {items, nextToken} = response.data.listLetters; // includes items (array format), nextToken
       letterData.letters = items;
       letterData.nextToken = nextToken;
+      // if none is found in db, just return
+      if (items.length === 0) {
+        return letterData;
+      }
 
       const lettersWithUserDetails = await Promise.all(
         letterData.letters.map(async letter => {
@@ -168,6 +172,10 @@ export async function queryGuestBooksByPetIDPagination(
       const {items, nextToken} = response.data.listGuestBooks; // includes items (array format), nextToken
       letterData.letters = items;
       letterData.nextToken = nextToken;
+      // if none is found in db, just return
+      if (items.length === 0) {
+        return letterData;
+      }
 
       const lettersWithUserDetails = await Promise.all(
         letterData.letters.map(async letter => {
@@ -233,6 +241,10 @@ export async function queryAlbumsByPetIDPagination(
       const {items, nextToken} = response.data.listAlbums; // includes items (array format), nextToken
       albumData.albums = items;
       albumData.nextToken = nextToken;
+      // if none found, just return
+      if (items.length === 0) {
+        return albumData;
+      }
 
       //2. get images from S3
       // returns all image objects from s3 bucket
@@ -336,6 +348,10 @@ export async function queryMyPetsPagination(
       const {items, nextToken} = response.data.listPetFamilies; // includes items (array format), nextToken
       petsData.petFamily = items;
       petsData.nextToken = nextToken;
+      // if none is found, return
+      if (items.length === 0) {
+        return petsData;
+      }
 
       const fetchPetDetails = await Promise.all(
         petsData.petFamily.map(async petFamilyItem => {

@@ -140,7 +140,7 @@ const GuestBook = ({navigation, route}) => {
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      {accessLevel ? (
+      {accessLevel === 'Public' ? (
         <View>
           {!isFamily ? renderLeaveMessageButton() : renderFamilyComponent()}
           {renderGuestBooks()}

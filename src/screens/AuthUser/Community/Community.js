@@ -65,17 +65,7 @@ const Community = ({navigation}) => {
               onEndReached={onEndReached}
               showsVerticalScrollIndicator={false}
               data={petData.pets}
-              renderItem={({item}) => (
-                <PetCard
-                  petID={item.id}
-                  profilePic={item.profilePic}
-                  name={item.name}
-                  birthday={item.birthday}
-                  deathDay={item.deathDay}
-                  lastWord={item.lastWord}
-                  isFamily={false}
-                />
-              )}
+              renderItem={({item}) => <PetCard item={item} isFamily={false} />}
             />
           </View>
         </ImageBackground>

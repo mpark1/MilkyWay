@@ -1,12 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {
-  StyleSheet,
-  View,
-  Dimensions,
-  Image,
-  Pressable,
-  ActivityIndicator,
-} from 'react-native';
+import React from 'react';
+import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
@@ -17,47 +10,13 @@ import GuestBook from './CenterTabs/GuestBook';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {getPet} from '../../graphql/queries';
-import {useDispatch, useSelector} from 'react-redux';
-import {querySingleItem} from '../../utils/amplifyUtil';
-import {
-  setIsManager,
-  setPetGeneralInfo,
-  setPetID,
-} from '../../redux/slices/Pet';
+import {useSelector} from 'react-redux';
 
 const centerTab = createMaterialTopTabNavigator();
 
 const PetPage = ({navigation, route}) => {
-  //true or false
-  const isFamily = route.params.isFamily;
-  const dispatch = useDispatch();
-  const {name, birthday, deathday} = useSelector(state => state.pet);
-  const userID = useSelector(state => state.user.cognitoUsername);
-  const petID = useSelector(state => state.pet.id);
-  const isManager = useSelector(state => state.pet.manager);
-  const [isFecthComplete, setIsFetchComplete] = useState(false);
-
-  useEffect(() => {
-    // console.log('print petId: ', petID);
-    querySingleItem(getPet, {id: petID}).then(response => {
-      const pet = response.getPet;
-      dispatch(
-        setPetGeneralInfo({
-          name: pet.name,
-          birthday: pet.birthday,
-          deathday: pet.deathDay,
-          profilePic: pet.profilePic,
-          lastWord: pet.lastWord,
-          accessLevel: pet.accessLevel,
-        }),
-      );
-      dispatch(setIsManager(pet.owner === userID));
-      setIsFetchComplete(true);
-    });
-    console.log('Petpage is rendered');
-  }, []);
+  const isFamily = route.params.isFamily; //true or false
+  const {name, birthday, deathday, manager} = useSelector(state => state.pet);
 
   const renderBellEnvelopeSettingsIcons = () => {
     // 매니저일 경우에만 보여주기
@@ -81,7 +40,7 @@ const PetPage = ({navigation, route}) => {
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
-        {isManager && renderBellEnvelopeSettingsIcons()}
+        {manager && renderBellEnvelopeSettingsIcons()}
       </View>
       <View style={styles.profileContainer}>
         <PetProfile name={name} birthday={birthday} deathday={deathday} />
@@ -96,43 +55,39 @@ const PetPage = ({navigation, route}) => {
           resizeMode={'cover'}
         />
       </View>
-      {isFecthComplete ? (
-        <centerTab.Navigator
-          screenOptions={{
-            tabBarLabelStyle: {fontSize: scaleFontSize(18)},
-            tabBarIndicatorStyle: {backgroundColor: '#6395E1'},
-            tabBarItemStyle: {
-              width: Dimensions.get('window').width * 0.25,
-              paddingHorizontal: 0,
-            },
-            lazy: true,
-          }}>
-          <centerTab.Screen name={'홈'} component={Home} />
-          <centerTab.Screen
-            name={'가족의 편지'}
-            component={Letters}
-            initialParams={{
-              isFamily: isFamily,
-            }}
-          />
-          <centerTab.Screen
-            name={'앨범'}
-            component={Album}
-            initialParams={{
-              isFamily: isFamily,
-            }}
-          />
-          <centerTab.Screen
-            name={'방명록'}
-            component={GuestBook}
-            initialParams={{
-              isFamily: isFamily,
-            }}
-          />
-        </centerTab.Navigator>
-      ) : (
-        <ActivityIndicator size="large" color="#0000ff" />
-      )}
+      <centerTab.Navigator
+        screenOptions={{
+          tabBarLabelStyle: {fontSize: scaleFontSize(18)},
+          tabBarIndicatorStyle: {backgroundColor: '#6395E1'},
+          tabBarItemStyle: {
+            width: Dimensions.get('window').width * 0.25,
+            paddingHorizontal: 0,
+          },
+          lazy: true,
+        }}>
+        <centerTab.Screen name={'홈'} component={Home} />
+        <centerTab.Screen
+          name={'가족의 편지'}
+          component={Letters}
+          initialParams={{
+            isFamily: isFamily,
+          }}
+        />
+        <centerTab.Screen
+          name={'앨범'}
+          component={Album}
+          initialParams={{
+            isFamily: isFamily,
+          }}
+        />
+        <centerTab.Screen
+          name={'방명록'}
+          component={GuestBook}
+          initialParams={{
+            isFamily: isFamily,
+          }}
+        />
+      </centerTab.Navigator>
     </View>
   );
 };

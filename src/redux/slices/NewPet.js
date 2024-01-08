@@ -8,7 +8,7 @@ const initialState = {
   profilePic: '',
   deathCause: '',
   lastWord: '',
-  accessLevel: true, // true for public and false for private
+  accessLevel: '', // 'Public', 'Private'
 };
 
 const NewPet = createSlice({

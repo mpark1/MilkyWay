@@ -11,7 +11,7 @@ import globalStyle from '../../../assets/styles/globalStyle';
 const Letters = ({navigation, route}) => {
   const isFamily = route.params.isFamily;
   const pageSize = 3;
-  const petID = useSelector(state => state.user.currentPetID);
+  const petID = useSelector(state => state.pet.id);
   const [lettersData, setLettersData] = useState({
     letters: [],
     nextToken: null,
