@@ -19,7 +19,7 @@ const MyMilkyWay = () => {
     <Stack.Navigator
       screenOptions={{
         headerTitleAlign: 'center',
-        headerBackTitleVisible: 'false',
+        headerBackTitleVisible: false,
         headerTintColor: '#000',
         headerTitleStyle: {
           fontSize: scaleFontSize(20),

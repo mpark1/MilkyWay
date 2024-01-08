@@ -19,7 +19,7 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 const GuestBook = ({navigation, route}) => {
   const {isFamily} = route.params;
   const pageSize = 3;
-  const {accessLevel, isManager} = useSelector(state => state.pet);
+  const {accessLevel, manager} = useSelector(state => state.pet);
   const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
   const [guestBookData, setGuestBookData] = useState({
@@ -47,6 +47,7 @@ const GuestBook = ({navigation, route}) => {
       guestBookData.nextToken,
     ).then(data => {
       const {letters, nextToken: newNextToken} = data;
+      console.log('print fetched 방명록: ', letters[0]);
       setGuestBookData(prev => ({
         guestMessages: [...prev.guestMessages, ...letters],
         nextToken: newNextToken,
@@ -59,7 +60,8 @@ const GuestBook = ({navigation, route}) => {
       isFetchComplete && (
         <View
           style={{
-            padding: 15,
+            paddingVertical: 10,
+            paddingHorizontal: 15,
           }}>
           <DashedBorderButton
             type={'thin'}
@@ -99,7 +101,7 @@ const GuestBook = ({navigation, route}) => {
           설정할 수 있습니다. 전체공개로 변경 시 가족 외의 사용자가 방명록에
           추모 메세지를 남겨 함께 애도할 수 있습니다.
         </Text>
-        {isManager && (
+        {manager === 'Private' && (
           <Pressable onPress={() => navigation.navigate('Settings')}>
             <Text style={styles.navigateToSettings}>
               접근 권한 변경하러 가기
@@ -165,7 +167,7 @@ export default GuestBook;
 const styles = StyleSheet.create({
   flatListContainer: {
     backgroundColor: '#FFF',
-    paddingTop: 15,
+    paddingTop: 10,
   },
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,

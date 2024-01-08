@@ -312,20 +312,9 @@ export const onCreateAlbum = /* GraphQL */ `
       category
       caption
       createdAt
-      author {
-        id
-        email
-        profilePic
-        name
-        state
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
+      authorIdentityID
       imageType
       updatedAt
-      albumAuthorId
       owner
       __typename
     }
@@ -342,20 +331,9 @@ export const onUpdateAlbum = /* GraphQL */ `
       category
       caption
       createdAt
-      author {
-        id
-        email
-        profilePic
-        name
-        state
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
+      authorIdentityID
       imageType
       updatedAt
-      albumAuthorId
       owner
       __typename
     }
@@ -372,20 +350,9 @@ export const onDeleteAlbum = /* GraphQL */ `
       category
       caption
       createdAt
-      author {
-        id
-        email
-        profilePic
-        name
-        state
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
+      authorIdentityID
       imageType
       updatedAt
-      albumAuthorId
       owner
       __typename
     }

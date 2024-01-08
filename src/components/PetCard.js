@@ -50,6 +50,7 @@ const PetCard = ({item, isFamily}) => {
       }),
     );
     dispatch(setIsManager(owner === userID));
+    console.log('is user an owner of the selected pet? ', owner === userID);
     navigation.navigate('PetPage', {isFamily: isFamily});
   };
 

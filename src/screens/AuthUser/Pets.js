@@ -40,13 +40,13 @@ const Pets = ({navigation}) => {
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
+    fetchUser();
     const firstFetch = async () => {
       await fetchPets();
       setIsFetchPetsComplete(true);
       console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
     firstFetch();
-    fetchUser();
   }, []);
 
   const fetchPets = async () => {
@@ -66,15 +66,15 @@ const Pets = ({navigation}) => {
   };
 
   const fetchUser = async () => {
-    await querySingleItem(getUser, {id: userID}).then(response =>
+    await querySingleItem(getUser, {id: userID}).then(response => {
+      console.log("print fetched user's info: ", response.getUser);
       dispatch(
         setOwnerDetails({
-          name: response.data.getUser.name,
-          profilePic: response.data.getUser.profilePic,
-          email: response.data.getUser.email,
+          name: response.getUser.name,
+          email: response.getUser.email,
         }),
-      ),
-    );
+      );
+    });
   };
 
   const renderAddNewPetButton = useCallback(() => {

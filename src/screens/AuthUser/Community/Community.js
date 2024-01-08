@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Text,
 } from 'react-native';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
@@ -53,11 +54,12 @@ const Community = ({navigation}) => {
 
   return (
     <SafeAreaView style={globalStyle.flex}>
-      {isFetchComplete && petData.pets.length > 0 && (
-        <ImageBackground
-          style={styles.backgroundImage}
-          source={require('../../../assets/images/milkyWayBackgroundImage.png')}
-          resizeMode={'cover'}>
+      <ImageBackground
+        style={styles.backgroundImage}
+        source={require('../../../assets/images/milkyWayBackgroundImage.png')}
+        resizeMode={'cover'}>
+        <Text>추모공간 커뮤니티에 오신것을 환영합니다.</Text>
+        {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
               onMomentumScrollBegin={() => setIsLoadingPets(false)}
@@ -68,8 +70,8 @@ const Community = ({navigation}) => {
               renderItem={({item}) => <PetCard item={item} isFamily={false} />}
             />
           </View>
-        </ImageBackground>
-      )}
+        )}
+      </ImageBackground>
     </SafeAreaView>
   );
 };

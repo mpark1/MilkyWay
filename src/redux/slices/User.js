@@ -18,7 +18,6 @@ const User = createSlice({
       state.cognitoUsername = null;
     },
     setOwnerDetails: (state, action) => {
-      state.profilePic = action.payload.profilePic;
       state.email = action.payload.email;
       state.name = action.payload.name;
     },

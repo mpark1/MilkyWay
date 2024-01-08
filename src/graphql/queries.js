@@ -332,20 +332,9 @@ export const getAlbum = /* GraphQL */ `
       category
       caption
       createdAt
-      author {
-        id
-        email
-        profilePic
-        name
-        state
-        createdAt
-        updatedAt
-        owner
-        __typename
-      }
+      authorIdentityID
       imageType
       updatedAt
-      albumAuthorId
       owner
       __typename
     }
@@ -374,9 +363,9 @@ export const listAlbums = /* GraphQL */ `
         category
         caption
         createdAt
+        authorIdentityID
         imageType
         updatedAt
-        albumAuthorId
         owner
         __typename
       }
@@ -406,9 +395,9 @@ export const albumByCategory = /* GraphQL */ `
         category
         caption
         createdAt
+        authorIdentityID
         imageType
         updatedAt
-        albumAuthorId
         owner
         __typename
       }

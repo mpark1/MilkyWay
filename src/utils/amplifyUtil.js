@@ -1,8 +1,7 @@
-import {getCurrentUser, fetchAuthSession} from 'aws-amplify/auth';
+import {fetchAuthSession, getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import {Alert} from 'react-native';
 import {
-  getImagesByAlbumID,
   getPet,
   getPetFamily,
   getUser,
@@ -12,8 +11,7 @@ import {
   listPetFamilies,
   petsByAccessLevel,
 } from '../graphql/queries';
-import {list, uploadData} from 'aws-amplify/storage';
-import {getUrl} from 'aws-amplify/storage';
+import {getUrl, list, uploadData} from 'aws-amplify/storage';
 
 export async function checkUser() {
   try {
@@ -172,6 +170,7 @@ export async function queryGuestBooksByPetIDPagination(
       const {items, nextToken} = response.data.listGuestBooks; // includes items (array format), nextToken
       letterData.letters = items;
       letterData.nextToken = nextToken;
+      console.log('print 방명록 list fetching result: ', items[0]);
       // if none is found in db, just return
       if (items.length === 0) {
         return letterData;
@@ -184,11 +183,14 @@ export async function queryGuestBooksByPetIDPagination(
             variables: {id: letter.guestBookAuthorId},
             authMode: 'userPool',
           });
-          letter.userName = userDetails.data.getUser.name;
-          letter.profilePic = userDetails.data.getUser.profilePic;
+          if (userDetails.data.getUser === null) {
+            letter.userName = '탈퇴한 회원';
+          } else {
+            letter.userName = userDetails.data.getUser.name;
+            // letter.profilePic = userDetails.data.getUser.profilePic;
+          }
         }),
       );
-
       setIsLoading(false);
       return letterData;
     } catch (error) {
@@ -256,10 +258,6 @@ export async function queryAlbumsByPetIDPagination(
             targetIdentityId: albumObj.authorIdentityID,
           },
         });
-        // console.log(
-        //   'check if albums fetching first item from s3 is success: ',
-        //   s3response.items[0],
-        // );
         const urlPromises = s3response.items.map(async imageObj => {
           const getUrlResult = await getUrl({
             key: imageObj.key,

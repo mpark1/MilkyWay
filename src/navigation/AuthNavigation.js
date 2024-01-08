@@ -10,7 +10,6 @@ import Settings from '../screens/AuthUser/Settings';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditLetter from '../screens/AuthUser/EditLetter';
 import {createStackNavigator} from '@react-navigation/stack';
-import SamplePage from '../screens/samplePage';
 
 const Stack = createStackNavigator();
 
@@ -77,13 +76,6 @@ const AuthNavigation = () => {
           component={MediaPreview}
           options={{
             headerTitle: '캡션 작성',
-          }}
-        />
-        <Stack.Screen
-          name={'SamplePage'}
-          component={SamplePage}
-          options={{
-            headerTitle: '테스트화면',
           }}
         />
       </Stack.Group>
