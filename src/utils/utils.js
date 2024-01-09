@@ -1,4 +1,6 @@
 import {Alert} from 'react-native';
+import RNFS from 'react-native-fs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function getTimeElapsed(dateTimeString) {
   const inputDate = new Date(dateTimeString);
@@ -43,4 +45,15 @@ export function getCurrentDate() {
   const day = String(currentDate.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
+}
+
+export async function removeUserProfilePicOnDevice(imagePathInFS) {
+  try {
+    await RNFS.unlink(imagePathInFS);
+    console.log('파일 시스템에서 삭제 성공!');
+    await AsyncStorage.removeItem('userProfile');
+    console.log('AsyncStorage 에서 삭제 성공!');
+  } catch (error) {
+    console.log('Error deleting profilePic from local storage: ', error);
+  }
 }
