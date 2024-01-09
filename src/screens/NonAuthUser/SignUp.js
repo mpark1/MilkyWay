@@ -9,9 +9,11 @@ import {
   Pressable,
 } from 'react-native';
 import {signUp} from 'aws-amplify/auth';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ImagePicker from 'react-native-image-crop-picker';
 import {Button} from '@rneui/base';
-import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -23,12 +25,8 @@ import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
 import {setOwnerDetails} from '../../redux/slices/User';
 import Backdrop from '../../components/Backdrop';
-import {
-  cameraOption,
-  imageLibraryOption,
-} from '../../constants/imagePickerOptions';
+import {profilePicOption} from '../../constants/imagePickerOptions';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
-import uuid from 'react-native-uuid';
 
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
@@ -68,22 +66,24 @@ const SignUp = ({navigation}) => {
     setConfirmPW(trimmedText);
   }, []);
 
-  const onResponseFromCameraOrGallery = res => {
+  const onResponseFromImagePicker = async res => {
+    bottomSheetModalRef.current?.close();
     if (res.didCancel || !res) {
       return;
     }
-    const uri = res.assets[0].uri;
-    console.log('uri: ', uri);
-    bottomSheetModalRef.current?.close();
-    setProfilePic(uri);
+    setProfilePic(res.path);
   };
 
   const onLaunchCamera = () => {
-    launchCamera(cameraOption, onResponseFromCameraOrGallery);
+    ImagePicker.openCamera(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log(err.message));
   };
 
-  const onLaunchImageLibrary = () => {
-    launchImageLibrary(imageLibraryOption, onResponseFromCameraOrGallery);
+  const onLaunchGallery = async () => {
+    ImagePicker.openPicker(profilePicOption)
+      .then(onResponseFromImagePicker)
+      .catch(err => console.log('Error: ', err.message));
   };
 
   const renderProfilePicField = () => {
@@ -121,7 +121,7 @@ const SignUp = ({navigation}) => {
         </Pressable>
         <Pressable
           style={styles.bottomSheet.icons}
-          onPress={() => onLaunchImageLibrary()}>
+          onPress={() => onLaunchGallery()}>
           <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
           <Text style={{color: '#000'}}>갤러리</Text>
         </Pressable>
@@ -253,24 +253,30 @@ const SignUp = ({navigation}) => {
     if (!isSignUp) {
       setIsSignUp(true);
 
-      const resizedProfilePic = await ImageResizer.createResizedImage(
-        profilePic, // path
-        300, // width
-        300, // height
-        'JPEG', // format
-        100, // quality
-      );
-      const profilePicKey = '/profilePic/' + uuid.v4() + '.jpeg';
-
       try {
+        // 프로파일 사진 있으면 File System 에 사진 복사 & AsyncStorage 에 파일 path 저장
+        if (profilePic.length > 0) {
+          const resFromResizer = await ImageResizer.createResizedImage(
+            profilePic, // path
+            200, // width
+            200, // height
+            'JPEG', // format
+            100, // quality
+          );
+
+          const imagePath = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
+          // copy photo to file system
+          await RNFS.copyFile(resFromResizer.uri, imagePath).then(async () => {
+            await AsyncStorage.setItem('userProfile', imagePath);
+          });
+        }
+
         const {isSignUpComplete, userId, nextStep} = await signUp({
           username: email,
           password: password,
           options: {
             userAttributes: {
               name,
-              'custom:profilePic': resizedProfilePic.uri,
-              'custom:profilePicKey': profilePicKey,
             },
             // optional
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
