@@ -254,23 +254,6 @@ const SignUp = ({navigation}) => {
       setIsSignUp(true);
 
       try {
-        // 프로파일 사진 있으면 File System 에 사진 복사 & AsyncStorage 에 파일 path 저장
-        if (profilePic.length > 0) {
-          const resFromResizer = await ImageResizer.createResizedImage(
-            profilePic, // path
-            200, // width
-            200, // height
-            'JPEG', // format
-            100, // quality
-          );
-
-          const imagePath = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
-          // copy photo to file system
-          await RNFS.copyFile(resFromResizer.uri, imagePath).then(async () => {
-            await AsyncStorage.setItem('userProfile', imagePath);
-          });
-        }
-
         const {isSignUpComplete, userId, nextStep} = await signUp({
           username: email,
           password: password,
@@ -291,6 +274,24 @@ const SignUp = ({navigation}) => {
               profilePic: profilePic,
             }),
           );
+
+          // 프로파일 사진 있으면 File System 에 사진 복사 & AsyncStorage 에 파일 path 저장
+          if (profilePic.length > 0) {
+            const resFromResizer = await ImageResizer.createResizedImage(
+              profilePic, // path
+              200, // width
+              200, // height
+              'JPEG', // format
+              100, // quality
+            );
+            const imagePath = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
+            // copy photo to file system
+            await RNFS.copyFile(resFromResizer.uri, imagePath).then(
+              async () => {
+                await AsyncStorage.setItem('userProfile', imagePath);
+              },
+            );
+          }
         }
         setIsSignUp(false);
         navigation.navigate('ConfirmAccount', {
