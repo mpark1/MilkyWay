@@ -18,6 +18,7 @@ import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateUser} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
+import {Buffer} from '@craftzdog/react-native-buffer';
 
 export async function checkUser() {
   try {
@@ -454,13 +455,11 @@ export async function checkAsyncStorageUserProfile(
       fileSystemPath,
     );
     if (fileSystemPath && fileSystemPath.length > 0) {
-      const fileOnDevice = await RNFS.readFile(fileSystemPath, 'base64');
-      console.log('fileOnDevice: ', fileOnDevice);
+      const base64 = await RNFS.readFile(fileSystemPath, 'base64');
+      console.log('fileOnDevice: ', base64);
 
-      const base64Response = await fetch(
-        `data:image/jpeg;base64,${fileOnDevice}`,
-      );
-      const photoBlob = await base64Response.blob();
+      const buffer = Buffer.from(base64, 'base64');
+      const photoBlob = new Blob([buffer], {type: 'image/jpeg'});
       console.log('Blob to be sent to S3: ', photoBlob);
 
       const s3key = 'userProfile/' + uuid.v4() + '.jpeg';
