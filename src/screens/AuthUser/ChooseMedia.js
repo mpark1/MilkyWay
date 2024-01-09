@@ -60,14 +60,10 @@ const ChooseMedia = ({navigation}) => {
         for (const media of res) {
           const resizedMedia = await ImageResizer.createResizedImage(
             media.path, // path
-            300, // width
+            300, // width - 사이즈 늘리기
             300, // height
             'JPEG', // format
             100, // quality
-            undefined, // rotation
-            'album/' + uuid.v4() + '.jpeg', // outputPath
-            undefined, // keepMeta,
-            undefined, // options => object
           ).then(async resFromResizer => {
             console.log('resFromResizer: ', resFromResizer);
             const photo = await fetch(resFromResizer.uri);
