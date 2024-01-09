@@ -264,8 +264,7 @@ const SignUp = ({navigation}) => {
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
           },
         });
-        console.log('userId from amplify signUp: ', userId);
-
+        console.log('1. print if signup is complete: ', userId);
         // after a user successfully signs up (before confirmation), save user's information in redux
         if (userId) {
           dispatch(

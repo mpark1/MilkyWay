@@ -17,6 +17,12 @@ import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetMod
 
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import {
+  onCreateGuestBook,
+  onDeleteGuestBook,
+  onUpdateGuestBook,
+} from '../../../graphql/subscriptions';
+import {sucriptionForAllMutation} from '../../../utils/amplifyUtilSubscription';
 
 const GuestBook = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -38,6 +44,12 @@ const GuestBook = ({navigation, route}) => {
     };
     console.log('GuestBook tab is rendered');
     firstFetch();
+    sucriptionForAllMutation(
+      petID,
+      onCreateGuestBook,
+      onUpdateGuestBook,
+      onDeleteGuestBook,
+    );
   }, [petID]);
 
   const fetchMessages = async () => {

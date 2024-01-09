@@ -26,10 +26,10 @@ import {
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {setOwnerDetails} from '../../redux/slices/User';
 import * as RNFS from 'react-native-fs';
+import {sucriptionForMyPets} from '../../utils/amplifyUtilSubscription';
 
 const Pets = ({navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
-  const petID = useSelector(state => state.pet.id);
   const dispatch = useDispatch();
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
@@ -47,6 +47,14 @@ const Pets = ({navigation}) => {
       console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
     firstFetch();
+  }, []);
+
+  useEffect(() => {
+    const newPet = sucriptionForMyPets(userID);
+    setPetData(prev => ({
+      pets: [...prev.pets, ...newPet],
+      nextToken: prev.nextToken,
+    }));
   }, []);
 
   const fetchPets = async () => {
