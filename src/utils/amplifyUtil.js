@@ -443,8 +443,8 @@ export async function updateProfilePic(filepath, isPet, petId) {
 }
 
 export async function checkAsyncStorageUserProfile(
-  isCallingUpdateAPI,
-  setIsCallingUpdateAPI,
+  isCallingAPI,
+  setIsCallingAPI,
   updateInputObject,
 ) {
   try {
@@ -452,6 +452,7 @@ export async function checkAsyncStorageUserProfile(
     const fileSystemPath = await AsyncStorage.getItem('userProfile');
     if (fileSystemPath.length > 0) {
       const fileOnDevice = await RNFS.readFile(fileSystemPath, 'base64');
+      console.log('fileOnDevice: ', fileOnDevice);
 
       const base64Response = await fetch(
         `data:image/jpeg;base64,${fileOnDevice}`,
@@ -459,11 +460,9 @@ export async function checkAsyncStorageUserProfile(
       const photoBlob = await base64Response.blob();
       console.log('Blob to be sent to S3: ', photoBlob);
 
-      const picId = uuid.v4();
-
-      const filename = 'userProfile/' + picId + '.jpeg';
+      const s3key = 'userProfile/' + uuid.v4() + '.jpeg';
       const responseFromS3 = await uploadImageToS3(
-        filename,
+        s3key,
         photoBlob,
         'image/jpeg',
       );
@@ -471,25 +470,35 @@ export async function checkAsyncStorageUserProfile(
         'Did profilePic in AsyncStorage get uploaded to S3? ',
         responseFromS3,
       );
+
       // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
       await removeUserProfilePicOnDevice(fileSystemPath);
 
-      updateInputObject.profilePic = picId;
+      // 3. Update User in DB: Set User profilePic attribute to s3key from above
+      updateInputObject.profilePic = s3key;
       console.log('updateUserInput: ', updateInputObject);
-      // 3. Update User in DB: Set User profilePic attribute to uuid(picID) from above
-      /* TODO: 자동로그인이나 일반로그인 했을때 사진 업로드되면 사진만 업로드하는 mutation 을 따로 만드는게 어떨지 */
-      // await mutationItem(
-      //   setIsCallingUpdateAPI,
-      //   setIsCallingUpdateAPI,
-      //   updateInputObject,
-      //   updateUser,
-      //   '',
-      //   '',
-      // );
+      try {
+        if (!isCallingAPI) {
+          setIsCallingAPI(true);
+          const client = generateClient();
+          const response = await client.graphql({
+            query: updateUser,
+            variables: {input: updateInputObject},
+            authMode: 'userPool',
+          });
+          console.log(
+            'DynamoDB response from User profilePic update: ',
+            response,
+          );
+          return response;
+        }
+      } catch (error) {
+        console.log('error during query: ', error);
+      } finally {
+        setIsCallingAPI(false);
+      }
     }
   } catch (error) {
     console.log('Inside checkAsyncStorageUserProfile: ', error);
-  } finally {
-    setIsCallingUpdateAPI(false);
   }
 }

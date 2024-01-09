@@ -288,7 +288,11 @@ const SignUp = ({navigation}) => {
             // copy photo to file system
             await RNFS.copyFile(resFromResizer.uri, imagePath).then(
               async () => {
-                await AsyncStorage.setItem('userProfile', imagePath);
+                const res = await AsyncStorage.setItem(
+                  'userProfile',
+                  imagePath,
+                );
+                console.log('Sign up - asyncStorage res: ', res);
               },
             );
           }
