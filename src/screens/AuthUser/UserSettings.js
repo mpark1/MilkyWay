@@ -24,12 +24,22 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
 import {profilePicOption} from '../../constants/imagePickerOptions';
-import {useSelector} from 'react-redux';
+
+import {mutationItem, updateProfilePic} from '../../utils/amplifyUtil';
+import {updateUser} from '../../graphql/mutations';
+
+import {useDispatch, useSelector} from 'react-redux';
+import {updateUserNameOrPic} from '../../redux/slices/User';
 
 const UserSettings = ({navigation}) => {
-  const {name, email, profilePic} = useSelector(state => state.user);
+  const dispatch = useDispatch();
+  const {cognitoUsername, name, email, profilePic} = useSelector(
+    state => state.user,
+  );
   const [userProfilePic, setProfilePic] = useState(profilePic);
   const [userName, setName] = useState(name);
+
+  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
 
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -38,6 +48,36 @@ const UserSettings = ({navigation}) => {
     const trimmedText = text.trim();
     setName(trimmedText);
   }, []);
+
+  function popPage() {
+    // update redux
+    dispatch(
+      updateUserNameOrPic({
+        name: name,
+        profilePic: profilePic,
+      }),
+    );
+    navigation.pop();
+  }
+
+  const onUpdateUserInfo = async () => {
+    const s3key = await updateProfilePic(userProfilePic, false, '');
+
+    const newUserInput = {
+      id: cognitoUsername,
+      profilePic: s3key,
+      name: name,
+      state: 'ACTIVE',
+    };
+    await mutationItem(
+      isCallingUpdateAPI,
+      setIsCallingUpdateAPI,
+      newUserInput,
+      updateUser,
+      '정보가 성공적으로 변경되었습니다.',
+      popPage,
+    );
+  };
 
   async function handleDeleteUser() {
     try {
@@ -173,7 +213,7 @@ const UserSettings = ({navigation}) => {
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}
-          // onPress={onUpdateUserInDB}
+          onPress={onUpdateUserInfo}
         />
       </View>
     );

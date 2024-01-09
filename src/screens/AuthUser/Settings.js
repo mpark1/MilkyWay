@@ -399,12 +399,12 @@ const Settings = ({navigation, route}) => {
   const onUpdatePetInfo = async () => {
     // 1. 사진이 업데이트
     /* TODO: 사진이 실제로 변경됐는지 확인하는 로직 추가해야할까요? */
-    const newProfilePicUuid = await updateProfilePic(newProfilePic, true, id); // updateProfilePic(filepath, isPet, objectId)
+    const s3key = await updateProfilePic(newProfilePic, true, id); // updateProfilePic(filepath, isPet, objectId)
 
     // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
     const newPetInput = {
       id: id,
-      profilePic: newProfilePicUuid,
+      profilePic: s3key,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,

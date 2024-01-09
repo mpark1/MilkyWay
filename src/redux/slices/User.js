@@ -29,6 +29,10 @@ const User = createSlice({
         cognitoUsername: null,
       };
     },
+    updateUserNameOrPic: (state, action) => {
+      state.name = action.payload.name;
+      state.profilePic = action.payload.profilePic;
+    },
   },
 });
 
@@ -38,5 +42,6 @@ export const {
   setCognitoUserToNull,
   signoutUser,
   setCurrentPetID,
+  updateUserNameOrPic,
 } = User.actions;
 export default User.reducer;
