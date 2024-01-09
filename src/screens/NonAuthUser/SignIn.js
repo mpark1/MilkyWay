@@ -15,7 +15,7 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
-import {checkUser} from '../../utils/amplifyUtil';
+import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
 import {setCognitoUsername} from '../../redux/slices/User';
 
 const SignIn = ({navigation}) => {
@@ -24,6 +24,7 @@ const SignIn = ({navigation}) => {
   const [password, setPassword] = useState('');
   const passwordRef = useRef(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
 
   const onChangeEmail = useCallback(text => {
     setEmail(text.trim());
@@ -44,10 +45,24 @@ const SignIn = ({navigation}) => {
         username: email,
         password: password,
       });
-      const userId = await checkUser();
-      dispatch(setCognitoUsername(userId));
-
       console.log('sign-in result: ', isSignedIn, nextStep);
+      if (isSignedIn) {
+        const userId = await checkUser();
+        dispatch(setCognitoUsername(userId));
+
+        const updateUserInput = {
+          id: userId,
+          email: email,
+          //   name: name,
+          state: 'ACTIVE',
+        };
+        await checkAsyncStorageUserProfile(
+          isCallingUpdateAPI,
+          setIsCallingUpdateAPI,
+          updateUserInput,
+        );
+      }
+
       // 미인증 계정 인증화면으로 보내기
       if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
         AlertBox('미인증 계정입니다', '', '인증하러가기', async () => {

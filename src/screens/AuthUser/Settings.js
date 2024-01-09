@@ -27,9 +27,8 @@ import {getCurrentDate} from '../../utils/utils';
 import Backdrop from '../../components/Backdrop';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
-import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
+import {mutationItem, updateProfilePic} from '../../utils/amplifyUtil';
 import {deleteLetter, updatePet} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
@@ -80,11 +79,7 @@ const Settings = ({navigation, route}) => {
     if (res.didCancel || !res) {
       return;
     }
-    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
-      .then(r => {
-        setProfilePic(r.uri);
-      })
-      .catch(err => console.log(err.message));
+    setProfilePic(res.path);
   }, []);
 
   const onLaunchCamera = () => {
@@ -401,10 +396,15 @@ const Settings = ({navigation, route}) => {
     navigation.pop();
   }
 
-  const onUpdatePetInfo = () => {
+  const onUpdatePetInfo = async () => {
+    // 1. 사진이 업데이트
+    /* TODO: 사진이 실제로 변경됐는지 확인하는 로직 추가해야할까요? */
+    const newProfilePicUuid = await updateProfilePic(newProfilePic, true, id); // updateProfilePic(filepath, isPet, objectId)
+
+    // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
     const newPetInput = {
       id: id,
-      profilePic: newProfilePic,
+      profilePic: newProfilePicUuid,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
@@ -412,7 +412,7 @@ const Settings = ({navigation, route}) => {
       state: 'ACTIVE',
       accessLevel: checkPrivate ? 'Private' : 'Public',
     };
-    mutationItem(
+    await mutationItem(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
       newPetInput,

@@ -1,20 +1,32 @@
 import React, {useCallback, useState} from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
+import RNFS from 'react-native-fs';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {confirmSignUp, autoSignIn} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
-import {useDispatch} from 'react-redux';
-import {checkUser} from '../../utils/amplifyUtil';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  checkUser,
+  mutationItem,
+  uploadImageToS3,
+} from '../../utils/amplifyUtil';
 import {setCognitoUsername} from '../../redux/slices/User';
+import uuid from 'react-native-uuid';
+import {updateUser} from '../../graphql/mutations';
+import {removeUserProfilePicOnDevice} from '../../utils/utils';
 
 const ConfirmAccount = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const {username, purpose} = route.params;
+  const {username, purpose} = route.params; // username is email
+  const name = useSelector(state => state.user.name);
   const [code, setCode] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
+
   const canGoNext = code;
   const onChangeCode = useCallback(text => {
     setCode(text.trim());
@@ -26,15 +38,51 @@ const ConfirmAccount = ({navigation, route}) => {
       try {
         const {isSignedIn} = await autoSignIn();
         console.log('isSignIn boolean result', isSignedIn);
+        // 자동 로그인 성공
         if (isSignedIn) {
           response = await checkUser();
           console.log('in confirm account page, response: ', response);
           dispatch(setCognitoUsername(response));
+
+          // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
+          const imagePathInFS = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
+          const photoBlob = await RNFS.readFile(imagePathInFS);
+          const picID = uuid.v4();
+          const filename = 'userProfile/' + picID + '/jpeg';
+
+          const responseFromS3 = await uploadImageToS3(
+            filename,
+            photoBlob,
+            'image/jpeg',
+          );
+          console.log('Post autoSignIn response from S3: ', responseFromS3);
+
+          // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
+          if (responseFromS3) {
+            await removeUserProfilePicOnDevice(imagePathInFS);
+          }
+
+          // 3. Update User in DB: Set User profilePic attribute to uuid(picID) from above
+          const updateUserInput = {
+            id: response, // userID
+            email: username,
+            profilePic: picID,
+            name: name,
+            state: 'ACTIVE',
+          };
+          await mutationItem(
+            isCallingUpdateAPI,
+            setIsCallingUpdateAPI,
+            updateUserInput,
+            updateUser,
+            '',
+            '',
+          );
         } else {
           navigation.navigate('SignIn');
         }
       } catch (error) {
-        console.log('auto signin error', error);
+        console.log('Error inside handleAutoSign: ', error);
       }
     } else {
       navigation.navigate('SignIn');
