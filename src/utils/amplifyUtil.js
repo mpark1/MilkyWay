@@ -12,6 +12,13 @@ import {
   petsByAccessLevel,
 } from '../graphql/queries';
 import {getUrl, list, uploadData} from 'aws-amplify/storage';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import uuid from 'react-native-uuid';
+
+import * as RNFS from 'react-native-fs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {updateUser} from '../graphql/mutations';
+import {removeUserProfilePicOnDevice} from './utils';
 
 export async function checkUser() {
   try {
@@ -398,5 +405,91 @@ export async function checkFamily(
     console.log('Error fetching pet family', error);
     // 가족이 아닐 경우 DB 기록이 없는데 null 또는 에러 반환되는지 확인 해야함
     setIsFamily(false);
+  }
+}
+
+export async function updateProfilePic(filepath, isPet, petId) {
+  /* TODO: S3에 있는 사진 지우기 */
+
+  // convert resized image to blob
+  const newPicId = uuid.v4();
+  try {
+    await ImageResizer.createResizedImage(
+      filepath, // path
+      200, // width
+      200, // height
+      'JPEG', // format
+      100, // quality
+    ).then(async resFromResizer => {
+      const photo = await fetch(resFromResizer.uri);
+      const photoBlob = await photo.blob();
+
+      const filename = isPet
+        ? 'petProfile/' + petId + '/' + newPicId + '.jpeg'
+        : 'userProfile/' + newPicId + '.jpeg';
+
+      // send over to s3
+      const resultFromS3 = await uploadImageToS3(
+        filename,
+        photoBlob,
+        'image/jpeg',
+      );
+      console.log('Inside updateProfilePic in s3: ', resultFromS3);
+    });
+    return newPicId;
+  } catch (error) {
+    console.log('Error updating profile pic in S3: ', error);
+  }
+}
+
+export async function checkAsyncStorageUserProfile(
+  isCallingUpdateAPI,
+  setIsCallingUpdateAPI,
+  updateInputObject,
+) {
+  try {
+    // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
+    const fileSystemPath = await AsyncStorage.getItem('userProfile');
+    if (fileSystemPath.length > 0) {
+      const fileOnDevice = await RNFS.readFile(fileSystemPath, 'base64');
+
+      const base64Response = await fetch(
+        `data:image/jpeg;base64,${fileOnDevice}`,
+      );
+      const photoBlob = await base64Response.blob();
+      console.log('Blob to be sent to S3: ', photoBlob);
+
+      const picId = uuid.v4();
+
+      const filename = 'userProfile/' + picId + '.jpeg';
+      const responseFromS3 = await uploadImageToS3(
+        filename,
+        photoBlob,
+        'image/jpeg',
+      );
+      console.log(
+        'Did profilePic in AsyncStorage get uploaded to S3? ',
+        responseFromS3,
+      );
+      // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
+      await removeUserProfilePicOnDevice(fileSystemPath);
+
+      updateInputObject.profilePic = picId;
+      console.log('updateUserInput: ', updateInputObject);
+      // 3. Update User in DB: Set User profilePic attribute to uuid(picID) from above
+      /* TODO: 자동로그인이나 일반로그인 했을때 사진 업로드되면 사진만 업로드하는 mutation 을 따로 만드는게 어떨지 */
+      // await mutationItem(
+      //   setIsCallingUpdateAPI,
+      //   setIsCallingUpdateAPI,
+      //   updateInputObject,
+      //   updateUser,
+      //   '',
+      //   '',
+      // );
+    }
+  } catch (error) {
+    console.log('Inside checkAsyncStorageUserProfile: ', error);
+  } finally {
+    setIsCallingUpdateAPI(false);
   }
 }

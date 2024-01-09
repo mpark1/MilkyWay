@@ -1,26 +1,19 @@
 import React, {useCallback, useState} from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
-import RNFS from 'react-native-fs';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {confirmSignUp, autoSignIn} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  checkUser,
-  mutationItem,
-  uploadImageToS3,
-} from '../../utils/amplifyUtil';
+import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
 import {setCognitoUsername} from '../../redux/slices/User';
-import uuid from 'react-native-uuid';
-import {updateUser} from '../../graphql/mutations';
-import {removeUserProfilePicOnDevice} from '../../utils/utils';
 
 const ConfirmAccount = ({navigation, route}) => {
   const dispatch = useDispatch();
   const {username, purpose} = route.params; // username is email
   const name = useSelector(state => state.user.name);
+  const email = useSelector(state => state.user.email);
   const [code, setCode] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -44,39 +37,16 @@ const ConfirmAccount = ({navigation, route}) => {
           console.log('in confirm account page, response: ', response);
           dispatch(setCognitoUsername(response));
 
-          // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
-          const imagePathInFS = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
-          const photoBlob = await RNFS.readFile(imagePathInFS);
-          const picID = uuid.v4();
-          const filename = 'userProfile/' + picID + '/jpeg';
-
-          const responseFromS3 = await uploadImageToS3(
-            filename,
-            photoBlob,
-            'image/jpeg',
-          );
-          console.log('Post autoSignIn response from S3: ', responseFromS3);
-
-          // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
-          if (responseFromS3) {
-            await removeUserProfilePicOnDevice(imagePathInFS);
-          }
-
-          // 3. Update User in DB: Set User profilePic attribute to uuid(picID) from above
           const updateUserInput = {
-            id: response, // userID
-            email: username,
-            profilePic: picID,
+            id: response,
+            email: email,
             name: name,
             state: 'ACTIVE',
           };
-          await mutationItem(
+          await checkAsyncStorageUserProfile(
             isCallingUpdateAPI,
             setIsCallingUpdateAPI,
             updateUserInput,
-            updateUser,
-            '',
-            '',
           );
         } else {
           navigation.navigate('SignIn');

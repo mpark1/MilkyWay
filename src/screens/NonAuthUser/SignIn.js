@@ -15,8 +15,13 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
-import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
-import {setCognitoUsername} from '../../redux/slices/User';
+import {
+  checkAsyncStorageUserProfile,
+  checkUser,
+  querySingleItem,
+} from '../../utils/amplifyUtil';
+import {setCognitoUsername, setOwnerDetails} from '../../redux/slices/User';
+import {getUser} from '../../graphql/queries';
 
 const SignIn = ({navigation}) => {
   const dispatch = useDispatch();
@@ -50,10 +55,22 @@ const SignIn = ({navigation}) => {
         const userId = await checkUser();
         dispatch(setCognitoUsername(userId));
 
+        let name = '';
+        await querySingleItem(getUser, {id: userId}).then(response => {
+          console.log("print fetched user's info: ", response.getUser);
+          dispatch(
+            setOwnerDetails({
+              name: response.getUser.name,
+              email: response.getUser.email,
+            }),
+          );
+          name = response.getUser.name;
+        });
+
         const updateUserInput = {
           id: userId,
           email: email,
-          //   name: name,
+          name: name,
           state: 'ACTIVE',
         };
         await checkAsyncStorageUserProfile(
