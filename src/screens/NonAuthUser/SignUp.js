@@ -253,7 +253,7 @@ const SignUp = ({navigation}) => {
     if (!isSignUp) {
       setIsSignUp(true);
       try {
-        const {isSignUpComplete, userId, nextStep} = await signUp({
+        const {userId} = await signUp({
           username: email,
           password: password,
           options: {
@@ -264,9 +264,10 @@ const SignUp = ({navigation}) => {
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
           },
         });
-        console.log('1. print if signup is complete: ', isSignUpComplete);
+        console.log('userId from amplify signUp: ', userId);
+
         // after a user successfully signs up (before confirmation), save user's information in redux
-        if (isSignUpComplete) {
+        if (userId) {
           dispatch(
             setOwnerDetails({
               name: name,
@@ -293,9 +294,9 @@ const SignUp = ({navigation}) => {
             );
             // copy photo to file system
             await RNFS.copyFile(resFromResizer.uri, imagePath).then(
-              async result => {
-                await AsyncStorage.setItem('userProfile100', result);
-                console.log('print if FS copyFile is successful. ', result);
+              async () => {
+                await AsyncStorage.setItem('userProfile100', imagePath);
+                console.log('print if FS copyFile is successful. ', imagePath);
                 navigationReady = true;
               },
             );
