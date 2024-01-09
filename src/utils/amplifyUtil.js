@@ -14,8 +14,7 @@ import {
 import {getUrl, list, uploadData} from 'aws-amplify/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import uuid from 'react-native-uuid';
-
-import * as RNFS from 'react-native-fs';
+import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateUser} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
@@ -449,8 +448,12 @@ export async function checkAsyncStorageUserProfile(
 ) {
   try {
     // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
-    const fileSystemPath = await AsyncStorage.getItem('userProfile');
-    if (fileSystemPath.length > 0) {
+    const fileSystemPath = await AsyncStorage.getItem('userProfile100');
+    console.log(
+      'print filesystempath from async storage before getting file from the file system.',
+      fileSystemPath,
+    );
+    if (fileSystemPath && fileSystemPath.length > 0) {
       const fileOnDevice = await RNFS.readFile(fileSystemPath, 'base64');
       console.log('fileOnDevice: ', fileOnDevice);
 

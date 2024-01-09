@@ -252,7 +252,6 @@ const SignUp = ({navigation}) => {
     // 3. amplfiy 회원가입 api
     if (!isSignUp) {
       setIsSignUp(true);
-
       try {
         const {isSignUpComplete, userId, nextStep} = await signUp({
           username: email,
@@ -265,6 +264,7 @@ const SignUp = ({navigation}) => {
             autoSignIn: true, // or SignInOptions e.g { authFlowType: "USER_SRP_AUTH" }
           },
         });
+        console.log('1. print if signup is complete: ', isSignUpComplete);
         // after a user successfully signs up (before confirmation), save user's information in redux
         if (isSignUpComplete) {
           dispatch(
@@ -274,8 +274,10 @@ const SignUp = ({navigation}) => {
               profilePic: profilePic,
             }),
           );
-
+          console.log('2. user dispatch is complete.');
+          let navigationReady = false;
           // 프로파일 사진 있으면 File System 에 사진 복사 & AsyncStorage 에 파일 path 저장
+          console.log('length of profile pic: ', profilePic.length);
           if (profilePic.length > 0) {
             const resFromResizer = await ImageResizer.createResizedImage(
               profilePic, // path
@@ -284,24 +286,29 @@ const SignUp = ({navigation}) => {
               'JPEG', // format
               100, // quality
             );
-            const imagePath = `${RNFS.DocumentDirectoryPath}/userProfile.jpg`;
+            const imagePath = `${RNFS.DocumentDirectoryPath}/userProfile100.jpeg`;
+            console.log(
+              'print image path before saving into file system: ',
+              imagePath,
+            );
             // copy photo to file system
             await RNFS.copyFile(resFromResizer.uri, imagePath).then(
-              async () => {
-                const res = await AsyncStorage.setItem(
-                  'userProfile',
-                  imagePath,
-                );
-                console.log('Sign up - asyncStorage res: ', res);
+              async result => {
+                await AsyncStorage.setItem('userProfile100', result);
+                console.log('print if FS copyFile is successful. ', result);
+                navigationReady = true;
               },
             );
+
+            if (navigationReady) {
+              navigation.navigate('ConfirmAccount', {
+                username: email,
+                purpose: 'initialSignUp',
+              });
+            }
           }
         }
         setIsSignUp(false);
-        navigation.navigate('ConfirmAccount', {
-          username: email,
-          purpose: 'initialSignUp',
-        });
       } catch (error) {
         console.log('error signing up:', error.name);
         setIsSignUp(false);

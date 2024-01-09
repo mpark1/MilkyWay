@@ -25,6 +25,7 @@ import {
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {setOwnerDetails} from '../../redux/slices/User';
+import * as RNFS from 'react-native-fs';
 
 const Pets = ({navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
