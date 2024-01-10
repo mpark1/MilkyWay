@@ -11,7 +11,7 @@ import {useSelector} from 'react-redux';
 import {mutationItem} from '../../utils/amplifyUtil';
 
 const WriteLetter = ({navigation}) => {
-  const petID = useSelector(state => state.user.currentPetID);
+  const petID = useSelector(state => state.pet.id);
   const [newTitle, setNewTitle] = useState('');
   const [newRelationship, setNewRelationship] = useState('');
   const [newMessage, setNewMessage] = useState('');

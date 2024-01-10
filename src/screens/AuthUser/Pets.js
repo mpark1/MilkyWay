@@ -49,13 +49,13 @@ const Pets = ({navigation}) => {
     firstFetch();
   }, []);
 
-  useEffect(() => {
-    const newPet = sucriptionForMyPets(userID);
-    setPetData(prev => ({
-      pets: [...prev.pets, ...newPet],
-      nextToken: prev.nextToken,
-    }));
-  }, []);
+  // useEffect(() => {
+  // const newPet = sucriptionForMyPets(userID);
+  // setPetData(prev => ({
+  //   pets: [...prev.pets, ...newPet],
+  //   nextToken: prev.nextToken,
+  // }));
+  // }, []);
 
   const fetchPets = async () => {
     await queryMyPetsPagination(

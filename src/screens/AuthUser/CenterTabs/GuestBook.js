@@ -44,12 +44,12 @@ const GuestBook = ({navigation, route}) => {
     };
     console.log('GuestBook tab is rendered');
     firstFetch();
-    sucriptionForAllMutation(
-      petID,
-      onCreateGuestBook,
-      onUpdateGuestBook,
-      onDeleteGuestBook,
-    );
+    // sucriptionForAllMutation(
+    //   petID,
+    //   onCreateGuestBook,
+    //   onUpdateGuestBook,
+    //   onDeleteGuestBook,
+    // );
   }, [petID]);
 
   const fetchMessages = async () => {

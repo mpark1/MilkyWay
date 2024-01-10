@@ -7,10 +7,7 @@ import AuthNavigation from './AuthNavigation';
 import {setCognitoUsername, setCognitoUserToNull} from '../redux/slices/User';
 import NonAuthNavigation from './NonAuthNavigation';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
-import {checkUser} from '../utils/amplifyUtil';
 import {getCurrentUser} from 'aws-amplify/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as RNFS from 'react-native-fs';
 
 export default function RootNavigation() {
   const dispatch = useDispatch();
@@ -21,16 +18,27 @@ export default function RootNavigation() {
     const executeCheckUser = async () => {
       try {
         const {userId} = await getCurrentUser();
+        console.log(
+          'print userId after getCurrentUser execution inside root navigation',
+          userId,
+        );
         if (userId) {
           dispatch(setCognitoUsername(userId));
         }
       } catch (error) {
-        console.error('Error checking getCurrentUser:', error);
+        console.error(
+          'Error checking getCurrentUser inside root navigation:',
+          error,
+        );
         dispatch(setCognitoUserToNull());
       }
     };
+    console.log(
+      'print user id from redux inside root navigation',
+      loggedInUserId,
+    );
     executeCheckUser();
-  }, [dispatch]);
+  }, [loggedInUserId]);
 
   if (loggedInUserId === undefined) {
     return (
