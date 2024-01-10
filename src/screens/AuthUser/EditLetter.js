@@ -126,7 +126,7 @@ const EditLetter = ({navigation, route}) => {
     navigation.pop();
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const newLetterInput = {
       id: letterID,
       petID: petID,
@@ -137,7 +137,7 @@ const EditLetter = ({navigation, route}) => {
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
     };
-    mutationItem(
+    const res = await mutationItem(
       isCallingAPI,
       setIsCallingAPI,
       newLetterInput,

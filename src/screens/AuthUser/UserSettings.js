@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {Button} from '@rneui/base';
-import {deleteUser} from 'aws-amplify/auth';
+import {deleteUser, signOut} from 'aws-amplify/auth';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
@@ -25,11 +25,18 @@ import ImageResizer from '@bam.tech/react-native-image-resizer';
 import ImagePicker from 'react-native-image-crop-picker';
 import {profilePicOption} from '../../constants/imagePickerOptions';
 
-import {mutationItem, updateProfilePic} from '../../utils/amplifyUtil';
+import {
+  mutationItem,
+  mutationItemNoAlertBox,
+  updateProfilePic,
+} from '../../utils/amplifyUtil';
 import {updateUser} from '../../graphql/mutations';
 
 import {useDispatch, useSelector} from 'react-redux';
-import {updateUserNameOrPic} from '../../redux/slices/User';
+import {
+  setCognitoUserToNull,
+  updateUserNameOrPic,
+} from '../../redux/slices/User';
 
 const UserSettings = ({navigation}) => {
   const dispatch = useDispatch();
@@ -78,14 +85,6 @@ const UserSettings = ({navigation}) => {
       popPage,
     );
   };
-
-  async function handleDeleteUser() {
-    try {
-      await deleteUser();
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   const onResponseFromImagePicker = useCallback(async res => {
     bottomSheetModalRef.current?.close();
@@ -182,7 +181,7 @@ const UserSettings = ({navigation}) => {
             blurOnSubmit={true}
             onChangeText={onChangeName}
             value={userName}
-            // maxLength={}
+            maxLength={10}
           />
         </View>
       </View>
@@ -229,6 +228,43 @@ const UserSettings = ({navigation}) => {
     );
   };
 
+  const handleDeleteUser = async () => {
+    try {
+      // 1. update user's status to INACTIVE in User table in db.
+      const userInput = {
+        id: cognitoUsername,
+        profilePic: profilePic,
+        name: name,
+        state: 'INACTIVE',
+      };
+      const res = await mutationItemNoAlertBox(
+        isCallingUpdateAPI,
+        setIsCallingUpdateAPI,
+        userInput,
+        updateUser,
+      );
+      console.log(
+        '1. updated db to update user to INACTIVE',
+        res.data.updateUser.state,
+      );
+      // 2. delete user from cognito userpool
+      if (res) {
+        await deleteUser();
+      }
+      console.log('2. Deleted user in cognito');
+      dispatch(setCognitoUserToNull());
+      console.log('3. updated redux to make user null');
+    } catch (error) {
+      console.log('계정삭제에 에러가 발생했습니다.');
+      AlertBox(
+        '계정삭제 도중에 에러가 발생했습니다. 관리자에게 연락해주세요.',
+        '',
+        '확인',
+        'none',
+      );
+    }
+  };
+
   const renderDeleteAccountButton = () => {
     return (
       <Pressable
@@ -236,9 +272,9 @@ const UserSettings = ({navigation}) => {
         onPress={() =>
           AlertBox(
             '회원탈퇴',
-            '회원탈퇴에 동의할 경우 회원님의 정보는 모두 삭제되고 복구가 불가능합니다. 탈퇴를 계속 진행 하시겠습니까?',
+            '회원탈퇴에 동의할 경우 회원님의 정보는 복구가 불가능합니다. 탈퇴를 계속 진행 하시겠습니까?',
             '탈퇴동의',
-            handleDeleteUser(),
+            handleDeleteUser,
           )
         }>
         <Text style={[styles.changePWButton.title, {color: '#939393'}]}>

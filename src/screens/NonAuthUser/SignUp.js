@@ -275,10 +275,10 @@ const SignUp = ({navigation}) => {
             }),
           );
           console.log('2. user dispatch is complete.');
-          let navigationReady = false;
           // 프로파일 사진 있으면 File System 에 사진 복사 & AsyncStorage 에 파일 path 저장
           console.log('length of profile pic: ', profilePic.length);
           if (profilePic.length > 0) {
+            let navigationReady = false;
             const resFromResizer = await ImageResizer.createResizedImage(
               profilePic, // path
               200, // width
@@ -299,7 +299,7 @@ const SignUp = ({navigation}) => {
                 navigationReady = true;
               },
             );
-
+            setIsSignUp(false);
             if (navigationReady) {
               navigation.navigate('ConfirmAccount', {
                 username: email,
@@ -307,8 +307,12 @@ const SignUp = ({navigation}) => {
               });
             }
           }
+          setIsSignUp(false);
+          navigation.navigate('ConfirmAccount', {
+            username: email,
+            purpose: 'initialSignUp',
+          });
         }
-        setIsSignUp(false);
       } catch (error) {
         console.log('error signing up:', error.name);
         setIsSignUp(false);

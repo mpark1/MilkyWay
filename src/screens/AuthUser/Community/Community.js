@@ -12,9 +12,11 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 import PetCard from '../../../components/PetCard';
 import {queryPetsPagination} from '../../../utils/amplifyUtil';
+import {useSelector} from 'react-redux';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
+  const userID = useSelector(state => state.user.cognitoUsername);
   const [petData, setPetData] = useState({
     pets: [],
     nextToken: null,
@@ -33,6 +35,7 @@ const Community = ({navigation}) => {
 
   const fetchPets = async () => {
     queryPetsPagination(
+      userID,
       isLoadingPets,
       setIsLoadingPets,
       pageSize,

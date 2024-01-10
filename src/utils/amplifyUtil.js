@@ -42,6 +42,30 @@ export async function getIdentityID() {
   }
 }
 
+export async function mutationItemNoAlertBox(
+  isCallingAPI,
+  setIsCallingAPI,
+  inputObj,
+  queryName,
+) {
+  try {
+    if (!isCallingAPI) {
+      setIsCallingAPI(true);
+      const client = generateClient();
+      const response = await client.graphql({
+        query: queryName,
+        variables: {input: inputObj},
+        authMode: 'userPool',
+      });
+      return response;
+    }
+  } catch (error) {
+    console.log('error during query: ', error);
+  } finally {
+    setIsCallingAPI(false);
+  }
+}
+
 export async function mutationItem(
   isCallingAPI,
   setIsCallingAPI,
@@ -292,6 +316,7 @@ export async function queryAlbumsByPetIDPagination(
 }
 
 export async function queryPetsPagination(
+  userID,
   isLoadingPets,
   setIsLoadingPets,
   pageSize,
@@ -300,11 +325,12 @@ export async function queryPetsPagination(
   if (!isLoadingPets) {
     try {
       setIsLoadingPets(true);
-      //1 get pet data from Pets table in db
+      //1 get pet data from Pets table in db. Filter is used not to show the user's own pets
       const client = generateClient();
       const response = await client.graphql({
         query: petsByAccessLevel,
         variables: {
+          filter: {managerID: {ne: userID}},
           accessLevel: 'Public',
           limit: pageSize,
           nextToken: token,

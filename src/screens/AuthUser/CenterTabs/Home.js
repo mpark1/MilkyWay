@@ -71,7 +71,7 @@ const Home = ({navigation}) => {
     const deleteMessageInput = {
       petID: petID,
     };
-    await mutationItem(
+    const res = await mutationItem(
       isCallingAPI,
       setIsCallingAPI,
       deleteMessageInput,
@@ -79,6 +79,7 @@ const Home = ({navigation}) => {
       '추모의 메세지가 삭제되었습니다.',
       'none',
     );
+    console.log('print response after updating 추모메시지: ', res);
     dispatch(setIntroduction(''));
   };
 
