@@ -391,9 +391,31 @@ export async function queryMyPetsPagination(
             variables: {id: petFamilyItem.petID},
             authMode: 'userPool',
           });
-          return petDetails.data.getPet;
+
+          const petObject = petDetails.data.getPet;
+          let getUrlResult;
+          console.log('get pet profile pic');
+          if (petDetails.data.getPet.profilePic.length > 0) {
+            getUrlResult = await getUrl({
+              key: petDetails.data.getPet.profilePic, // Pet object's profilePic attr holds s3key 'petProfile/petId/uuid.jpeg'
+              options: {
+                accessLevel: 'protected',
+                validateObjectExistence: false,
+                expiresIn: 120, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+                useAccelerateEndpoint: false,
+              },
+            });
+            console.log(
+              'Issued download url for a pet profile pic',
+              petFamilyItem.petID,
+              getUrlResult,
+            );
+            petObject.profilePic = getUrlResult.url.href;
+          }
+          return petObject;
         }),
       );
+
       petsData.pets = await Promise.all(fetchPetDetails);
       return petsData;
     } catch (error) {
@@ -435,14 +457,13 @@ export async function checkFamily(
 }
 
 export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
-  // 1. 리덕스 User profilePic (s3key) 넘겨받기
-  //    - empty string 이면 디폴트 사진이니까 s3에 사진이 없음
-  //    - 기존 사진이 있으면 S3에 있는 사진 지우기
-
-  // currPicS3key format
-  // 유저는 userProfile/uuid.jpeg
-  // 동물은 petProfile/petId/uuid.jpeg
+  /**
+    1. 리덕스 User profilePic (currPicS3key) 넘겨받기
+   *    - length = 0? s3에 사진이 없음
+   *    - length > 0? S3에 있는 기존 사진 지우기
+   */
   if (currPicS3key.length > 0) {
+    // currPicS3key format - 유저는 userProfile/uuid.jpeg, 동물은 petProfile/petId/uuid.jpeg
     try {
       await remove({key: currPicS3key, options: {accessLevel: 'protected'}});
       // protected/user_identity_id/ + currPicS3key

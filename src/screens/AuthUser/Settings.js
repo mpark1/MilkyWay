@@ -397,9 +397,16 @@ const Settings = ({navigation, route}) => {
   }
 
   const onUpdatePetInfo = async () => {
-    // 1. 사진이 업데이트
-    /* TODO: 사진이 실제로 변경됐는지 확인하는 로직 추가해야할까요? */
-    const s3key = await updateProfilePic(newProfilePic, true, id); // updateProfilePic(filepath, isPet, objectId)
+    // 1. 사진 업데이트 - updateProfilePic(filepath, isPet, objectId, currPicS3key)
+    // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
+    let s3key;
+    if (profilePic.length === 0 && newProfilePic.length > 0) {
+      s3key = await updateProfilePic(newProfilePic, true, id, profilePic);
+    }
+    // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
+    if (profilePic.length !== 0 && newProfilePic !== profilePic) {
+      s3key = await updateProfilePic(newProfilePic, true, id, profilePic);
+    }
 
     // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
     const newPetInput = {
