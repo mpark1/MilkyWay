@@ -11,7 +11,7 @@ import {
   listPetFamilies,
   petsByAccessLevel,
 } from '../graphql/queries';
-import {getUrl, list, uploadData} from 'aws-amplify/storage';
+import {getUrl, list, uploadData, remove} from 'aws-amplify/storage';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
@@ -408,14 +408,28 @@ export async function checkFamily(
   }
 }
 
-export async function updateProfilePic(filepath, isPet, petId) {
-  /* TODO: S3에 있는 사진 지우기 */
+export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
+  // 1. 리덕스 User profilePic (s3key) 넘겨받기
+  //    - empty string 이면 디폴트 사진이니까 s3에 사진이 없음
+  //    - 기존 사진이 있으면 S3에 있는 사진 지우기
 
-  // convert resized image to blob
+  // currPicS3key format
+  // 유저는 userProfile/uuid.jpeg
+  // 동물은 petProfile/petId/uuid.jpeg
+  if (currPicS3key.length > 0) {
+    try {
+      await remove({key: currPicS3key, options: {accessLevel: 'protected'}});
+      // protected/user_identity_id/ + currPicS3key
+    } catch (error) {
+      console.log('Error inside updateProfilePic ', error);
+    }
+  }
+
+  // 2. 새로운 사진 리사이징 후 blob 으로 만들기
   const newPicId = uuid.v4();
   try {
     await ImageResizer.createResizedImage(
-      filepath, // path
+      newPicPath, // path
       200, // width
       200, // height
       'JPEG', // format
@@ -428,7 +442,7 @@ export async function updateProfilePic(filepath, isPet, petId) {
         ? 'petProfile/' + petId + '/' + newPicId + '.jpeg'
         : 'userProfile/' + newPicId + '.jpeg';
 
-      // send over to s3
+      // 3. send over to s3
       const resultFromS3 = await uploadImageToS3(
         filename,
         photoBlob,

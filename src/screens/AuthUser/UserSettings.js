@@ -61,7 +61,7 @@ const UserSettings = ({navigation}) => {
   }
 
   const onUpdateUserInfo = async () => {
-    const s3key = await updateProfilePic(userProfilePic, false, '');
+    const s3key = await updateProfilePic(userProfilePic, false, '', profilePic);
 
     const newUserInput = {
       id: cognitoUsername,
