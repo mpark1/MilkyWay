@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateUser} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
 import {Buffer} from '@craftzdog/react-native-buffer';
+import {useDispatch} from 'react-redux';
 
 export async function checkUser() {
   try {
@@ -395,22 +396,24 @@ export async function queryMyPetsPagination(
           const petObject = petDetails.data.getPet;
           let getUrlResult;
           console.log('get pet profile pic');
-          if (petDetails.data.getPet.profilePic.length > 0) {
+          if (petObject.profilePic.length > 0) {
+            petObject.profilePicS3Key =
+              'petProfile/' + petObject.id + '/' + petObject.profilePic;
             getUrlResult = await getUrl({
-              key: petDetails.data.getPet.profilePic, // Pet object's profilePic attr holds s3key 'petProfile/petId/uuid.jpeg'
+              key: 'petProfile/' + petObject.id + '/' + petObject.profilePic, // Pet object's profilePic attr holds s3key 'petProfile/petId/uuid.jpeg'
               options: {
                 accessLevel: 'protected',
                 validateObjectExistence: false,
-                expiresIn: 120, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+                expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
                 useAccelerateEndpoint: false,
               },
             });
-            console.log(
-              'Issued download url for a pet profile pic',
-              petFamilyItem.petID,
-              getUrlResult,
-            );
             petObject.profilePic = getUrlResult.url.href;
+            petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
+            console.log(
+              'my pets pagination query: type of expiration date time: ',
+              petObject.s3UrlExpiredAt,
+            );
           }
           return petObject;
         }),
@@ -473,7 +476,7 @@ export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
   }
 
   // 2. 새로운 사진 리사이징 후 blob 으로 만들기
-  const newPicId = uuid.v4();
+  const newPicId = uuid.v4() + '.jpeg';
   try {
     await ImageResizer.createResizedImage(
       newPicPath, // path
@@ -486,8 +489,8 @@ export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
       const photoBlob = await photo.blob();
 
       const filename = isPet
-        ? 'petProfile/' + petId + '/' + newPicId + '.jpeg'
-        : 'userProfile/' + newPicId + '.jpeg';
+        ? 'petProfile/' + petId + '/' + newPicId
+        : 'userProfile/' + newPicId;
 
       // 3. send over to s3
       const resultFromS3 = await uploadImageToS3(
@@ -564,4 +567,28 @@ export async function checkAsyncStorageUserProfile(
   } catch (error) {
     console.log('Inside checkAsyncStorageUserProfile: ', error);
   }
+}
+
+export async function checkS3Url(s3UrlExpiredAt, profilePicS3Key) {
+  if (new Date(Date.now()) >= s3UrlExpiredAt) {
+    const returnData = {};
+    // renew presigned url
+    const newProfilePic = await getUrl({
+      key: profilePicS3Key,
+      options: {
+        accessLevel: 'protected',
+        validateObjectExistence: false,
+        expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+        useAccelerateEndpoint: false,
+      },
+    });
+    returnData.profilePic = newProfilePic.url.href; //profile picture url is renewed
+    returnData.s3UrlExpiredAt = newProfilePic.expiresAt.toString();
+    console.log(
+      'print type of expiration date time: ',
+      returnData.s3UrlExpiredAt,
+    );
+    return returnData;
+  }
+  return ''; // profile picture url is still valid
 }

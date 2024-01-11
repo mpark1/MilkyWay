@@ -233,6 +233,7 @@ const UserSettings = ({navigation}) => {
       // 1. update user's status to INACTIVE in User table in db.
       const userInput = {
         id: cognitoUsername,
+        email: email,
         profilePic: profilePic,
         name: name,
         state: 'INACTIVE',

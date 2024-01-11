@@ -25,13 +25,15 @@ const PetCard = ({item, isFamily}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const {
     id,
-    profilePic,
+    profilePic, // url format
     name,
     birthday,
     deathDay,
     lastWord,
     accessLevel,
     owner,
+    profilePicS3Key,
+    s3UrlExpiredAt,
   } = item;
 
   const onSubmit = () => {
@@ -47,6 +49,8 @@ const PetCard = ({item, isFamily}) => {
         profilePic: profilePic,
         lastWord: lastWord,
         accessLevel: accessLevel,
+        profilePicS3Key: profilePicS3Key,
+        s3UrlExpiredAt: s3UrlExpiredAt,
       }),
     );
     dispatch(setIsManager(owner === userID));
@@ -71,7 +75,7 @@ const PetCard = ({item, isFamily}) => {
         <View style={styles.profilePicContainer}>
           <Image
             style={styles.profilePic}
-            source={{uri: profilePic}}
+            source={{uri: item.profilePic}}
             resizeMode={'cover'}
           />
         </View>

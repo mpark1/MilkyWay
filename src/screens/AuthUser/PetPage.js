@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
@@ -10,13 +10,29 @@ import GuestBook from './CenterTabs/GuestBook';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {checkS3Url} from '../../utils/amplifyUtil';
+import {setUpdateProfilePicUrl} from '../../redux/slices/Pet';
 
 const centerTab = createMaterialTopTabNavigator();
 
 const PetPage = ({navigation, route}) => {
   const isFamily = route.params.isFamily; //true or false
-  const {name, birthday, deathday, manager} = useSelector(state => state.pet);
+  const {
+    name,
+    birthday,
+    deathday,
+    manager,
+    profilePic,
+    s3UrlExpiredAt,
+    profilePicS3Key,
+  } = useSelector(state => state.pet);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    //check user's profile picture url expiration once when the page is loaded.
+    checkS3url();
+  }, []);
 
   const renderBellEnvelopeSettingsIcons = () => {
     // 매니저일 경우에만 보여주기
@@ -30,6 +46,13 @@ const PetPage = ({navigation, route}) => {
         </Pressable>
       </View>
     );
+  };
+
+  const checkS3url = async () => {
+    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
+    if (newProfileUrl.length !== 0) {
+      dispatch(setUpdateProfilePicUrl(newProfileUrl));
+    }
   };
 
   return (
@@ -50,7 +73,7 @@ const PetPage = ({navigation, route}) => {
         <Image
           style={styles.profilePic}
           source={{
-            uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSceREFrbL87nsKQxJerouKhgKFcYVCaqEFw&usqp=CAU',
+            uri: profilePic,
           }}
           resizeMode={'cover'}
         />
@@ -125,12 +148,5 @@ const styles = StyleSheet.create({
     height: 130,
     top: Dimensions.get('window').height * 0.1,
     left: Dimensions.get('window').width * 0.03,
-  },
-  profilePic: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 80,
-    borderWidth: 4,
-    borderColor: '#FFF',
   },
 });

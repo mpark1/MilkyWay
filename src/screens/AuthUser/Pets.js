@@ -30,7 +30,6 @@ import {sucriptionForMyPets} from '../../utils/amplifyUtilSubscription';
 
 const Pets = ({navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
-  const dispatch = useDispatch();
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],

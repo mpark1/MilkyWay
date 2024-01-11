@@ -26,6 +26,7 @@ exports.handler = async (event, context) => {
       name: {S: event.request.userAttributes.name},
       email: {S: event.request.userAttributes.email},
       state: {S: 'ACTIVE'},
+      owner: {S: event.request.userAttributes.sub},
       createdAt: {S: date.toISOString()},
       updatedAt: {S: date.toISOString()},
     },

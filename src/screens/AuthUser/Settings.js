@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -28,19 +28,35 @@ import Backdrop from '../../components/Backdrop';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import ImagePicker from 'react-native-image-crop-picker';
-import {mutationItem, updateProfilePic} from '../../utils/amplifyUtil';
+import {
+  checkS3Url,
+  mutationItem,
+  updateProfilePic,
+} from '../../utils/amplifyUtil';
 import {deleteLetter, updatePet} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch, useSelector} from 'react-redux';
-import {setPetGeneralInfo} from '../../redux/slices/Pet';
+import {
+  setPetGeneralInfo,
+  setUpdateProfilePicUrl,
+} from '../../redux/slices/Pet';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const [isCallingDeleteAPI, setIsCallingDeleteAPI] = useState(false);
 
-  const {id, name, profilePic, lastWord, birthday, deathday, accessLevel} =
-    useSelector(state => state.pet);
+  const {
+    id,
+    name,
+    profilePic,
+    lastWord,
+    birthday,
+    deathday,
+    accessLevel,
+    profilePicS3Key,
+    s3UrlExpiredAt,
+  } = useSelector(state => state.pet);
   const dispatch = useDispatch();
   const [newProfilePic, setProfilePic] = useState(profilePic);
   const [petName, setPetName] = useState(name);
@@ -64,6 +80,18 @@ const Settings = ({navigation, route}) => {
   const [checkAll, setAll] = useState(accessLevel === 'Public'); // defaults to all
 
   const [isToolTipOpen, setIsToolTipOpen] = useState(false);
+
+  useEffect(() => {
+    //check user's profile picture url expiration once when the page is loaded.
+    checkS3url();
+  }, []);
+
+  const checkS3url = async () => {
+    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
+    if (newProfileUrl.length !== 0) {
+      dispatch(setUpdateProfilePicUrl(newProfileUrl));
+    }
+  };
 
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
@@ -405,7 +433,7 @@ const Settings = ({navigation, route}) => {
       // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
       (profilePic.length !== 0 && newProfilePic !== profilePic)
     ) {
-      s3key = await updateProfilePic(newProfilePic, true, id, profilePic);
+      s3key = await updateProfilePic(newProfilePic, true, id, profilePicS3Key);
     }
 
     // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트

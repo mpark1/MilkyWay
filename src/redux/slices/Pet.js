@@ -12,6 +12,8 @@ const initialState = {
   accessLevel: '', // 'Public' or 'Private'
   introductionMsg: '',
   manager: false,
+  profilePicS3Key: '',
+  s3UrlExpiredAt: '',
 };
 
 const Pet = createSlice({
@@ -27,12 +29,18 @@ const Pet = createSlice({
       state.lastWord = action.payload.lastWord;
       state.accessLevel = action.payload.accessLevel;
       state.manager = action.payload.accessLevel;
+      state.profilePicS3Key = action.payload.profilePicS3Key;
+      state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;
     },
     setPetID: (state, action) => {
       state.id = action.payload;
+    },
+    setUpdateProfilePicUrl: (state, action) => {
+      state.profilePic = action.payload.profilePic;
+      state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
     setIntroduction: (state, action) => {
       state.introductionMsg = action.payload;
@@ -49,5 +57,6 @@ export const {
   setIsManager,
   setPetGeneralInfo,
   resetPet,
+  setUpdateProfilePicUrl,
 } = Pet.actions;
 export default Pet.reducer;
