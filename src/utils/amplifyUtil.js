@@ -352,11 +352,21 @@ export async function queryPetsPagination(
       const {items, nextToken} = response.data.petsByAccessLevel; // includes items (array format), nextToken
       petsData.pets = items;
       petsData.nextToken = nextToken;
-      // console.log(
-      //   'print first pet fetched from db is success: ',
-      //   petsData.pets[0],
-      // );
-
+      // if none is found, return
+      if (items.length === 0) {
+        return petsData;
+      }
+      // get pet's profile picture
+      petsData.pets.map(async pet => {
+        if (pet.profilePic.length > 0) {
+          const getUrlResult = retrieveS3UrlForOthers(
+            pet.profilePic,
+            pet.identityId,
+          );
+          pet.profilePic = getUrlResult.url.href;
+          pet.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
+        }
+      });
       return petsData;
     } catch (error) {
       console.log('error for fetching pets for community: ', error);
@@ -394,7 +404,6 @@ export async function queryMyPetsPagination(
       if (items.length === 0) {
         return petsData;
       }
-
       const fetchPetDetails = await Promise.all(
         petsData.petFamily.map(async petFamilyItem => {
           const petDetails = await client.graphql({
@@ -402,7 +411,6 @@ export async function queryMyPetsPagination(
             variables: {id: petFamilyItem.petID},
             authMode: 'userPool',
           });
-
           const petObject = petDetails.data.getPet;
           let getUrlResult;
           console.log('get pet profile pic');
@@ -428,7 +436,7 @@ export async function queryMyPetsPagination(
   }
 }
 
-export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
+export async function updateProfilePic(newPicPath, type, currPicS3key) {
   /**
     1. 리덕스 User profilePic (currPicS3key) 넘겨받기
    *    - length = 0? s3에 사진이 없음
@@ -445,6 +453,10 @@ export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
   }
 
   // 2. 새로운 사진 리사이징 후 blob 으로 만들기
+  return uploadPetProfilePic(newPicPath, type);
+}
+
+export async function uploadPetProfilePic(newPicPath, type) {
   const newPicId = uuid.v4() + '.jpeg';
   try {
     await ImageResizer.createResizedImage(
@@ -457,9 +469,8 @@ export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
       const photo = await fetch(resFromResizer.uri);
       const photoBlob = await photo.blob();
 
-      const filename = isPet
-        ? 'petProfile/' + petId + '/' + newPicId
-        : 'userProfile/' + newPicId;
+      const filename =
+        type === 'pet' ? 'petProfile/' + newPicId : 'userProfile/' + newPicId;
 
       // 3. send over to s3
       const resultFromS3 = await uploadImageToS3(
@@ -474,7 +485,6 @@ export async function updateProfilePic(newPicPath, isPet, petId, currPicS3key) {
     console.log('Error updating profile pic in S3: ', error);
   }
 }
-
 export async function checkAsyncStorageUserProfile(
   isCallingAPI,
   setIsCallingAPI,

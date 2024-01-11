@@ -433,13 +433,13 @@ const Settings = ({navigation, route}) => {
       // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
       (profilePic.length !== 0 && newProfilePic !== profilePic)
     ) {
-      s3key = await updateProfilePic(newProfilePic, true, id, profilePicS3Key);
+      s3key = await updateProfilePic(newProfilePic, 'pet', profilePicS3Key);
     }
 
     // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
     const newPetInput = {
       id: id,
-      profilePic: s3key,
+      profilePic: 'petProfile/' + s3key,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
