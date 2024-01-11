@@ -8,7 +8,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {createLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
-import {mutationItem} from '../../utils/amplifyUtil';
+import {getIdentityID, mutationItem} from '../../utils/amplifyUtil';
 
 const WriteLetter = ({navigation}) => {
   const petID = useSelector(state => state.pet.id);
@@ -127,7 +127,8 @@ const WriteLetter = ({navigation}) => {
     navigation.pop();
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    const identityId = await getIdentityID();
     const newLetterInput = {
       petID: petID,
       title: newTitle,
@@ -135,6 +136,7 @@ const WriteLetter = ({navigation}) => {
       content: newMessage,
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
+      identityId: identityId,
     };
     mutationItem(
       isCallingAPI,

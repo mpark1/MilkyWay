@@ -9,7 +9,7 @@ import {
 
 import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
-import {mutationItem} from '../utils/amplifyUtil';
+import {getIdentityID, mutationItem} from '../utils/amplifyUtil';
 import {
   createGuestBook,
   createPetIntroduction,
@@ -71,11 +71,13 @@ const BottomSheetModalTextInputWrapper = ({
     );
   };
 
-  const submitGuestMessage = () => {
+  const submitGuestMessage = async () => {
+    const identityId = await getIdentityID();
     const newMessageInput = {
       petID: petID,
       content: newMessage,
       guestBookAuthorId: userID,
+      identityId: identityId,
     };
     mutationItem(
       isCallingAPI,

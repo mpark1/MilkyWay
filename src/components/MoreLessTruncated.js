@@ -53,7 +53,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           <Image
             style={styles.profilePic}
             source={{
-              uri: item.profilePic,
+              uri: item.profilePicUrl,
             }}
           />
         </View>

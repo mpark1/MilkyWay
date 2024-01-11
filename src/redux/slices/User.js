@@ -33,6 +33,9 @@ const User = createSlice({
       state.name = action.payload.name;
       state.profilePic = action.payload.profilePic;
     },
+    setUserProfilePic: (state, action) => {
+      state.profilePic = action.payload;
+    },
   },
 });
 
@@ -43,5 +46,6 @@ export const {
   signoutUser,
   setCurrentPetID,
   updateUserNameOrPic,
+  setUserProfilePic,
 } = User.actions;
 export default User.reducer;

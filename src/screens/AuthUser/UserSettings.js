@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -26,8 +26,10 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {profilePicOption} from '../../constants/imagePickerOptions';
 
 import {
+  getIdentityID,
   mutationItem,
   mutationItemNoAlertBox,
+  retrieveS3Url,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {updateUser} from '../../graphql/mutations';
@@ -43,13 +45,23 @@ const UserSettings = ({navigation}) => {
   const {cognitoUsername, name, email, profilePic} = useSelector(
     state => state.user,
   );
-  const [userProfilePic, setProfilePic] = useState(profilePic);
+  const [newProfilePicPath, setNewProfilePicPath] = useState('');
+  const [userProfilePicUrl, setProfilePicUrl] = useState('');
   const [userName, setName] = useState(name);
 
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
 
   const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
+
+  useEffect(() => {
+    // console.log('print s3key in redux inside user settings.js: ', profilePic);
+    //get user's profile picture from S3
+    retrieveS3Url(profilePic).then(res => {
+      setProfilePicUrl(res.url.href);
+      console.log('s3 presigned url in settings.js: ', res.url.href);
+    });
+  }, []);
 
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
@@ -68,7 +80,12 @@ const UserSettings = ({navigation}) => {
   }
 
   const onUpdateUserInfo = async () => {
-    const s3key = await updateProfilePic(userProfilePic, false, '', profilePic);
+    const s3key = await updateProfilePic(
+      newProfilePicPath,
+      false,
+      '',
+      profilePic,
+    );
 
     const newUserInput = {
       id: cognitoUsername,
@@ -91,11 +108,8 @@ const UserSettings = ({navigation}) => {
     if (res.didCancel || !res) {
       return;
     }
-    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
-      .then(r => {
-        setProfilePic(r.uri);
-      })
-      .catch(err => console.log(err.message));
+    setNewProfilePicPath(res.path); // selected picture's uri
+    setProfilePicUrl(res.path);
   }, []);
 
   const onLaunchCamera = () => {
@@ -113,9 +127,12 @@ const UserSettings = ({navigation}) => {
   const renderProfilePicField = () => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
-        {profilePic ? (
+        {userProfilePicUrl.length !== 0 ? (
           <View style={styles.profilePicPlaceholder}>
-            <Image style={styles.profilePic} source={{uri: userProfilePic}} />
+            <Image
+              style={styles.profilePic}
+              source={{uri: userProfilePicUrl}}
+            />
           </View>
         ) : (
           <View style={styles.profilePicPlaceholder} />

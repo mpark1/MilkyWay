@@ -19,17 +19,27 @@ import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import PetCard from '../../components/PetCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  fetchUser,
+  fetchUserFromDB,
+  getIdentityID,
+  mutationItemNoAlertBox,
   queryLettersByPetIDPagination,
   queryMyPetsPagination,
   querySingleItem,
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {setOwnerDetails} from '../../redux/slices/User';
+import {
+  setOwnerDetails,
+  setProfilePic,
+  setUserProfilePic,
+} from '../../redux/slices/User';
 import * as RNFS from 'react-native-fs';
 import {sucriptionForMyPets} from '../../utils/amplifyUtilSubscription';
 
 const Pets = ({navigation}) => {
+  const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
+  const email = useSelector(state => state.user.email);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],
@@ -40,12 +50,27 @@ const Pets = ({navigation}) => {
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
-    const firstFetch = async () => {
+    const firstFetchPet = async () => {
       await fetchPets();
       setIsFetchPetsComplete(true);
       console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
-    firstFetch();
+    // if user info does not exist in redux, fetch user info again and save it in redux
+    const fetchUser = async () => {
+      console.log('does email exist? ', email);
+      if (email.length === 0) {
+        const response = await fetchUserFromDB(userID);
+        dispatch(
+          setOwnerDetails({
+            name: response.name,
+            email: response.email,
+          }),
+        );
+        dispatch(setUserProfilePic(response.profilePic)); // update s3 key
+      }
+    };
+    firstFetchPet();
+    fetchUser();
   }, []);
 
   // useEffect(() => {

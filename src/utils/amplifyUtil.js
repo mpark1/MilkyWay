@@ -36,10 +36,25 @@ export async function checkUser() {
 export async function getIdentityID() {
   try {
     const {identityId} = await fetchAuthSession();
+    console.error('print identity Id in amplify util page: ', identityId);
     return identityId;
   } catch (error) {
     console.error('Error checking getCurrentUser:', error);
     return null;
+  }
+}
+
+export async function fetchUserFromDB(userID) {
+  try {
+    const client = generateClient();
+    const response = await client.graphql({
+      query: getUser,
+      variables: {id: userID},
+      authMode: 'userPool',
+    });
+    return response.data.getUser;
+  } catch (error) {
+    console.log('error during query: ', error);
   }
 }
 
@@ -163,8 +178,12 @@ export async function queryLettersByPetIDPagination(
             variables: {id: letter.letterAuthorId},
             authMode: 'userPool',
           });
-          letter.userName = userDetails.data.getUser.name;
-          letter.profilePic = userDetails.data.getUser.profilePic;
+          letter.userName = userDetails.data.getUser.name; // get user's name
+          letter.profilePic = userDetails.data.getUser.profilePic; //get user profile pic's s3 key
+          letter.profilePicUrl = retrieveS3UrlForOthers(
+            userDetails.data.getUser.profilePic,
+            letter.identityId,
+          );
         }),
       );
 
@@ -215,12 +234,12 @@ export async function queryGuestBooksByPetIDPagination(
             variables: {id: letter.guestBookAuthorId},
             authMode: 'userPool',
           });
-          if (userDetails.data.getUser === null) {
-            letter.userName = '탈퇴한 회원';
-          } else {
-            letter.userName = userDetails.data.getUser.name;
-            // letter.profilePic = userDetails.data.getUser.profilePic;
-          }
+          letter.userName = userDetails.data.getUser.name;
+          letter.profilePic = userDetails.data.getUser.profilePic; //s3 key
+          letter.profilePicUrl = retrieveS3UrlForOthers(
+            userDetails.data.getUser.profilePic,
+            letter.identityId,
+          ); // get s3 url
         }),
       );
       setIsLoading(false);
@@ -240,7 +259,6 @@ export async function uploadImageToS3(filename, photoBlob, contentType) {
       options: {
         accessLevel: 'protected', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
         contentType: contentType,
-        // onProgress // Optional progress callback.
       },
     }).result;
     console.log('Succeeded on upload to S3: ', result);
@@ -291,15 +309,7 @@ export async function queryAlbumsByPetIDPagination(
           },
         });
         const urlPromises = s3response.items.map(async imageObj => {
-          const getUrlResult = await getUrl({
-            key: imageObj.key,
-            options: {
-              accessLevel: 'protected',
-              validateObjectExistence: false, // defaults to false
-              expiresIn: 900, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-              useAccelerateEndpoint: false, // Whether to use accelerate endpoint.
-            },
-          });
+          const getUrlResult = retrieveS3Url(imageObj.key);
           return getUrlResult.url.href;
         });
         // save s3 images as an album object's attribute
@@ -399,21 +409,11 @@ export async function queryMyPetsPagination(
           if (petObject.profilePic.length > 0) {
             petObject.profilePicS3Key =
               'petProfile/' + petObject.id + '/' + petObject.profilePic;
-            getUrlResult = await getUrl({
-              key: 'petProfile/' + petObject.id + '/' + petObject.profilePic, // Pet object's profilePic attr holds s3key 'petProfile/petId/uuid.jpeg'
-              options: {
-                accessLevel: 'protected',
-                validateObjectExistence: false,
-                expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-                useAccelerateEndpoint: false,
-              },
-            });
+            getUrlResult = retrieveS3Url(
+              'petProfile/' + petObject.id + '/' + petObject.profilePic,
+            );
             petObject.profilePic = getUrlResult.url.href;
             petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
-            console.log(
-              'my pets pagination query: type of expiration date time: ',
-              petObject.s3UrlExpiredAt,
-            );
           }
           return petObject;
         }),
@@ -425,37 +425,6 @@ export async function queryMyPetsPagination(
       console.log('error for fetching my pets from db: ', error);
       setIsLoadingPets(false);
     }
-  }
-}
-
-export async function checkFamily(
-  userID,
-  petID,
-  setIsFamily,
-  petInfo,
-  setIsManager,
-) {
-  /* 가족관계 확인 */
-  try {
-    const client = generateClient();
-    const response = await client.graphql({
-      query: getPetFamily,
-      variables: {
-        familyMemberID: userID,
-        petID: petID,
-      },
-      authMode: 'userPool',
-    });
-    setIsFamily(true);
-
-    // 매니저인지 확인
-    if (petInfo.owner === userID) {
-      setIsManager(true);
-    }
-  } catch (error) {
-    console.log('Error fetching pet family', error);
-    // 가족이 아닐 경우 DB 기록이 없는데 null 또는 에러 반환되는지 확인 해야함
-    setIsFamily(false);
   }
 }
 
@@ -570,25 +539,38 @@ export async function checkAsyncStorageUserProfile(
 }
 
 export async function checkS3Url(s3UrlExpiredAt, profilePicS3Key) {
-  if (new Date(Date.now()) >= s3UrlExpiredAt) {
+  if (new Date(Date.now()) >= new Date(s3UrlExpiredAt)) {
     const returnData = {};
     // renew presigned url
-    const newProfilePic = await getUrl({
-      key: profilePicS3Key,
-      options: {
-        accessLevel: 'protected',
-        validateObjectExistence: false,
-        expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-        useAccelerateEndpoint: false,
-      },
-    });
+    const newProfilePic = retrieveS3Url(profilePicS3Key);
     returnData.profilePic = newProfilePic.url.href; //profile picture url is renewed
     returnData.s3UrlExpiredAt = newProfilePic.expiresAt.toString();
-    console.log(
-      'print type of expiration date time: ',
-      returnData.s3UrlExpiredAt,
-    );
     return returnData;
   }
   return ''; // profile picture url is still valid
+}
+
+export async function retrieveS3Url(key) {
+  return await getUrl({
+    key: key,
+    options: {
+      accessLevel: 'protected',
+      validateObjectExistence: false,
+      expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+      useAccelerateEndpoint: false,
+    },
+  });
+}
+
+export async function retrieveS3UrlForOthers(key, identityId) {
+  return await getUrl({
+    key: key,
+    options: {
+      accessLevel: 'protected',
+      targetIdentityId: identityId,
+      validateObjectExistence: false,
+      expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+      useAccelerateEndpoint: false,
+    },
+  });
 }

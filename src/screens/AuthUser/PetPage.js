@@ -31,7 +31,7 @@ const PetPage = ({navigation, route}) => {
 
   useEffect(() => {
     //check user's profile picture url expiration once when the page is loaded.
-    checkS3url();
+    checkS3urlFunc();
   }, []);
 
   const renderBellEnvelopeSettingsIcons = () => {
@@ -48,7 +48,7 @@ const PetPage = ({navigation, route}) => {
     );
   };
 
-  const checkS3url = async () => {
+  const checkS3urlFunc = async () => {
     const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
     if (newProfileUrl.length !== 0) {
       dispatch(setUpdateProfilePicUrl(newProfileUrl));
@@ -148,5 +148,12 @@ const styles = StyleSheet.create({
     height: 130,
     top: Dimensions.get('window').height * 0.1,
     left: Dimensions.get('window').width * 0.03,
+  },
+  profilePic: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 65,
+    borderWidth: 3,
+    borderColor: '#FFF',
   },
 });

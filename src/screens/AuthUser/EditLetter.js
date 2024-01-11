@@ -11,8 +11,15 @@ import {useSelector} from 'react-redux';
 import {mutationItem} from '../../utils/amplifyUtil';
 
 const EditLetter = ({navigation, route}) => {
-  const {title, relationship, isPrivate, message, letterID, timestamp} =
-    route.params;
+  const {
+    title,
+    relationship,
+    isPrivate,
+    message,
+    letterID,
+    timestamp,
+    identityId,
+  } = route.params;
   const petID = useSelector(state => state.user.currentPetID);
   const [newTitle, setNewTitle] = useState(title);
   const [newRelationship, setNewRelationship] = useState(relationship);
@@ -136,6 +143,7 @@ const EditLetter = ({navigation, route}) => {
       createdAt: timestamp,
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
       letterAuthorId: userID,
+      identityId: identityId,
     };
     const res = await mutationItem(
       isCallingAPI,

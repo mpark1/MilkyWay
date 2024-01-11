@@ -83,10 +83,10 @@ const Settings = ({navigation, route}) => {
 
   useEffect(() => {
     //check user's profile picture url expiration once when the page is loaded.
-    checkS3url();
+    checkS3urlFunc();
   }, []);
 
-  const checkS3url = async () => {
+  const checkS3urlFunc = async () => {
     const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
     if (newProfileUrl.length !== 0) {
       dispatch(setUpdateProfilePicUrl(newProfileUrl));
