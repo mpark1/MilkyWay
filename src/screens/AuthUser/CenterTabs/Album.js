@@ -21,13 +21,13 @@ const Album = ({navigation, route}) => {
     nextToken: null,
   });
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
-  const [isAlubmFetchComplete, setAlubmIsFetchComplete] = useState(false);
+  const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
 
   useEffect(() => {
     const firstFetch = async () => {
       await fetchAlbums();
       console.log('Album tab is rendered');
-      setAlubmIsFetchComplete(true);
+      setIsAlbumFetchComplete(true);
     };
     firstFetch();
   }, [petID]);
@@ -50,7 +50,7 @@ const Album = ({navigation, route}) => {
 
   const renderDottedBorderButton = () => {
     return (
-      isAlubmFetchComplete &&
+      isAlbumFetchComplete &&
       albumData.albums.length === 0 && (
         <View style={{paddingTop: 15}}>
           <DashedBorderButton
@@ -74,7 +74,7 @@ const Album = ({navigation, route}) => {
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {isFamily && renderDottedBorderButton()}
-      {isAlubmFetchComplete && albumData.albums.length > 0 && (
+      {isAlbumFetchComplete && albumData.albums.length > 0 && (
         <View style={styles.flatListContainer}>
           <FlatList
             onMomentumScrollBegin={() => setIsLoadingAlbums(false)}
