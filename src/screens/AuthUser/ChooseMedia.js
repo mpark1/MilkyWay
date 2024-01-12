@@ -1,5 +1,12 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, Pressable} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  Alert,
+} from 'react-native';
 import {Button} from '@rneui/base';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -15,17 +22,17 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
-import ages from '../../data/ages.json';
+import albumCategories from '../../data/albumCategories.json';
 
 const ChooseMedia = ({navigation}) => {
   const [mediaType, setMediaType] = useState('');
   const mediaTypeRef = useRef(mediaType);
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const ageOptions = ages.map(item => ({
+  const categories = albumCategories.map(item => ({
     label: item,
     value: item,
   }));
-  const [age, setAge] = useState(null);
+  const [category, setCategory] = useState('');
 
   const snapPoints = useMemo(() => ['25%'], []);
   const bottomSheetModalRef = useRef(null);
@@ -47,79 +54,112 @@ const ChooseMedia = ({navigation}) => {
     [],
   );
 
-  const onLaunchGallery = async () => {
-    let mediaList = [];
+  const resizePhotoAndConvertToBlob = async (photo, photoUri) => {
+    console.log('photoUri: ', photoUri);
+    let media = {
+      filename: uuid.v4() + '.jpeg',
+      contentType: 'image/jpeg',
+    };
+    await ImageResizer.createResizedImage(
+      photoUri,
+      300,
+      300,
+      'JPEG',
+      100, // quality
+    ).then(async resFromResizer => {
+      console.log('resFromResizer: ', resFromResizer);
+      media.uri = resFromResizer.uri;
+      const resizedPhoto = await fetch(resFromResizer.uri);
+      media.blob = await resizedPhoto.blob();
+    });
+    return media;
+  };
 
-    ImagePicker.openPicker({
+  const onLaunchGallery = async () => {
+    const isVideo = mediaTypeRef.current === 'video';
+    let mediaList = [];
+    await ImagePicker.openPicker({
       multiple: true,
-      maxFiles: mediaTypeRef.current === 'photo' ? 8 : 1,
+      maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
     })
       .then(async res => {
-        console.log('response inside onSelectPhotosFromGallery: ', res);
+        console.log('response inside onLaunchGallery: ', res);
         for (const media of res) {
-          const resizedMedia = await ImageResizer.createResizedImage(
-            media.path, // path
-            300, // width
-            300, // height
-            'JPEG', // format
-            100, // quality
-            undefined, // rotation
-            'album/' + uuid.v4() + '.jpg', // outputPath
-            undefined, // keepMeta,
-            undefined, // options => object
-          ).then(resFromResizer => {
-            console.log('resFromResizer: ', resFromResizer);
+          if (isVideo) {
+            /* 영상은 하나만, max 1분 */
+            if (media.duration > 60000) {
+              bottomSheetModalRef.current?.close();
+              Alert.alert(
+                '1분 이하의 영상만 등록가능합니다.',
+                '영상을 재선택해주세요.',
+              );
+              return;
+            }
             mediaList.push({
-              filename: 'album/' + uuid.v4() + '.jpg',
-              uri: resFromResizer.uri,
-              contentType: 'image/jpeg',
+              filename: uuid.v4() + '.mp4', // single video object
+              uri: media.path,
+              blob: '',
+              contentType: 'video/mp4',
             });
-          });
-
-          // mediaList.push({
-          //   filename:
-          //     mediaTypeRef.current === 'photo'
-          //       ? 'album/' + uuid.v4() + '.jpg'
-          //       : 'album/' + uuid.v4() + '.mp4',
-          //   uri: media.sourceURL, // or media.path?
-          // });
+          } else {
+            /* 사진 1장 이상 */
+            const convertedMedia = await resizePhotoAndConvertToBlob(
+              media,
+              media.path,
+            );
+            mediaList.push(convertedMedia);
+          }
         }
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
-          mediaType: mediaTypeRef.current,
+          isPhoto: !isVideo,
           mediaList: mediaList,
-          age: age,
+          category: category,
         });
       })
       .catch(e => console.log('Error: ', e.message));
   };
 
   const onLaunchCamera = async () => {
-    // 카메라 촬영 시 사진, 영상 모두 1개만 가능함
-    let singleMedia = [];
+    // 카메라로 촬영 하는 경우 사진, 영상 모두 1개만 가능함
+
+    const isVideo = mediaTypeRef.current === 'video';
     await launchCamera({
       width: 300,
-      height: 400,
+      height: 300,
       mediaType: mediaTypeRef.current,
-      durationLimit: mediaTypeRef.current === 'video' ? 10 : undefined, // 초단위
-      // includeBase64: true,
-      // includeExtra: true,
+      durationLimit: isVideo ? 60 : undefined, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
     })
-      .then(res => {
-        console.log('response inside onLaunchCamera: ', res);
-        singleMedia.push({uri: res.assets[0].uri});
+      .then(async resFromCamera => {
+        console.log('response inside onLaunchCamera: ', resFromCamera);
+
+        let mediaList = [];
+        if (!isVideo) {
+          const convertedPhotoObject = await resizePhotoAndConvertToBlob(
+            resFromCamera,
+            resFromCamera.assets[0].uri,
+          );
+          mediaList.push(convertedPhotoObject);
+        } else {
+          mediaList.push({
+            filename: uuid.v4() + '.mp4',
+            uri: resFromCamera.assets[0].uri,
+            blob: '',
+            contentType: 'video/mp4',
+          });
+        }
         bottomSheetModalRef.current?.close();
         navigation.navigate('MediaPreview', {
-          mediaType: mediaTypeRef.current,
-          mediaList: singleMedia,
-          age: age,
+          isPhoto: !isVideo,
+          mediaList: mediaList,
+          category: category,
         });
       })
       .catch(e => console.log('Error: ', e.message));
   };
 
-  const renderBottomSheetModalInner = () => {
+  const renderBottomSheetModalInner = useCallback(() => {
     return (
       <View style={styles.bottomSheet.inner}>
         <Pressable
@@ -136,9 +176,9 @@ const ChooseMedia = ({navigation}) => {
         </Pressable>
       </View>
     );
-  };
+  }, []);
 
-  const renderBottomSheetModal = () => {
+  const renderBottomSheetModal = useCallback(() => {
     return (
       <BottomSheetModal
         handleIndicatorStyle={styles.hideBottomSheetHandle}
@@ -151,9 +191,9 @@ const ChooseMedia = ({navigation}) => {
         children={renderBottomSheetModalInner()}
       />
     );
-  };
+  }, []);
 
-  const renderSelectPhotoButton = () => {
+  const renderSelectPhotoButton = useCallback(() => {
     const plusButton = (
       <View style={styles.plusButtonContainer}>
         <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
@@ -177,9 +217,9 @@ const ChooseMedia = ({navigation}) => {
         <Text style={styles.dashedBorderButton.guide}>{' (최대 8장)'}</Text>
       </View>
     );
-  };
+  }, []);
 
-  const renderSelectVideoButton = () => {
+  const renderSelectVideoButton = useCallback(() => {
     const plusButton = (
       <View style={styles.plusButtonContainer}>
         <AntDesign name={'pluscircle'} size={30} color={'#6395E1'} />
@@ -194,7 +234,7 @@ const ChooseMedia = ({navigation}) => {
           }}
           containerStyle={[
             styles.dashedBorderButton.container,
-            {paddingBottom: 10, marginVertical: 15},
+            {marginTop: 15},
           ]}
           buttonStyle={{backgroundColor: 'transparent'}}
           onPress={() => {
@@ -203,14 +243,17 @@ const ChooseMedia = ({navigation}) => {
           }}
           icon={plusButton}
         />
+        <Text style={styles.dashedBorderButton.guide}>
+          {' (최대 길이 1분)'}
+        </Text>
       </View>
     );
-  };
+  }, []);
 
   return (
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
-      <View style={styles.ageField}>
+      <View style={styles.categoryField}>
         <Text style={styles.label}>카테고리</Text>
         <DropDownPicker
           containerStyle={styles.dropDownPicker.containerStyle}
@@ -219,9 +262,9 @@ const ChooseMedia = ({navigation}) => {
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'선택'}
-          items={ageOptions}
-          value={age}
-          setValue={setAge}
+          items={categories}
+          value={category}
+          setValue={setCategory}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
           listMode="SCROLLVIEW"
@@ -243,7 +286,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
   },
-  ageField: {
+  categoryField: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {memo, useCallback, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,9 @@ import {
   TextInput,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Video from 'react-native-video';
+import {Video as VideoCompressor} from 'react-native-compressor';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -21,22 +21,23 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 
 import BlueButton from '../../components/Buttons/BlueButton';
 
-import ages from '../../data/ages.json';
+import albumCategories from '../../data/albumCategories.json';
 
 const MediaPreview = ({navigation, route}) => {
-  const {mediaType, mediaList: initialMediaList, age} = route.params;
+  const {isPhoto, mediaList: initialMediaList, category} = route.params;
   const [mediaList, setMediaList] = useState(initialMediaList);
   console.log('imageList: ', mediaList);
 
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
-  const ageOptions = ages.map(item => ({
+  const categories = albumCategories.map(item => ({
     label: item,
     value: item,
   }));
-  const [selectedAge, setSelectedAge] = useState(age);
+  const [selectedCategory, setSelectedCategory] = useState(category);
   const [isVideoPaused, setIsVideoPaused] = useState(true);
   const [description, setDescription] = useState('');
-  const canGoNext = selectedAge && mediaList.length > 0;
+  const canGoNext = selectedCategory && mediaList.length > 0;
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   const onChangeDescription = useCallback(text => {
     setDescription(text);
@@ -52,7 +53,7 @@ const MediaPreview = ({navigation, route}) => {
     setIsVideoPaused(!isVideoPaused);
   };
 
-  const renderAgeField = () => {
+  const renderCategoryField = () => {
     return (
       <View style={styles.ageField}>
         <Text style={styles.label}>카테고리</Text>
@@ -63,9 +64,9 @@ const MediaPreview = ({navigation, route}) => {
           multiple={false}
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'선택'}
-          items={ageOptions}
-          value={selectedAge}
-          setValue={setSelectedAge}
+          items={categories}
+          value={selectedCategory}
+          setValue={setSelectedCategory}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
           listMode={'SCROLLVIEW'}
@@ -112,7 +113,7 @@ const MediaPreview = ({navigation, route}) => {
     );
   };
 
-  const renderVideo = () => {
+  const renderVideo = useCallback(() => {
     return (
       <View style={styles.video.container}>
         <Video
@@ -124,15 +125,13 @@ const MediaPreview = ({navigation, route}) => {
           resizeMode={'cover'}
           repeat={true}
         />
-        {isVideoPaused && (
+        {isVideoPaused ? (
           <Pressable
             onPress={onTogglePlayVideo}
             style={styles.video.actionButton}>
             <AntDesign name={'playcircleo'} color={'#FFF'} size={50} />
           </Pressable>
-        )}
-
-        {!isVideoPaused && (
+        ) : (
           <Pressable
             onPress={onTogglePlayVideo}
             style={styles.video.actionButton}>
@@ -141,9 +140,9 @@ const MediaPreview = ({navigation, route}) => {
         )}
       </View>
     );
-  };
+  }, [isVideoPaused]);
 
-  const renderStoryField = () => {
+  const renderStoryField = useCallback(() => {
     return (
       <View>
         <Text style={[styles.label, {paddingBottom: 16}]}>스토리</Text>
@@ -163,29 +162,27 @@ const MediaPreview = ({navigation, route}) => {
         />
       </View>
     );
-  };
+  }, []);
 
-  const renderSubmitButton = () => {
+  const renderSubmitButton = useCallback(() => {
     return (
       <View style={styles.submitButton}>
         <BlueButton
           title={'등록하기'}
           disabled={!canGoNext}
-          // onPress={resizeMediaAndUploadToDB}
+          // onPress={onSubmit}
         />
       </View>
     );
-  };
+  }, [canGoNext]);
 
   return (
     <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
-        {renderAgeField()}
-        <Text style={styles.label}>
-          {mediaType === 'photo' ? '사진' : '영상'}
-        </Text>
-        {mediaType === 'photo' ? (
+        {renderCategoryField()}
+        <Text style={styles.label}>{isPhoto ? '사진' : '영상'}</Text>
+        {isPhoto ? (
           <View style={styles.flatListContainer}>
             {mediaList.length > 0
               ? renderImageFlatList()
