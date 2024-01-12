@@ -69,19 +69,21 @@ const UserSettings = ({navigation}) => {
   }, []);
 
   function popPage() {
-    // update redux
-    dispatch(
-      updateUserNameOrPic({
-        name: name,
-        profilePic: profilePic,
-      }),
-    );
     navigation.pop();
   }
 
   const onUpdateUserInfo = async () => {
+    // 1. update in s3
     const s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
-
+    // 2. update in redux
+    // update redux
+    dispatch(
+      updateUserNameOrPic({
+        name: name,
+        profilePic: 'userProfile/' + s3key,
+      }),
+    );
+    // 3. update in db
     const newUserInput = {
       id: cognitoUsername,
       profilePic: 'userProfile/' + s3key,

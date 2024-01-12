@@ -59,7 +59,7 @@ enum userState {
 type User @model(queries: {get: "getUser"}, mutations: {create: "createUser", update: "updateUser"}, subscriptions: null)
 @auth(
     rules: [
-        { allow: owner},
+        { allow: owner, ownerField: "id"},
         { allow: private, operations: [read]}
     ])
 {

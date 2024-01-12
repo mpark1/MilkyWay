@@ -199,7 +199,6 @@ export const getUser = /* GraphQL */ `
       state
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -222,7 +221,6 @@ export const getLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -282,7 +280,6 @@ export const getGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt

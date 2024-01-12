@@ -145,7 +145,6 @@ export const onCreateLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -176,7 +175,6 @@ export const onUpdateLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -207,7 +205,6 @@ export const onDeleteLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -235,7 +232,6 @@ export const onCreateGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -263,7 +259,6 @@ export const onUpdateGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -291,7 +286,6 @@ export const onDeleteGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt

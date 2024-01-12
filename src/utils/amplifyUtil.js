@@ -442,7 +442,7 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
    *    - length = 0? s3에 사진이 없음
    *    - length > 0? S3에 있는 기존 사진 지우기
    */
-  if (currPicS3key.length > 0) {
+  if (currPicS3key && currPicS3key.length > 0) {
     // currPicS3key format - 유저는 userProfile/uuid.jpeg, 동물은 petProfile/petId/uuid.jpeg
     try {
       await remove({key: currPicS3key, options: {accessLevel: 'protected'}});
@@ -453,7 +453,7 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
   }
 
   // 2. 새로운 사진 리사이징 후 blob 으로 만들기
-  return uploadPetProfilePic(newPicPath, type);
+  return await uploadPetProfilePic(newPicPath, type);
 }
 
 export async function uploadPetProfilePic(newPicPath, type) {
@@ -468,10 +468,8 @@ export async function uploadPetProfilePic(newPicPath, type) {
     ).then(async resFromResizer => {
       const photo = await fetch(resFromResizer.uri);
       const photoBlob = await photo.blob();
-
       const filename =
         type === 'pet' ? 'petProfile/' + newPicId : 'userProfile/' + newPicId;
-
       // 3. send over to s3
       const resultFromS3 = await uploadImageToS3(
         filename,

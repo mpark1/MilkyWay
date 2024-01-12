@@ -8,6 +8,7 @@ import {setCognitoUsername, setCognitoUserToNull} from '../redux/slices/User';
 import NonAuthNavigation from './NonAuthNavigation';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {getCurrentUser} from 'aws-amplify/auth';
+import {getIdentityID} from '../utils/amplifyUtil';
 
 export default function RootNavigation() {
   const dispatch = useDispatch();
@@ -37,7 +38,9 @@ export default function RootNavigation() {
       'print user id from redux inside root navigation',
       loggedInUserId,
     );
+    const identityId = getIdentityID();
     executeCheckUser();
+    console.log('print identity id', identityId);
   }, [loggedInUserId]);
 
   if (loggedInUserId === undefined) {

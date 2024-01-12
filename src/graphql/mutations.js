@@ -137,7 +137,6 @@ export const createUser = /* GraphQL */ `
       state
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -155,7 +154,6 @@ export const updateUser = /* GraphQL */ `
       state
       createdAt
       updatedAt
-      owner
       __typename
     }
   }
@@ -181,7 +179,6 @@ export const createLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -212,7 +209,6 @@ export const updateLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -243,7 +239,6 @@ export const deleteLetter = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       accessLevel
@@ -271,7 +266,6 @@ export const createGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -299,7 +293,6 @@ export const updateGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt
@@ -327,7 +320,6 @@ export const deleteGuestBook = /* GraphQL */ `
         state
         createdAt
         updatedAt
-        owner
         __typename
       }
       updatedAt
