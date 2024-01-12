@@ -38,9 +38,7 @@ export default function RootNavigation() {
       'print user id from redux inside root navigation',
       loggedInUserId,
     );
-    const identityId = getIdentityID();
     executeCheckUser();
-    console.log('print identity id', identityId);
   }, [loggedInUserId]);
 
   if (loggedInUserId === undefined) {

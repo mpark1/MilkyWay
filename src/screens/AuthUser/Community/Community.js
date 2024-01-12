@@ -30,7 +30,7 @@ const Community = ({navigation}) => {
       setIsFetchComplete(true);
     };
     firstFetch();
-    console.log('first fetched pets is done!');
+    console.log('community first fetched pets is done!');
   }, []);
 
   const fetchPets = async () => {
