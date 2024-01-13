@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
   },
   flatListItemContainer: {
     marginBottom: 10,
+    height: Dimensions.get('window').height * 0.35,
   },
   caption: {
     color: '#374957',
