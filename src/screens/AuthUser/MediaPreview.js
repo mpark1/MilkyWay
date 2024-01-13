@@ -27,7 +27,6 @@ import {
   uploadImageToS3,
 } from '../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
-import {Video as VideoCompressor} from 'react-native-compressor';
 import {createAlbum, createImage} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import {albumCategory} from '../../constants/albumCategoryMapping';
@@ -70,13 +69,13 @@ const MediaPreview = ({navigation, route}) => {
   const compressVideoAndConvertToBlob = async () => {
     const video = mediaList[0];
     try {
-      console.log(video.uri);
-      const resFromCompressor = await VideoCompressor.compress(video.uri, {
-        compressionMethod: 'auto',
-      });
-      console.log('resultFromCompressor', resFromCompressor);
-      const compressedVideo = await fetch(resFromCompressor);
-      const videoBlob = await compressedVideo.blob();
+      // const resFromCompressor = await VideoCompressor.compress(video.uri, {
+      //   compressionMethod: 'auto',
+      // });
+      // console.log('resultFromCompressor', resFromCompressor);
+      // const compressedVideo = await fetch(resFromCompressor);
+      const fetchedVideo = await fetch(video.uri);
+      const videoBlob = await fetchedVideo.blob();
       console.log('videoBlob: ', videoBlob);
       return videoBlob;
     } catch (error) {
