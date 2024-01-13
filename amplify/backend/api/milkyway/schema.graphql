@@ -24,6 +24,7 @@ type Pet @model (mutations: {create: "createPet", update: "updatePet"})
     accessLevel: String @index (name: "byAccessLevel", queryField: "petsByAccessLevel")
     state: petState
     deathCause: String
+    identityId: String!
     petType: String
     managerID: ID!
 }
@@ -89,6 +90,7 @@ type Letter @model
     content: String!
     createdAt: String!
     letterAuthorId: ID!
+    identityId: String!
     author: User @hasOne (fields: ["letterAuthorId"])
     accessLevel: letterAccessLevel!
 }
@@ -104,6 +106,7 @@ type GuestBook @model
     petID: ID! @primaryKey(sortKeyFields:["createdAt", "id"])
     content: String!
     createdAt: String!
+    identityId: String!
     author: User @hasOne
 }
 

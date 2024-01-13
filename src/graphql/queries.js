@@ -13,6 +13,7 @@ export const getPet = /* GraphQL */ `
       accessLevel
       state
       deathCause
+      identityId
       petType
       managerID
       createdAt
@@ -47,6 +48,7 @@ export const listPets = /* GraphQL */ `
         accessLevel
         state
         deathCause
+        identityId
         petType
         managerID
         createdAt
@@ -86,6 +88,7 @@ export const petByName = /* GraphQL */ `
         accessLevel
         state
         deathCause
+        identityId
         petType
         managerID
         createdAt
@@ -123,6 +126,7 @@ export const petsByAccessLevel = /* GraphQL */ `
         accessLevel
         state
         deathCause
+        identityId
         petType
         managerID
         createdAt
@@ -213,6 +217,7 @@ export const getLetter = /* GraphQL */ `
       content
       createdAt
       letterAuthorId
+      identityId
       author {
         id
         email
@@ -255,6 +260,7 @@ export const listLetters = /* GraphQL */ `
         content
         createdAt
         letterAuthorId
+        identityId
         accessLevel
         updatedAt
         owner
@@ -272,6 +278,7 @@ export const getGuestBook = /* GraphQL */ `
       petID
       content
       createdAt
+      identityId
       author {
         id
         email
@@ -311,6 +318,7 @@ export const listGuestBooks = /* GraphQL */ `
         petID
         content
         createdAt
+        identityId
         updatedAt
         guestBookAuthorId
         owner

@@ -75,7 +75,7 @@ const PetCard = ({item, isFamily}) => {
         <View style={styles.profilePicContainer}>
           <Image
             style={styles.profilePic}
-            source={{uri: item.profilePic}}
+            source={{uri: profilePic}}
             resizeMode={'cover'}
           />
         </View>

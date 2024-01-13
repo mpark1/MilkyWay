@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateUser} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
 import {Buffer} from '@craftzdog/react-native-buffer';
-import {useDispatch} from 'react-redux';
+import config from '../amplifyconfiguration.json';
 
 export async function checkUser() {
   try {
@@ -376,6 +376,10 @@ export async function queryPetsPagination(
             pet.profilePic,
             pet.identityId,
           );
+          console.log(
+            'print getUrl result for community pets fetch: ',
+            getUrlResult,
+          );
           pet.profilePicS3Key = pet.profilePic;
           pet.profilePic = getUrlResult.url.href;
           pet.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
@@ -427,17 +431,17 @@ export async function queryMyPetsPagination(
           });
           const petObject = petDetails.data.getPet;
           let getUrlResult;
-          console.log('get pet profile pic', petObject.profilePic);
-          console.log('get pet identity id', petObject.identityId);
+          // console.log('get pet profile pic', petObject.profilePic);
+          // console.log('get pet identity id', petObject.identityId);
           if (petObject.profilePic.length > 0) {
             getUrlResult = await retrieveS3UrlForOthers(
               petObject.profilePic,
               petObject.identityId,
             );
-            console.log(
-              'print getUrl result for my pets fetch: ',
-              getUrlResult,
-            );
+            // console.log(
+            //   'print getUrl result for my pets fetch: ',
+            //   getUrlResult,
+            // );
             petObject.profilePicS3Key = petObject.profilePic;
             petObject.profilePic = getUrlResult.url.href;
             petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
@@ -464,7 +468,6 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
     // currPicS3key format - 유저는 userProfile/uuid.jpeg, 동물은 petProfile/petId/uuid.jpeg
     try {
       await remove({key: currPicS3key, options: {accessLevel: 'protected'}});
-      // protected/user_identity_id/ + currPicS3key
     } catch (error) {
       console.log('Error inside updateProfilePic ', error);
     }
@@ -589,14 +592,19 @@ export async function retrieveS3Url(key) {
 }
 
 export async function retrieveS3UrlForOthers(key, identityId) {
-  return await getUrl({
-    key: key,
-    options: {
-      accessLevel: 'protected',
-      targetIdentityId: identityId,
-      validateObjectExistence: false,
-      expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
-      useAccelerateEndpoint: false,
-    },
-  });
+  try {
+    return await getUrl({
+      key: key,
+      options: {
+        accessLevel: 'protected',
+        targetIdentityId:
+          config.aws_user_files_s3_bucket_region + ':' + identityId,
+        validateObjectExistence: false,
+        expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
+        useAccelerateEndpoint: false,
+      },
+    });
+  } catch (error) {
+    console.log('print error message for getting url from s3', error);
+  }
 }
