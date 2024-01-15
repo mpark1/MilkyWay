@@ -30,6 +30,7 @@ const Home = ({navigation}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   useEffect(() => {
+    console.log('this is Home tab. print redux: ', petID, lastWord);
     querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
       console.log('print intro message: ', response);
       response.getIntroductionMessage !== null &&

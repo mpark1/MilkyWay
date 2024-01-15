@@ -24,6 +24,7 @@ const Album = ({navigation, route}) => {
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
 
   useEffect(() => {
+    console.log('this is Album tab. print redux: ', petID);
     const firstFetch = async () => {
       await fetchAlbums();
       console.log('Album tab is rendered');
@@ -84,28 +85,30 @@ const Album = ({navigation, route}) => {
             data={albumData.albums}
             renderItem={({item}) => {
               return (
-                <View style={styles.flatListItemContainer}>
-                  {item.imageType === 0 ? (
-                    <PictureCarousel picURI={item.imageArray} />
-                  ) : (
-                    <AlbumVideo source={item.imageArray[0]} />
-                  )}
-                  <View>
-                    <Text style={[styles.caption, {marginVertical: 10}]}>
-                      {item.category !== 0
-                        ? '                 ' + item.caption
-                        : item.caption}
-                    </Text>
-                    <Text
-                      style={styles.tag}
-                      onPress={() => {
-                        // 태그별 모아보기용 쿼리 부르기
-                        console.log('tag pressed');
-                      }}>
-                      {albumCategoryMapping[item.category]}
-                    </Text>
+                item.imageArray.length > 0 && (
+                  <View style={styles.flatListItemContainer}>
+                    {item.imageType === 0 ? (
+                      <PictureCarousel picURI={item.imageArray} />
+                    ) : (
+                      <AlbumVideo source={item.imageArray[0]} />
+                    )}
+                    <View>
+                      <Text style={[styles.caption, {marginVertical: 10}]}>
+                        {item.category !== 0
+                          ? '                 ' + item.caption
+                          : item.caption}
+                      </Text>
+                      <Text
+                        style={styles.tag}
+                        onPress={() => {
+                          // 태그별 모아보기용 쿼리 부르기
+                          console.log('tag pressed');
+                        }}>
+                        {albumCategoryMapping[item.category]}
+                      </Text>
+                    </View>
                   </View>
-                </View>
+                )
               );
             }}
           />

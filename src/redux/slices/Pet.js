@@ -45,7 +45,7 @@ const Pet = createSlice({
     setIntroduction: (state, action) => {
       state.introductionMsg = action.payload;
     },
-    resetPet: state => {
+    resetPet: (state, action) => {
       return initialState;
     },
   },

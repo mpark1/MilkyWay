@@ -148,51 +148,59 @@ export async function queryLettersByPetIDPagination(
   petID,
   token,
 ) {
-  if (!isLoading) {
-    setIsLoading(true);
-    try {
-      const client = generateClient();
-      const response = await client.graphql({
-        query: listLetters,
-        variables: {
-          petID: petID,
-          limit: sizeLimit,
-          nextToken: token,
-        },
-        authMode: 'userPool',
-      });
+  if (isLoading) {
+    return; // Prevent executing the function again if it's already loading
+  }
+  setIsLoading(true);
+  try {
+    const client = generateClient();
+    const response = await client.graphql({
+      query: listLetters,
+      variables: {
+        petID: petID,
+        limit: sizeLimit,
+        nextToken: token,
+      },
+      authMode: 'userPool',
+    });
 
-      const letterData = {letters: [], nextToken: null};
-      const {items, nextToken} = response.data.listLetters; // includes items (array format), nextToken
-      letterData.letters = items;
-      letterData.nextToken = nextToken;
-      // if none is found in db, just return
-      if (items.length === 0) {
-        return letterData;
-      }
+    const {items, nextToken} = response.data.listLetters;
+    if (items.length === 0) {
+      return {letters: [], nextToken: null};
+    }
 
-      const lettersWithUserDetails = await Promise.all(
-        letterData.letters.map(async letter => {
+    const lettersWithUserDetails = await Promise.all(
+      items.map(async letter => {
+        try {
           const userDetails = await client.graphql({
             query: getUser,
             variables: {id: letter.letterAuthorId},
             authMode: 'userPool',
           });
-          letter.userName = userDetails.data.getUser.name; // get user's name
-          letter.profilePic = userDetails.data.getUser.profilePic; //get user profile pic's s3 key
-          letter.profilePicUrl = retrieveS3UrlForOthers(
-            userDetails.data.getUser.profilePic,
+          const userObject = userDetails.data.getUser;
+          // get user's profile picture from s3
+          const getUrlResult = await retrieveS3UrlForOthers(
+            userObject.profilePic,
             letter.identityId,
           );
-        }),
-      );
-
-      setIsLoading(false);
-      return letterData;
-    } catch (error) {
-      console.log('error for list fetching: ', error);
-      setIsLoading(false);
-    }
+          return {
+            ...letter,
+            userName: userObject.name, // 작성자 이름
+            profilePicS3Key: userObject.profilePic, //작성자 사진 s3 key
+            profilePic: getUrlResult.url.href, // 작성자 사진 url
+            s3UrlExpiredAt: getUrlResult.expiresAt.toString(), // 작성자 사진 url expiration 날짜
+          };
+        } catch (userError) {
+          console.error('Error fetching user details: ', userError);
+          return letter; // Return original letter if fetching user details fails
+        }
+      }),
+    );
+    return {letters: lettersWithUserDetails, nextToken};
+  } catch (error) {
+    console.log('error for list fetching: ', error);
+  } finally {
+    setIsLoading(false);
   }
 }
 
@@ -203,51 +211,63 @@ export async function queryGuestBooksByPetIDPagination(
   petID,
   token,
 ) {
-  if (!isLoading) {
-    setIsLoading(true);
-    try {
-      const client = generateClient();
-      const response = await client.graphql({
-        query: listGuestBooks,
-        variables: {
-          petID: petID,
-          limit: sizeLimit,
-          nextToken: token,
-        },
-        authMode: 'userPool',
-      });
+  if (isLoading) {
+    return; // Prevent executing the function again if it's already loading
+  }
+  setIsLoading(true);
+  try {
+    const client = generateClient();
+    const response = await client.graphql({
+      query: listGuestBooks,
+      variables: {
+        petID: petID,
+        limit: sizeLimit,
+        nextToken: token,
+      },
+      authMode: 'userPool',
+    });
 
-      const letterData = {letters: [], nextToken: null};
-      const {items, nextToken} = response.data.listGuestBooks; // includes items (array format), nextToken
-      letterData.letters = items;
-      letterData.nextToken = nextToken;
-      console.log('print 방명록 list fetching result: ', items[0]);
-      // if none is found in db, just return
-      if (items.length === 0) {
-        return letterData;
-      }
+    const {items, nextToken} = response.data.listGuestBooks;
+    const letterData = {letters: [], nextToken: null};
+    if (items.length === 0) {
+      return letterData;
+    }
 
-      const lettersWithUserDetails = await Promise.all(
-        letterData.letters.map(async letter => {
+    const lettersWithUserDetails = await Promise.all(
+      items.map(async letter => {
+        try {
+          // get user info from db
           const userDetails = await client.graphql({
             query: getUser,
             variables: {id: letter.guestBookAuthorId},
             authMode: 'userPool',
           });
-          letter.userName = userDetails.data.getUser.name;
-          letter.profilePic = userDetails.data.getUser.profilePic; //s3 key
-          letter.profilePicUrl = retrieveS3UrlForOthers(
+          const userObject = userDetails.data.getUser;
+          // get user profile pic from S3
+          const getUrlResult = await retrieveS3UrlForOthers(
             userDetails.data.getUser.profilePic,
             letter.identityId,
-          ); // get s3 url
-        }),
-      );
-      setIsLoading(false);
-      return letterData;
-    } catch (error) {
-      console.log('error for list fetching, guestBook: ', error);
-      setIsLoading(false);
-    }
+          );
+          return {
+            ...letter,
+            userName: userObject.name,
+            profilePicS3Key: userObject.profilePic,
+            profilePic: getUrlResult.url.href,
+            s3UrlExpiredAt: getUrlResult.expiresAt.toString(),
+          };
+        } catch (error) {
+          console.log(
+            'print error while getting user data from db and get user profile picture from S3',
+          );
+        }
+      }),
+    );
+    return {letters: lettersWithUserDetails, nextToken};
+  } catch (error) {
+    console.log('error for list fetching: ', error);
+    return letterData;
+  } finally {
+    setIsLoading(false);
   }
 }
 
@@ -300,7 +320,7 @@ export async function queryAlbumsByPetIDPagination(
 
       //2. get images from S3
       // returns all image objects from s3 bucket
-      albumData.albums.map(async albumObj => {
+      const albumPromises = albumData.albums.map(async albumObj => {
         const s3response = await list({
           prefix: 'album/' + albumObj.id + '/',
           options: {
@@ -309,14 +329,16 @@ export async function queryAlbumsByPetIDPagination(
           },
         });
         const urlPromises = s3response.items.map(async imageObj => {
-          const getUrlResult = retrieveS3Url(imageObj.key);
+          const getUrlResult = await retrieveS3UrlForOthers(
+            imageObj.key,
+            albumObj.authorIdentityID,
+          );
           return getUrlResult.url.href;
         });
         // save s3 images as an album object's attribute
-        albumObj.imageArray = [];
         albumObj.imageArray = await Promise.all(urlPromises);
-        // console.log('format of imageArray', typeof albumObj.imageArray);
       });
+      await Promise.all(albumPromises);
       setIsLoadingAlbums(false);
       return albumData;
     } catch (error) {
@@ -598,8 +620,7 @@ export async function retrieveS3UrlForOthers(key, identityId) {
       key: key,
       options: {
         accessLevel: 'protected',
-        targetIdentityId:
-          config.aws_user_files_s3_bucket_region + ':' + identityId,
+        targetIdentityId: identityId,
         validateObjectExistence: false,
         expiresIn: 3600, // validity of the URL, in seconds. defaults to 900 (15 minutes) and maxes at 3600 (1 hour)
         useAccelerateEndpoint: false,

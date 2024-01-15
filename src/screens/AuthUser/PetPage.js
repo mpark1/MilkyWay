@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
@@ -12,7 +12,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {checkS3Url} from '../../utils/amplifyUtil';
-import {setUpdateProfilePicUrl} from '../../redux/slices/Pet';
+import {
+  setIsManager,
+  setPetGeneralInfo,
+  setUpdateProfilePicUrl,
+} from '../../redux/slices/Pet';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -27,9 +31,11 @@ const PetPage = ({navigation, route}) => {
     s3UrlExpiredAt,
     profilePicS3Key,
   } = useSelector(state => state.pet);
+  const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log('this is PetPAge. print redux: ', name, manager);
     //check user's profile picture url expiration once when the page is loaded.
     checkS3urlFunc();
   }, []);

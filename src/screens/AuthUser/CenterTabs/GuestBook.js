@@ -38,6 +38,7 @@ const GuestBook = ({navigation, route}) => {
   const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
+    console.log('this is GuestBook tab. print redux: ', petID);
     const firstFetch = async () => {
       await fetchMessages();
       setIsFetchComplete(true);

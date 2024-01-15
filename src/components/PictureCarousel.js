@@ -36,8 +36,8 @@ export default PictureCarousel;
 
 const styles = StyleSheet.create({
   carouselEntryContainer: {
-    width: SCREEN_WIDTH * 0.4,
-    height: SCREEN_WIDTH * 0.4,
+    width: SCREEN_WIDTH * 0.7,
+    height: SCREEN_WIDTH * 0.7,
     marginRight: 5,
     alignSelf: 'center',
     backgroundColor: '#FFF',

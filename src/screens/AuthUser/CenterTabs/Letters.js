@@ -14,6 +14,7 @@ const Letters = ({navigation, route}) => {
   const isFamily = route.params.isFamily;
   const pageSize = 3;
   const petID = useSelector(state => state.pet.id);
+  const userID = useSelector(state => state.user.cognitoUsername);
   const [lettersData, setLettersData] = useState({
     letters: [],
     nextToken: null,
@@ -22,6 +23,7 @@ const Letters = ({navigation, route}) => {
   const [isLetterFetchComplete, setIsLetterFetchComplete] = useState(false);
 
   useEffect(() => {
+    console.log('this is Letter tab. print redux: ', petID, userID);
     const firstFetch = async () => {
       await fetchLetters();
       setIsLetterFetchComplete(true);
@@ -48,7 +50,7 @@ const Letters = ({navigation, route}) => {
 
   const renderFlatListItem = useCallback(({item}) => {
     return (
-      item.accessLevel === 'PUBLIC' && (
+      (item.accessLevel === 'PUBLIC' || item.owner === userID) && (
         <MoreLessTruncated
           item={item}
           linesToTruncate={2}

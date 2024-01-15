@@ -23,38 +23,27 @@ const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
-  const {
-    id,
-    profilePic, // url format
-    name,
-    birthday,
-    deathDay,
-    lastWord,
-    accessLevel,
-    owner,
-    profilePicS3Key,
-    s3UrlExpiredAt,
-  } = item;
 
   const onSubmit = () => {
-    // reset pet redux slice
-    dispatch(resetPet());
     // update pet redux
     dispatch(
       setPetGeneralInfo({
-        id: id,
-        name: name,
-        birthday: birthday,
-        deathday: deathDay,
-        profilePic: profilePic,
-        lastWord: lastWord,
-        accessLevel: accessLevel,
-        profilePicS3Key: profilePicS3Key,
-        s3UrlExpiredAt: s3UrlExpiredAt,
+        id: item.id,
+        name: item.name,
+        birthday: item.birthday,
+        deathday: item.deathDay,
+        profilePic: item.profilePic,
+        lastWord: item.lastWord,
+        accessLevel: item.accessLevel,
+        profilePicS3Key: item.profilePicS3Key,
+        s3UrlExpiredAt: item.s3UrlExpiredAt,
       }),
     );
-    dispatch(setIsManager(owner === userID));
-    console.log('is user an owner of the selected pet? ', owner === userID);
+    dispatch(setIsManager(item.owner === userID));
+    console.log(
+      'is user an owner of the selected pet? ',
+      item.owner === userID,
+    );
     navigation.navigate('PetPage', {isFamily: isFamily});
   };
 
@@ -75,25 +64,25 @@ const PetCard = ({item, isFamily}) => {
         <View style={styles.profilePicContainer}>
           <Image
             style={styles.profilePic}
-            source={{uri: profilePic}}
+            source={{uri: item.profilePic}}
             resizeMode={'cover'}
           />
         </View>
 
         <View style={styles.infoContainer}>
           <View style={styles.nameAndStarContainer}>
-            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.name}>{item.name}</Text>
             <Ionicons name={'star-outline'} color={'#000'} size={15} />
           </View>
 
           <View style={styles.datesContainer}>
             <Text style={styles.dates}>
               생일{'     '}
-              {birthday}
+              {item.birthday}
             </Text>
             <Text style={[styles.dates, {lineHeight: scaleFontSize(24)}]}>
               기일{'     '}
-              {deathDay}
+              {item.deathDay}
             </Text>
           </View>
 
@@ -101,7 +90,7 @@ const PetCard = ({item, isFamily}) => {
             style={styles.lastWords}
             numberOfLines={1}
             ellipsizeMode={'tail'}>
-            {lastWord}
+            {item.lastWord}
           </Text>
         </View>
       </View>

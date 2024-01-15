@@ -12,8 +12,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
-  const {createdAt, relationship, title} = item;
+  const {createdAt, relationship, title, profilePic} = item;
   const text = item.content.trim();
+  console.log('print profilepic url in letters: ', profilePic);
 
   const handleTextLayout = event => {
     const {lines} = event.nativeEvent;
@@ -53,8 +54,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           <Image
             style={styles.profilePic}
             source={{
-              uri: item.profilePicUrl,
+              uri: profilePic,
             }}
+            resizeMode={'cover'}
           />
         </View>
         <View style={styles.collapsedTextContainer}>
