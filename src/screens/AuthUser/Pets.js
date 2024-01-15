@@ -29,6 +29,8 @@ import {
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
+  setMyPets,
+  setMyPetsFetchComplete,
   setOwnerDetails,
   setProfilePic,
   setUserProfilePic,
@@ -90,11 +92,14 @@ const Pets = ({navigation}) => {
       petData.nextToken,
     ).then(data => {
       const {pets, nextToken: newNextToken} = data;
+      // dispatch my pets list to filter out these pets in community page
+      pets.map(pet => dispatch(setMyPets(pet.id)));
       setPetData(prev => ({
         pets: [...prev.pets, ...pets],
         nextToken: newNextToken,
       }));
     });
+    dispatch(setMyPetsFetchComplete(true));
   };
 
   const renderAddNewPetButton = useCallback(() => {

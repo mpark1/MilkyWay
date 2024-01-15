@@ -5,6 +5,8 @@ const initialState = {
   profilePic: '',
   email: '',
   name: '',
+  myPets: [],
+  readyForCommunityFetch: false,
 };
 
 const User = createSlice({
@@ -36,6 +38,12 @@ const User = createSlice({
     setUserProfilePic: (state, action) => {
       state.profilePic = action.payload;
     },
+    setMyPets: (state, action) => {
+      state.myPets.push(action.payload);
+    },
+    setMyPetsFetchComplete: (state, action) => {
+      state.readyForCommunityFetch = action.payload;
+    },
   },
 });
 
@@ -47,5 +55,7 @@ export const {
   setCurrentPetID,
   updateUserNameOrPic,
   setUserProfilePic,
+  setMyPets,
+  setMyPetsFetchComplete,
 } = User.actions;
 export default User.reducer;

@@ -17,20 +17,28 @@ import {useSelector} from 'react-redux';
 const Community = ({navigation}) => {
   const pageSize = 5;
   const userID = useSelector(state => state.user.cognitoUsername);
+  const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
   const [petData, setPetData] = useState({
     pets: [],
     nextToken: null,
   });
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
+  console.log(
+    'print my pets in community page: ',
+    myPets.length,
+    readyForCommunityFetch,
+  );
 
   useEffect(() => {
     const firstFetch = async () => {
       await fetchPets();
       setIsFetchComplete(true);
     };
-    firstFetch();
-    console.log('community first fetched pets is done!');
+    if (readyForCommunityFetch) {
+      firstFetch();
+      console.log('community first fetched pets is done!');
+    }
   }, []);
 
   const fetchPets = async () => {
@@ -40,6 +48,7 @@ const Community = ({navigation}) => {
       setIsLoadingPets,
       pageSize,
       petData.token,
+      myPets,
     ).then(data => {
       const {pets, nextToken: newNextToken} = data;
       setPetData(prev => ({

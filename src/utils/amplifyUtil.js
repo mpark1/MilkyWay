@@ -36,7 +36,7 @@ export async function checkUser() {
 export async function getIdentityID() {
   try {
     const {identityId} = await fetchAuthSession();
-    console.error('print identity Id in amplify util page: ', identityId);
+    console.log('print identity Id in amplify util page: ', identityId);
     return identityId;
   } catch (error) {
     console.error('Error checking getCurrentUser:', error);
@@ -332,6 +332,7 @@ export async function queryPetsPagination(
   setIsLoadingPets,
   pageSize,
   token,
+  myPetsIdArray,
 ) {
   if (!isLoadingPets) {
     try {
@@ -341,7 +342,6 @@ export async function queryPetsPagination(
       const response = await client.graphql({
         query: petsByAccessLevel,
         variables: {
-          filter: {managerID: {ne: userID}},
           accessLevel: 'Public',
           limit: pageSize,
           nextToken: token,
@@ -364,14 +364,13 @@ export async function queryPetsPagination(
         'print first pet object in fetch pets in community page: ',
         petsData.pets[0],
       );
+      // remove pets that are in my pets list (in petFamilies)
+      let filteredPets = petsData.pets.filter(
+        pet => !myPetsIdArray.includes(pet.id),
+      );
       // iterate pet object and update profile picture related attributes
-      petsData.pets.map(async pet => {
+      for (let pet of filteredPets) {
         if (pet.profilePic.length > 0) {
-          console.log(
-            "print pet's profile picture name and identityid: ",
-            pet.profilePic,
-            pet.identityId,
-          );
           const getUrlResult = await retrieveS3UrlForOthers(
             pet.profilePic,
             pet.identityId,
@@ -384,7 +383,9 @@ export async function queryPetsPagination(
           pet.profilePic = getUrlResult.url.href;
           pet.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
         }
-      });
+      }
+      // Update petsData with the processed pets
+      petsData.pets = filteredPets;
       return petsData;
     } catch (error) {
       console.log('error for fetching pets for community: ', error);
