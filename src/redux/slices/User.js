@@ -20,13 +20,8 @@ const User = createSlice({
       state.email = action.email;
       state.name = action.name;
     },
-    signoutUser: state => {
-      return {
-        profilePic: '',
-        email: '',
-        name: '',
-        cognitoUsername: null,
-      };
+    signoutUser: (state, action) => {
+      return initialState;
     },
   },
 });

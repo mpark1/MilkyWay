@@ -62,8 +62,8 @@ const ChooseMedia = ({navigation}) => {
     };
     await ImageResizer.createResizedImage(
       photoUri,
-      300,
-      300,
+      (300 * photo.width) / photo.height, // 리사이징 비율
+      (300 * photo.height) / photo.width,
       'JPEG',
       100, // quality
     ).then(async resFromResizer => {
@@ -82,6 +82,7 @@ const ChooseMedia = ({navigation}) => {
       multiple: true,
       maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
+      includeExif: true,
     })
       .then(async res => {
         console.log('response inside onLaunchGallery: ', res);
@@ -101,6 +102,9 @@ const ChooseMedia = ({navigation}) => {
               uri: media.path,
               blob: '',
               contentType: 'video/mp4',
+              width: res.width,
+              height: res.height,
+              rotation: res.exif?.Orientation,
             });
           } else {
             /* 사진 1장 이상 */
@@ -126,10 +130,12 @@ const ChooseMedia = ({navigation}) => {
 
     const isVideo = mediaTypeRef.current === 'video';
     await launchCamera({
-      width: 300,
-      height: 300,
+      // maxWidth: 300, // to resize image
+      // maxHeight: 400, // to resize image
       mediaType: mediaTypeRef.current,
       durationLimit: isVideo ? 60 : undefined, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
+      includeExtra: true,
+      saveToPhotos: true,
     })
       .then(async resFromCamera => {
         console.log('response inside onLaunchCamera: ', resFromCamera);
