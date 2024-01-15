@@ -10,7 +10,6 @@ import {
   TextInput,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Video from 'react-native-video';
 
@@ -21,7 +20,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 
 import BlueButton from '../../components/Buttons/BlueButton';
 
-import ages from '../../data/ages.json';
+import ages from '../../data/albumCategories.json';
 import {
   getIdentityID,
   mutationItem,
@@ -35,9 +34,8 @@ import {getUrl, list} from 'aws-amplify/storage';
 import AlertBox from '../../components/AlertBox';
 
 const MediaPreview = ({navigation, route}) => {
-  const {mediaType, mediaList: initialMediaList, age} = route.params;
+  const {isPhoto, mediaList: initialMediaList, category} = route.params;
   const petID = useSelector(state => state.pet.id);
-  const userID = useSelector(state => state.user.cognitoUsername);
 
   const [mediaList, setMediaList] = useState(initialMediaList);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
@@ -48,10 +46,10 @@ const MediaPreview = ({navigation, route}) => {
     label: item,
     value: item,
   }));
-  const [selectedAge, setSelectedAge] = useState(age);
+  const [newCategory, setNewCategory] = useState(category);
   const [isVideoPaused, setIsVideoPaused] = useState(true);
   const [description, setDescription] = useState('');
-  const canGoNext = selectedAge && mediaList.length > 0;
+  const canGoNext = newCategory && mediaList.length > 0;
   const [s3Images, setS3Images] = useState([]);
 
   const onChangeDescription = useCallback(text => {
@@ -68,7 +66,24 @@ const MediaPreview = ({navigation, route}) => {
     setIsVideoPaused(!isVideoPaused);
   };
 
-  const renderAgeField = () => {
+  const compressVideoAndConvertToBlob = async () => {
+    const video = mediaList[0];
+    try {
+      // const resFromCompressor = await VideoCompressor.compress(video.uri, {
+      //   compressionMethod: 'auto',
+      // });
+      // console.log('resultFromCompressor', resFromCompressor);
+      // const compressedVideo = await fetch(resFromCompressor);
+      const fetchedVideo = await fetch(video.uri);
+      const videoBlob = await fetchedVideo.blob();
+      console.log('videoBlob: ', videoBlob);
+      return videoBlob;
+    } catch (error) {
+      console.log('Error while converting video to blob: ', error);
+    }
+  };
+
+  const renderCategoryField = () => {
     return (
       <View style={styles.ageField}>
         <Text style={styles.label}>카테고리</Text>
@@ -80,8 +95,8 @@ const MediaPreview = ({navigation, route}) => {
           placeholderStyle={styles.dropDownPicker.placeholder}
           placeholder={'선택'}
           items={ageOptions}
-          value={selectedAge}
-          setValue={setSelectedAge}
+          value={newCategory}
+          setValue={setNewCategory}
           open={isDropDownPickerOpen}
           setOpen={setIsDropDownPickerOpen}
           listMode={'SCROLLVIEW'}
@@ -140,15 +155,13 @@ const MediaPreview = ({navigation, route}) => {
           resizeMode={'cover'}
           repeat={true}
         />
-        {isVideoPaused && (
+        {isVideoPaused ? (
           <Pressable
             onPress={onTogglePlayVideo}
             style={styles.video.actionButton}>
             <AntDesign name={'playcircleo'} color={'#FFF'} size={50} />
           </Pressable>
-        )}
-
-        {!isVideoPaused && (
+        ) : (
           <Pressable
             onPress={onTogglePlayVideo}
             style={styles.video.actionButton}>
@@ -191,10 +204,10 @@ const MediaPreview = ({navigation, route}) => {
     // 1. create a new album item
     const newAlbumInput = {
       petID: petID,
-      category: albumCategory[selectedAge],
+      category: albumCategory[newCategory], // category: Int!
       caption: description,
       authorIdentityID: identityId,
-      imageType: mediaType === 'photo' ? 0 : 1,
+      imageType: isPhoto ? 0 : 1,
     };
 
     try {
@@ -210,9 +223,14 @@ const MediaPreview = ({navigation, route}) => {
         const albumID = response.data.createAlbum.id;
 
         mediaList.map(async item => {
+          let videoBlob;
+          if (!isPhoto) {
+            videoBlob = await compressVideoAndConvertToBlob();
+          }
+          console.log('item inside onSubmit: ', item);
           const s3Result = await uploadImageToS3(
             'album/' + albumID + '/' + item.filename,
-            item.blob,
+            isPhoto ? item.blob : videoBlob,
             item.contentType,
           );
           console.log('print s3 result value: ', s3Result);
@@ -247,11 +265,9 @@ const MediaPreview = ({navigation, route}) => {
     <KeyboardAwareScrollView
       style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
-        {renderAgeField()}
-        <Text style={styles.label}>
-          {mediaType === 'photo' ? '사진' : '영상'}
-        </Text>
-        {mediaType === 'photo' ? (
+        {renderCategoryField()}
+        <Text style={styles.label}>{isPhoto ? '사진' : '영상'}</Text>
+        {isPhoto ? (
           <View style={styles.flatListContainer}>
             {mediaList.length > 0
               ? renderImageFlatList()

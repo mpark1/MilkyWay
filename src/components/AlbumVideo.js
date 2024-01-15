@@ -4,6 +4,8 @@ import Video from 'react-native-video';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const AlbumVideo = ({source}) => {
+  // source holds download link (retrieveS3Url)
+  console.log('check video download link from S3: ', source);
   const [isVideoPaused, setIsVideoPaused] = useState(true);
 
   const onTogglePlayVideo = () => {
@@ -14,7 +16,7 @@ const AlbumVideo = ({source}) => {
     <View style={styles.container}>
       <Video
         source={{
-          uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          uri: source,
         }}
         style={styles.style}
         paused={isVideoPaused}
