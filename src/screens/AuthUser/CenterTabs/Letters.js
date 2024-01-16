@@ -97,6 +97,7 @@ const Letters = ({navigation, route}) => {
         }));
         break;
       case 'Update':
+        setIsLetterFetchComplete(false);
         const updatedLettersArray = await Promise.all(
           lettersData.letters.map(async letter => {
             if (letter.id === data.onUpdateLetter.id) {
@@ -106,10 +107,12 @@ const Letters = ({navigation, route}) => {
             }
           }),
         );
+        console.log('print updated letters: ', updatedLettersArray[0]);
         setLettersData(prev => ({
           ...prev,
           letters: updatedLettersArray,
         }));
+        setIsLetterFetchComplete(true);
         break;
     }
   };
