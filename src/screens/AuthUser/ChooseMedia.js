@@ -62,8 +62,8 @@ const ChooseMedia = ({navigation}) => {
     };
     await ImageResizer.createResizedImage(
       photoUri,
-      (300 * photo.width) / photo.height, // 리사이징 비율
-      (300 * photo.height) / photo.width,
+      300 / photo.width,
+      300 / photo.height,
       'JPEG',
       100, // quality
     ).then(async resFromResizer => {
@@ -102,8 +102,7 @@ const ChooseMedia = ({navigation}) => {
               uri: media.path,
               blob: '',
               contentType: 'video/mp4',
-              width: res.width,
-              height: res.height,
+              widthToHeight: res.width / res.height,
               rotation: res.exif?.Orientation,
             });
           } else {
@@ -129,11 +128,10 @@ const ChooseMedia = ({navigation}) => {
     // 카메라로 촬영 하는 경우 사진, 영상 모두 1개만 가능함
 
     const isVideo = mediaTypeRef.current === 'video';
+    console.log(isVideo);
     await launchCamera({
-      // maxWidth: 300, // to resize image
-      // maxHeight: 400, // to resize image
       mediaType: mediaTypeRef.current,
-      durationLimit: isVideo ? 60 : undefined, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
+      durationLimit: 60, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
       includeExtra: true,
       saveToPhotos: true,
     })
