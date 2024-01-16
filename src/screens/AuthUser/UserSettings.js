@@ -37,6 +37,8 @@ import {updateUser} from '../../graphql/mutations';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   setCognitoUserToNull,
+  setUserName,
+  setUserProfilePic,
   updateUserNameOrPic,
 } from '../../redux/slices/User';
 
@@ -55,12 +57,12 @@ const UserSettings = ({navigation}) => {
   const bottomSheetModalRef = useRef(null);
 
   useEffect(() => {
-    // console.log('print s3key in redux inside user settings.js: ', profilePic);
-    //get user's profile picture from S3
-    retrieveS3Url(profilePic).then(res => {
-      setProfilePicUrl(res.url.href);
-      console.log('s3 presigned url in settings.js: ', res.url.href);
-    });
+    //get user's profile picture from S3 if a user profile pic exists
+    profilePic.length !== 0 &&
+      retrieveS3Url(profilePic).then(res => {
+        setProfilePicUrl(res.url.href);
+        // console.log('s3 presigned url in settings.js: ', res.url.href);
+      });
   }, []);
 
   const onChangeName = useCallback(text => {
@@ -73,31 +75,36 @@ const UserSettings = ({navigation}) => {
   }
 
   const onUpdateUserInfo = async () => {
-    // 1. update in s3
-    const s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
-    // 2. update in redux
-    // update redux
-    dispatch(
-      updateUserNameOrPic({
-        name: name,
-        profilePic: 'userProfile/' + s3key,
-      }),
-    );
+    // 1. update profile picture in s3 if changed
+    let s3key;
+    if (
+      // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
+      (profilePic.length === 0 && newProfilePicPath.length > 0) ||
+      // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
+      (profilePic.length !== 0 && newProfilePicPath !== profilePic)
+    ) {
+      s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
+      dispatch(setUserProfilePic('userProfile/' + s3key));
+    }
+    // 2. update username in redux if it has been changed
+    name !== userName && dispatch(setUserName(name));
     // 3. update in db
-    const newUserInput = {
-      id: cognitoUsername,
-      profilePic: 'userProfile/' + s3key,
-      name: name,
-      state: 'ACTIVE',
-    };
-    await mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      newUserInput,
-      updateUser,
-      '정보가 성공적으로 변경되었습니다.',
-      popPage,
-    );
+    if (newProfilePicPath !== profilePic || name !== userName) {
+      const newUserInput = {
+        id: cognitoUsername,
+        profilePic: 'userProfile/' + s3key,
+        name: name,
+        state: 'ACTIVE',
+      };
+      await mutationItem(
+        isCallingUpdateAPI,
+        setIsCallingUpdateAPI,
+        newUserInput,
+        updateUser,
+        '정보가 성공적으로 변경되었습니다.',
+        popPage,
+      );
+    }
   };
 
   const onResponseFromImagePicker = useCallback(async res => {
@@ -106,7 +113,7 @@ const UserSettings = ({navigation}) => {
       return;
     }
     setNewProfilePicPath(res.path); // selected picture's uri
-    setProfilePicUrl(res.path);
+    setProfilePicUrl(res.path); // for displaying newly selected profile picture
   }, []);
 
   const onLaunchCamera = () => {
@@ -261,10 +268,10 @@ const UserSettings = ({navigation}) => {
         userInput,
         updateUser,
       );
-      console.log(
-        '1. updated db to update user to INACTIVE',
-        res.data.updateUser.state,
-      );
+      // console.log(
+      //   '1. updated db to update user to INACTIVE',
+      //   res.data.updateUser.state,
+      // );
       // 2. delete user from cognito userpool
       if (res) {
         await deleteUser();

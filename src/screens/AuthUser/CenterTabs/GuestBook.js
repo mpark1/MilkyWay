@@ -114,8 +114,8 @@ const GuestBook = ({navigation, route}) => {
     return (
       <View style={styles.flatListContainer}>
         <Text style={styles.ifPrivate}>
-          비공개 추모공간입니다. 가족 외의 사용자의 접근 허락하시려면 아래의
-          버튼을 클릭하셔서 접근권한을 바꿔주세요.
+          비공개 추모공간입니다. 가족 외의 사용자의 접근 허락하시려면 접근권한을
+          바꿔주세요.
         </Text>
         {manager && (
           <Button

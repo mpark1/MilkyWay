@@ -16,7 +16,7 @@ const User = createSlice({
     setCognitoUsername: (state, action) => {
       state.cognitoUsername = action.payload;
     },
-    setCognitoUserToNull: state => {
+    setCognitoUserToNull: (state, action) => {
       state.cognitoUsername = null;
     },
     setOwnerDetails: (state, action) => {
@@ -31,9 +31,8 @@ const User = createSlice({
         cognitoUsername: null,
       };
     },
-    updateUserNameOrPic: (state, action) => {
-      state.name = action.payload.name;
-      state.profilePic = action.payload.profilePic;
+    setUserName: (state, action) => {
+      state.name = action.payload;
     },
     setUserProfilePic: (state, action) => {
       state.profilePic = action.payload;
@@ -53,7 +52,7 @@ export const {
   setCognitoUserToNull,
   signoutUser,
   setCurrentPetID,
-  updateUserNameOrPic,
+  setUserName,
   setUserProfilePic,
   setMyPets,
   setMyPetsFetchComplete,

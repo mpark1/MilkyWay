@@ -31,9 +31,14 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {
   checkS3Url,
   mutationItem,
+  mutationItemNoAlertBox,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
-import {deleteLetter, updatePet} from '../../graphql/mutations';
+import {
+  deleteLetter,
+  deletePetFamily,
+  updatePet,
+} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch, useSelector} from 'react-redux';
@@ -57,6 +62,7 @@ const Settings = ({navigation, route}) => {
     profilePicS3Key,
     s3UrlExpiredAt,
   } = useSelector(state => state.pet);
+  const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
   const [newProfilePic, setProfilePic] = useState(profilePic);
   const [petName, setPetName] = useState(name);
@@ -400,14 +406,18 @@ const Settings = ({navigation, route}) => {
   };
 
   const deletePetApi = async () => {
-    const deletePetInput = {
-      id: id,
-      state: 'INACTIVE',
-    };
-    mutationItem(
+    // delete item from PetFamily table
+    await mutationItemNoAlertBox(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
-      deletePetInput,
+      {petID: id, familyMemberID: userID},
+      deletePetFamily,
+    );
+    // update item in Pet table (state: ACTIVE => INACTIVE)
+    await mutationItem(
+      isCallingUpdateAPI,
+      setIsCallingUpdateAPI,
+      {id: id, state: 'INACTIVE'},
       updatePet,
       '추모공간이 삭제되었습니다.',
       navigateToPets,

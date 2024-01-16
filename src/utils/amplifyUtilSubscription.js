@@ -61,9 +61,4 @@ export async function sucriptionForAllMutation(
     next: ({data}) => console.log(data),
     error: error => console.warn(error),
   });
-
-  // Stop receiving data updates from the subscription
-  createSub.unsubscribe();
-  updateSub.unsubscribe();
-  deleteSub.unsubscribe();
 }

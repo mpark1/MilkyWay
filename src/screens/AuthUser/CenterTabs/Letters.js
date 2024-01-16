@@ -9,6 +9,12 @@ import MoreLessTruncated from '../../../components/MoreLessTruncated';
 
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import {sucriptionForAllMutation} from '../../../utils/amplifyUtilSubscription';
+import {
+  onCreateLetter,
+  onDeleteLetter,
+  onUpdateLetter,
+} from '../../../graphql/subscriptions';
 
 const Letters = ({navigation, route}) => {
   const isFamily = route.params.isFamily;
@@ -31,6 +37,21 @@ const Letters = ({navigation, route}) => {
     firstFetch();
     console.log('Letters tab is rendered');
   }, [petID]);
+
+  useEffect(() => {
+    sucriptionForAllMutation(
+      petID,
+      onCreateLetter,
+      onUpdateLetter,
+      onDeleteLetter,
+    );
+    // Stop receiving data updates from the subscription
+    return () => {
+      createSub.unsubscribe();
+      updateSub.unsubscribe();
+      deleteSub.unsubscribe();
+    };
+  }, []);
 
   const fetchLetters = async () => {
     queryLettersByPetIDPagination(

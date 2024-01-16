@@ -397,10 +397,10 @@ export async function queryPetsPagination(
       if (items.length === 0) {
         return petsData;
       }
-      console.log(
-        'print first pet object in fetch pets in community page: ',
-        petsData.pets[0],
-      );
+      // console.log(
+      //   'print first pet object in fetch pets in community page: ',
+      //   petsData.pets[0],
+      // );
       // remove pets that are in my pets list (in petFamilies)
       let filteredPets = petsData.pets.filter(
         pet => !myPetsIdArray.includes(pet.id),
