@@ -12,7 +12,6 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Video from 'react-native-video';
-import {Video as VideoCompressor} from 'react-native-compressor';
 
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -26,7 +25,7 @@ import albumCategories from '../../data/albumCategories.json';
 const MediaPreview = ({navigation, route}) => {
   const {isPhoto, mediaList: initialMediaList, category} = route.params;
   const [mediaList, setMediaList] = useState(initialMediaList);
-  console.log('imageList: ', mediaList);
+  console.log('mediaList: ', mediaList);
 
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
   const categories = albumCategories.map(item => ({
@@ -114,15 +113,26 @@ const MediaPreview = ({navigation, route}) => {
   };
 
   const renderVideo = useCallback(() => {
+    const widthToHeightRatio = mediaList[0].width / mediaList[0].height;
+    const isLandscape = mediaList[0].width > mediaList[0].height;
+    console.log(isLandscape);
+
     return (
-      <View style={styles.video.container}>
+      <View
+        style={[
+          styles.video.container,
+          {
+            width: '100%',
+            height: Dimensions.get('window').width / widthToHeightRatio,
+          },
+        ]}>
         <Video
           source={{
             uri: mediaList[0].uri, // 영상은 1개만 가능
           }}
           style={styles.video.style}
           paused={isVideoPaused}
-          resizeMode={'cover'}
+          resizeMode={'contain'}
           repeat={true}
         />
         {isVideoPaused ? (
@@ -248,8 +258,7 @@ const styles = StyleSheet.create({
   },
   video: {
     container: {
-      width: Dimensions.get('window').width * 0.8,
-      height: Dimensions.get('window').width * 0.8,
+      backgroundColor: 'yellow',
       alignSelf: 'center',
       justifyContent: 'center',
       marginBottom: Dimensions.get('window').height * 0.03,

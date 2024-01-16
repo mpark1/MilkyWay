@@ -62,8 +62,8 @@ const ChooseMedia = ({navigation}) => {
     };
     await ImageResizer.createResizedImage(
       photoUri,
-      300 / photo.width,
-      300 / photo.height,
+      300,
+      300,
       'JPEG',
       100, // quality
     ).then(async resFromResizer => {
@@ -82,7 +82,7 @@ const ChooseMedia = ({navigation}) => {
       multiple: true,
       maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
-      includeExif: true,
+      includeExtra: true,
     })
       .then(async res => {
         console.log('response inside onLaunchGallery: ', res);
@@ -102,8 +102,9 @@ const ChooseMedia = ({navigation}) => {
               uri: media.path,
               blob: '',
               contentType: 'video/mp4',
-              widthToHeight: res.width / res.height,
-              rotation: res.exif?.Orientation,
+              width: media.width,
+              height: media.height,
+              // rotation: res.exif?.Orientation,
             });
           } else {
             /* 사진 1장 이상 */
