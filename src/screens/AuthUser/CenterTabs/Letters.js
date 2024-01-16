@@ -2,19 +2,26 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 
-import {queryLettersByPetIDPagination} from '../../../utils/amplifyUtil';
+import {
+  queryLettersByPetIDPagination,
+  queryUser,
+} from '../../../utils/amplifyUtil';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
 
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
-import {sucriptionForAllMutation} from '../../../utils/amplifyUtilSubscription';
+import {
+  sucriptionForAllMutation,
+  supscriptionForCreate,
+} from '../../../utils/amplifyUtilSubscription';
 import {
   onCreateLetter,
   onDeleteLetter,
   onUpdateLetter,
 } from '../../../graphql/subscriptions';
+import {generateClient} from 'aws-amplify/api';
 
 const Letters = ({navigation, route}) => {
   const isFamily = route.params.isFamily;
@@ -39,20 +46,73 @@ const Letters = ({navigation, route}) => {
   }, [petID]);
 
   useEffect(() => {
-    sucriptionForAllMutation(
-      petID,
-      onCreateLetter,
-      onUpdateLetter,
-      onDeleteLetter,
-    );
+    const client = generateClient();
+    // create mutation
+    const createSub = client
+      .graphql({
+        query: onCreateLetter,
+        variables: {
+          filter: {petID: {eq: petID}},
+        },
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) => {
+          processSubscriptionData('Create', data);
+        },
+        error: error => console.warn(error),
+      });
+
+    const updateSub = client
+      .graphql({
+        query: onUpdateLetter,
+        variables: {
+          filter: {petID: {eq: petID}},
+        },
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) => {
+          processSubscriptionData('Update', data);
+        },
+        error: error => console.warn(error),
+      });
     // Stop receiving data updates from the subscription
     return () => {
       createSub.unsubscribe();
       updateSub.unsubscribe();
-      deleteSub.unsubscribe();
+      // deleteSub.unsubscribe();
     };
   }, []);
 
+  const processSubscriptionData = async (mutationType, data) => {
+    switch (mutationType) {
+      case 'Create':
+        // return Letter in db
+        const newLetterObj = await queryUser(data.onCreateLetter);
+        console.log('print newly added letter data: ', newLetterObj);
+        setLettersData(prev => ({
+          ...prev,
+          letters: [newLetterObj, ...prev.letters],
+        }));
+        break;
+      case 'Update':
+        const updatedLettersArray = await Promise.all(
+          lettersData.letters.map(async letter => {
+            if (letter.id === data.onUpdateLetter.id) {
+              return await queryUser(data.onUpdateLetter);
+            } else {
+              return letter;
+            }
+          }),
+        );
+        setLettersData(prev => ({
+          ...prev,
+          letters: updatedLettersArray,
+        }));
+        break;
+    }
+  };
   const fetchLetters = async () => {
     queryLettersByPetIDPagination(
       isLoadingLetters,
@@ -84,8 +144,7 @@ const Letters = ({navigation, route}) => {
 
   const renderWriteLetterButton = useCallback(() => {
     return (
-      isLetterFetchComplete &&
-      lettersData.letters.length === 0 && (
+      isLetterFetchComplete && (
         <View
           style={{
             padding: 15,

@@ -11,7 +11,7 @@ import DeleteAlertBox from './DeleteAlertBox';
 const EditOrDeleteButtons = ({item}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
-  const deleteLetterApi = async () => {
+  const deleteLetterOnSubmit = async () => {
     const deleteLetterInput = {
       id: item.id,
       petID: item.petID,
@@ -27,23 +27,17 @@ const EditOrDeleteButtons = ({item}) => {
     );
   };
 
+  const updateLetterOnSubmit = () => {
+    navigation.navigate('EditLetter', {item: item});
+  };
+
   const navigation = useNavigation();
   return (
     <View style={styles.editAndDeleteContainer}>
-      <Pressable
-        onPress={() =>
-          navigation.navigate('EditLetter', {
-            letterID: item.id,
-            title: item.title,
-            relationship: item.relationship,
-            isPrivate: item.accessLevel === 'PRIVATE',
-            message: item.content,
-            timestamp: item.createdAt,
-          })
-        }>
+      <Pressable onPress={() => updateLetterOnSubmit()}>
         <EvilIcons name={'pencil'} color={'#373737'} size={26} />
       </Pressable>
-      <Pressable onPress={() => DeleteAlertBox(deleteLetterApi)}>
+      <Pressable onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
         <EvilIcons name={'trash'} color={'#373737'} size={26} />
       </Pressable>
     </View>

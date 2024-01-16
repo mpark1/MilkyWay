@@ -31,12 +31,7 @@ export async function sucriptionForMyPets(userID) {
   // console.log('my pet subscription is turned off');
 }
 
-export async function sucriptionForAllMutation(
-  petID,
-  createSubQuery,
-  updateSubQuery,
-  deleteSubQuery,
-) {
+export async function supscriptionForCreate(petID, subscriptionQuery) {
   const client = generateClient();
   const variables = {
     filter: {petID: {eq: petID}},
@@ -44,21 +39,28 @@ export async function sucriptionForAllMutation(
   // create mutation
   const createSub = client
     .graphql({
-      query: createSubQuery,
-      variables,
+      query: subscriptionQuery,
+      variables: variables,
+      authMode: 'userPool',
     })
     .subscribe({
-      next: ({data}) => console.log(data),
+      next: ({data}) => {
+        console.log('print subscription result for create query: ', data);
+      },
       error: error => console.warn(error),
     });
-  // update mutation
-  const updateSub = client.graphql({query: updateSubQuery}).subscribe({
-    next: ({data}) => console.log(data),
-    error: error => console.warn(error),
-  });
-  // delete mutation
-  const deleteSub = client.graphql({query: deleteSubQuery}).subscribe({
-    next: ({data}) => console.log(data),
-    error: error => console.warn(error),
-  });
+  return createSub;
 }
+//
+// export async function supscriptionForUpdate(petID, createSubQuery) {
+//   // update mutation
+//   const updateSub = client.graphql({query: updateSubQuery}).subscribe({
+//     next: ({data}) => console.log(data),
+//     error: error => console.warn(error),
+//   });
+//   // delete mutation
+//   const deleteSub = client.graphql({query: deleteSubQuery}).subscribe({
+//     next: ({data}) => console.log(data),
+//     error: error => console.warn(error),
+//   });
+// }

@@ -160,6 +160,7 @@ export async function queryLettersByPetIDPagination(
         petID: petID,
         limit: sizeLimit,
         nextToken: token,
+        sortDirection: 'DESC',
       },
       authMode: 'userPool',
     });
@@ -168,47 +169,54 @@ export async function queryLettersByPetIDPagination(
     if (items.length === 0) {
       return {letters: [], nextToken: null};
     }
-
     const lettersWithUserDetails = await Promise.all(
       items.map(async letter => {
-        try {
-          const userDetails = await client.graphql({
-            query: getUser,
-            variables: {id: letter.letterAuthorId},
-            authMode: 'userPool',
-          });
-          const userObject = userDetails.data.getUser;
-
-          // get user's profile picture from s3
-          if (userObject.profilePic.length !== 0) {
-            const getUrlResult = await retrieveS3UrlForOthers(
-              userObject.profilePic,
-              letter.identityId,
-            );
-            return {
-              ...letter,
-              userName: userObject.name, // 작성자 이름
-              profilePicS3Key: userObject.profilePic, //작성자 사진 s3 key
-              profilePic: getUrlResult.url.href, // 작성자 사진 url
-              s3UrlExpiredAt: getUrlResult.expiresAt.toString(), // 작성자 사진 url expiration 날짜
-            };
-          } else {
-            return {
-              ...letter,
-              userName: userObject.name,
-            };
-          }
-        } catch (userError) {
-          console.error('Error fetching user details: ', userError);
-          return letter; // Return original letter if fetching user details fails
-        }
+        return await queryUser(letter);
       }),
     );
+    // console.log('print first fetched letter obj: ', lettersWithUserDetails[0]);
     return {letters: lettersWithUserDetails, nextToken};
   } catch (error) {
     console.log('error for list fetching: ', error);
   } finally {
     setIsLoading(false);
+  }
+}
+
+export async function queryUser(letter) {
+  // get user's information
+  try {
+    const client = generateClient();
+    const userDetails = await client.graphql({
+      query: getUser,
+      variables: {id: letter.letterAuthorId},
+      authMode: 'userPool',
+    });
+    const userObject = userDetails.data.getUser;
+
+    // get user's profile picture from s3
+    if (userObject.profilePic.length !== 0) {
+      const getUrlResult = await retrieveS3UrlForOthers(
+        userObject.profilePic,
+        letter.identityId,
+      );
+      return {
+        ...letter,
+        userName: userObject.name, // 작성자 이름
+        profilePicS3Key: userObject.profilePic, //작성자 사진 s3 key
+        profilePic: getUrlResult.url.href, // 작성자 사진 url
+        s3UrlExpiredAt: getUrlResult.expiresAt.toString(), // 작성자 사진 url expiration 날짜
+      };
+    } else {
+      return {
+        ...letter,
+        userName: userObject.name,
+        profilePic: '',
+      };
+    }
+  } catch (userError) {
+    console.error('Error fetching user details: ', userError);
+    return letter; // Return original letter if fetching user details fails
   }
 }
 
@@ -231,6 +239,7 @@ export async function queryGuestBooksByPetIDPagination(
         petID: petID,
         limit: sizeLimit,
         nextToken: token,
+        sortDirection: 'DESC',
       },
       authMode: 'userPool',
     });
@@ -321,6 +330,7 @@ export async function queryAlbumsByPetIDPagination(
           petID: petID,
           limit: pageSize,
           nextToken: token,
+          sortDirection: 'DESC',
         },
         authMode: 'userPool',
       });

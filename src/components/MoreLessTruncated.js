@@ -14,7 +14,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const [clippedText, setClippedText] = useState('');
   const {createdAt, relationship, title, profilePic} = item;
   const text = item.content.trim();
-  console.log('print profilepic url in letters: ', profilePic);
+  // console.log('print profilepic url in letters: ', profilePic);
 
   const handleTextLayout = event => {
     const {lines} = event.nativeEvent;

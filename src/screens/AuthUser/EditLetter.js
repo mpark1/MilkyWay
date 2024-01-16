@@ -12,22 +12,23 @@ import {mutationItem} from '../../utils/amplifyUtil';
 
 const EditLetter = ({navigation, route}) => {
   const {
-    title,
+    petID,
+    id,
+    accessLevel,
+    content,
+    createdAt,
+    letterAuthorId,
+    owner,
     relationship,
-    isPrivate,
-    message,
-    letterID,
-    timestamp,
+    title,
     identityId,
-  } = route.params;
-  const petID = useSelector(state => state.user.currentPetID);
+  } = route.params.item;
   const [newTitle, setNewTitle] = useState(title);
   const [newRelationship, setNewRelationship] = useState(relationship);
-  const [newMessage, setNewMessage] = useState(message);
-  const userID = useSelector(state => state.user.cognitoUsername);
+  const [newMessage, setNewMessage] = useState(content);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   // check box
-  const [checked, setChecked] = useState(isPrivate);
+  const [checked, setChecked] = useState(accessLevel === 'PRIVATE');
   const toggleCheckbox = () => setChecked(!checked);
 
   const renderTitleField = () => {
@@ -135,14 +136,14 @@ const EditLetter = ({navigation, route}) => {
 
   const onSubmit = async () => {
     const newLetterInput = {
-      id: letterID,
+      id: id,
       petID: petID,
       title: newTitle,
       relationship: newRelationship,
       content: newMessage,
-      createdAt: timestamp,
+      createdAt: createdAt,
       accessLevel: checked ? 'PRIVATE' : 'PUBLIC',
-      letterAuthorId: userID,
+      letterAuthorId: letterAuthorId,
       identityId: identityId,
     };
     const res = await mutationItem(
