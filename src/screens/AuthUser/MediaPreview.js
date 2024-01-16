@@ -113,17 +113,16 @@ const MediaPreview = ({navigation, route}) => {
   };
 
   const renderVideo = useCallback(() => {
-    const widthToHeightRatio = mediaList[0].width / mediaList[0].height;
+    const aspectRatio = mediaList[0].width / mediaList[0].height;
     const isLandscape = mediaList[0].width > mediaList[0].height;
-    console.log(isLandscape);
 
     return (
       <View
         style={[
           styles.video.container,
           {
-            width: '100%',
-            height: Dimensions.get('window').width / widthToHeightRatio,
+            width: isLandscape ? '100%' : '65%',
+            aspectRatio: aspectRatio,
           },
         ]}>
         <Video
@@ -258,7 +257,7 @@ const styles = StyleSheet.create({
   },
   video: {
     container: {
-      backgroundColor: 'yellow',
+      flex: 1,
       alignSelf: 'center',
       justifyContent: 'center',
       marginBottom: Dimensions.get('window').height * 0.03,

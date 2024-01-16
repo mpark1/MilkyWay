@@ -77,7 +77,9 @@ const Album = ({navigation}) => {
           return (
             <View style={styles.flatListItemContainer}>
               {item.type === 'photo' && <PictureCarousel picURI={item.uri} />}
-              {item.type === 'video' && <AlbumVideo source={item.uri[0]} />}
+              {item.type === 'video' && (
+                <AlbumVideo source={item.uri[0]} width={320} height={568} />
+              )}
               <View>
                 <Text style={[styles.caption, {marginVertical: 10}]}>
                   {item.category !== 0
@@ -124,7 +126,6 @@ const styles = StyleSheet.create({
   },
   flatListItemContainer: {
     marginBottom: 10,
-    height: Dimensions.get('window').height * 0.35,
   },
   caption: {
     color: '#374957',
