@@ -1,7 +1,7 @@
 import React, {useCallback, useRef, useState} from 'react';
 import {Dimensions, StyleSheet, TextInput, View} from 'react-native';
 import {Button} from '@rneui/base';
-// import {updatePassword} from 'aws-amplify/auth';
+import {updatePassword} from 'aws-amplify/auth';
 
 import {scaleFontSize} from '../../assets/styles/scaling';
 import globalStyle from '../../assets/styles/globalStyle';
@@ -20,7 +20,7 @@ const ChangePassword = ({navigation}) => {
   const newPwRef = useRef(null);
   const confirmNewPwRef = useRef(null);
 
-  const onChangeCurrPW = useCallback(text => {
+  const onChangeOldPW = useCallback(text => {
     const trimmedText = text.trim();
     setOldPW(trimmedText);
   }, []);
@@ -41,7 +41,7 @@ const ChangePassword = ({navigation}) => {
         <TextInput
           style={styles.currentPWTextInput}
           placeholder={'현재 비밀번호를 입력해주세요'}
-          onChangeText={onChangeCurrPW}
+          onChangeText={onChangeOldPW}
           onSubmitEditing={() => newPwRef.current?.focus()}
           value={oldPW}
           autoCorrect={false}
@@ -82,25 +82,53 @@ const ChangePassword = ({navigation}) => {
     );
   };
 
+  function popPage() {
+    navigation.pop();
+  }
+
   async function onSubmit() {
-    // 1. check password and confirm password (check for mismatch)
+    // check for mismatch
     if (confirmNewPW !== newPW) {
       setNewPW('');
       setConfirmNewPW('');
       return AlertBox('비밀번호가 일치하지 않습니다.', '', '확인', 'none');
+    } else {
+      if (oldPW === newPW) {
+        // 새로운 비밀번호가 현재 비밀번호와 같은 경우
+        setNewPW('');
+        setConfirmNewPW('');
+        return AlertBox(
+          '현재 비밀번호와 동일합니다.',
+          '새로운 비밀번호를 입력해주세요.',
+          '확인',
+          'none',
+        );
+      }
     }
 
     if (!isUpdatingPW) {
-      // 2. 광클방지
       setIsUpdatingPW(true);
-      // 3. call api
       try {
-        // await updatePassword({oldPassword: oldPW, newPassword: newPW}); //update a signed in user's password
+        const responseFromUpdatePW = await updatePassword({
+          oldPassword: oldPW,
+          newPassword: newPW,
+        });
+        console.log('Inside change pw: ', responseFromUpdatePW);
+        return AlertBox(
+          '비밀번호가 성공적으로 변경되었습니다.',
+          '',
+          '확인',
+          popPage,
+        );
       } catch (err) {
-        // err.name 케이스별로 확인하기
         console.log(err);
+        return AlertBox(
+          '비밀번호 변경을 진행하지 못했습니다.',
+          err,
+          '확인',
+          'none',
+        );
       } finally {
-        // 4. 정리
         setIsUpdatingPW(false);
       }
     }
