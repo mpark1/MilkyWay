@@ -83,7 +83,7 @@ const Settings = ({navigation, route}) => {
 
   useEffect(() => {
     //check user's profile picture url expiration once when the page is loaded.
-    checkS3urlFunc();
+    profilePic.length !== 0 && checkS3urlFunc();
   }, []);
 
   const checkS3urlFunc = async () => {
@@ -180,11 +180,19 @@ const Settings = ({navigation, route}) => {
   const renderProfilePic = () => {
     return (
       <View style={styles.profilePicPlaceholder}>
-        <Image
-          resizeMode={'cover'}
-          style={styles.profilePic}
-          source={{uri: newProfilePic}}
-        />
+        {newProfilePic.length !== 0 ? (
+          <Image
+            resizeMode={'cover'}
+            style={styles.profilePic}
+            source={{uri: newProfilePic}}
+          />
+        ) : (
+          <Image
+            style={styles.profilePic}
+            source={require('../../assets/images/default_pet_profilePic.jpg')}
+            resizeMode={'cover'}
+          />
+        )}
         <Pressable
           style={styles.changeProfilePicButton}
           onPress={() => bottomSheetModalRef.current?.present()}>

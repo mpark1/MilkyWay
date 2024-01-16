@@ -178,18 +178,26 @@ export async function queryLettersByPetIDPagination(
             authMode: 'userPool',
           });
           const userObject = userDetails.data.getUser;
+
           // get user's profile picture from s3
-          const getUrlResult = await retrieveS3UrlForOthers(
-            userObject.profilePic,
-            letter.identityId,
-          );
-          return {
-            ...letter,
-            userName: userObject.name, // 작성자 이름
-            profilePicS3Key: userObject.profilePic, //작성자 사진 s3 key
-            profilePic: getUrlResult.url.href, // 작성자 사진 url
-            s3UrlExpiredAt: getUrlResult.expiresAt.toString(), // 작성자 사진 url expiration 날짜
-          };
+          if (userObject.profilePic.length !== 0) {
+            const getUrlResult = await retrieveS3UrlForOthers(
+              userObject.profilePic,
+              letter.identityId,
+            );
+            return {
+              ...letter,
+              userName: userObject.name, // 작성자 이름
+              profilePicS3Key: userObject.profilePic, //작성자 사진 s3 key
+              profilePic: getUrlResult.url.href, // 작성자 사진 url
+              s3UrlExpiredAt: getUrlResult.expiresAt.toString(), // 작성자 사진 url expiration 날짜
+            };
+          } else {
+            return {
+              ...letter,
+              userName: userObject.name,
+            };
+          }
         } catch (userError) {
           console.error('Error fetching user details: ', userError);
           return letter; // Return original letter if fetching user details fails
@@ -243,18 +251,25 @@ export async function queryGuestBooksByPetIDPagination(
             authMode: 'userPool',
           });
           const userObject = userDetails.data.getUser;
-          // get user profile pic from S3
-          const getUrlResult = await retrieveS3UrlForOthers(
-            userDetails.data.getUser.profilePic,
-            letter.identityId,
-          );
-          return {
-            ...letter,
-            userName: userObject.name,
-            profilePicS3Key: userObject.profilePic,
-            profilePic: getUrlResult.url.href,
-            s3UrlExpiredAt: getUrlResult.expiresAt.toString(),
-          };
+          // get user profile pic from S3 if profile pic exists
+          if (userObject.profilePic.length !== 0) {
+            const getUrlResult = await retrieveS3UrlForOthers(
+              userObject.profilePic,
+              letter.identityId,
+            );
+            return {
+              ...letter,
+              userName: userObject.name,
+              profilePicS3Key: userObject.profilePic,
+              profilePic: getUrlResult.url.href,
+              s3UrlExpiredAt: getUrlResult.expiresAt.toString(),
+            };
+          } else {
+            return {
+              ...letter,
+              userName: userObject.name,
+            };
+          }
         } catch (error) {
           console.log(
             'print error while getting user data from db and get user profile picture from S3',
@@ -265,7 +280,7 @@ export async function queryGuestBooksByPetIDPagination(
     return {letters: lettersWithUserDetails, nextToken};
   } catch (error) {
     console.log('error for list fetching: ', error);
-    return letterData;
+    return {letters: [], nextToken: null};
   } finally {
     setIsLoading(false);
   }
@@ -397,10 +412,6 @@ export async function queryPetsPagination(
             pet.profilePic,
             pet.identityId,
           );
-          console.log(
-            'print getUrl result for community pets fetch: ',
-            getUrlResult,
-          );
           pet.profilePicS3Key = pet.profilePic;
           pet.profilePic = getUrlResult.url.href;
           pet.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
@@ -461,10 +472,6 @@ export async function queryMyPetsPagination(
               petObject.profilePic,
               petObject.identityId,
             );
-            // console.log(
-            //   'print getUrl result for my pets fetch: ',
-            //   getUrlResult,
-            // );
             petObject.profilePicS3Key = petObject.profilePic;
             petObject.profilePic = getUrlResult.url.href;
             petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();

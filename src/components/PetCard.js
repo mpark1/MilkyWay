@@ -62,11 +62,19 @@ const PetCard = ({item, isFamily}) => {
           alignItems: 'center',
         }}>
         <View style={styles.profilePicContainer}>
-          <Image
-            style={styles.profilePic}
-            source={{uri: item.profilePic}}
-            resizeMode={'cover'}
-          />
+          {item.profilePic.length > 0 ? (
+            <Image
+              style={styles.profilePic}
+              source={{uri: item.profilePic}}
+              resizeMode={'cover'}
+            />
+          ) : (
+            <Image
+              style={styles.profilePic}
+              source={require('../assets/images/default_pet_profilePic.jpg')}
+              resizeMode={'cover'}
+            />
+          )}
         </View>
 
         <View style={styles.infoContainer}>

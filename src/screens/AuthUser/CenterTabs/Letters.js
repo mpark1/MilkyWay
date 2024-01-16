@@ -41,10 +41,11 @@ const Letters = ({navigation, route}) => {
       lettersData.nextToken,
     ).then(data => {
       const {letters, nextToken: newNextToken} = data;
-      setLettersData(prev => ({
-        letters: [...prev.letters, ...letters],
-        nextToken: newNextToken,
-      }));
+      letters.length !== 0 &&
+        setLettersData(prev => ({
+          letters: [...prev.letters, ...letters],
+          nextToken: newNextToken,
+        }));
     });
   };
 

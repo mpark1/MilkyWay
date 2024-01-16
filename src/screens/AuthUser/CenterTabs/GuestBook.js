@@ -23,6 +23,8 @@ import {
   onUpdateGuestBook,
 } from '../../../graphql/subscriptions';
 import {sucriptionForAllMutation} from '../../../utils/amplifyUtilSubscription';
+import BlueButton from '../../../components/Buttons/BlueButton';
+import {Button} from '@rneui/base';
 
 const GuestBook = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -62,11 +64,11 @@ const GuestBook = ({navigation, route}) => {
       guestBookData.nextToken,
     ).then(data => {
       const {letters, nextToken: newNextToken} = data;
-      console.log('print fetched 방명록: ', letters[0]);
-      setGuestBookData(prev => ({
-        guestMessages: [...prev.guestMessages, ...letters],
-        nextToken: newNextToken,
-      }));
+      letters !== null &&
+        setGuestBookData(prev => ({
+          guestMessages: [...prev.guestMessages, ...letters],
+          nextToken: newNextToken,
+        }));
     });
   };
 
@@ -112,16 +114,16 @@ const GuestBook = ({navigation, route}) => {
     return (
       <View style={styles.flatListContainer}>
         <Text style={styles.ifPrivate}>
-          비공개 추모공간의 방명록 입니다. 추모공간 관리자는 공간의 접근 권한을
-          설정할 수 있습니다. 전체공개로 변경 시 가족 외의 사용자가 방명록에
-          추모 메세지를 남겨 함께 애도할 수 있습니다.
+          비공개 추모공간입니다. 가족 외의 사용자의 접근 허락하시려면 아래의
+          버튼을 클릭하셔서 접근권한을 바꿔주세요.
         </Text>
-        {manager === 'Private' && (
-          <Pressable onPress={() => navigation.navigate('Settings')}>
-            <Text style={styles.navigateToSettings}>
-              접근 권한 변경하러 가기
-            </Text>
-          </Pressable>
+        {manager && (
+          <Button
+            title={'접근 권한 변경하러 가기'}
+            onPress={() => navigation.navigate('Settings')}
+            containerStyle={styles.navigateToSettings}
+            buttonStyle={styles.buttonStyle}
+          />
         )}
       </View>
     );
@@ -189,8 +191,10 @@ const styles = StyleSheet.create({
     marginRight: Dimensions.get('window').width * 0.07,
   },
   ifPrivate: {
-    color: '#374957',
+    color: '#939393',
     fontSize: scaleFontSize(18),
+    lineHeight: scaleFontSize(24),
+    paddingHorizontal: 15,
   },
   emptyGuestBook: {
     color: '#374957',
@@ -199,8 +203,13 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   navigateToSettings: {
-    color: '#374957',
     fontSize: scaleFontSize(17),
-    paddingVertical: 7,
+    width: Dimensions.get('window').width * 0.6,
+    paddingVertical: 15,
+    paddingLeft: 15,
+  },
+  buttonStyle: {
+    backgroundColor: '#6395E1',
+    borderRadius: 10,
   },
 });

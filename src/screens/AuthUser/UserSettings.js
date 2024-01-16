@@ -124,16 +124,19 @@ const UserSettings = ({navigation}) => {
   const renderProfilePicField = () => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
-        {userProfilePicUrl.length !== 0 ? (
-          <View style={styles.profilePicPlaceholder}>
+        <View style={styles.profilePicPlaceholder}>
+          {userProfilePicUrl.length !== 0 ? (
             <Image
               style={styles.profilePic}
               source={{uri: userProfilePicUrl}}
             />
-          </View>
-        ) : (
-          <View style={styles.profilePicPlaceholder} />
-        )}
+          ) : (
+            <Image
+              style={styles.profilePic}
+              source={require('../../assets/images/default_user_profilePic.jpg')}
+            />
+          )}
+        </View>
         <Pressable
           onPress={() => bottomSheetModalRef.current?.present()}
           style={styles.addProfilePicButton}>

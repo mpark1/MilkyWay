@@ -51,13 +51,21 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
       <Text style={styles.title}>{title}</Text>
       <View style={styles.flexDirectionRow}>
         <View style={styles.profilePicContainer}>
-          <Image
-            style={styles.profilePic}
-            source={{
-              uri: profilePic,
-            }}
-            resizeMode={'cover'}
-          />
+          {profilePic.length > 0 ? (
+            <Image
+              style={styles.profilePic}
+              source={{
+                uri: profilePic,
+              }}
+              resizeMode={'cover'}
+            />
+          ) : (
+            <Image
+              style={styles.profilePic}
+              source={require('../assets/images/default_user_profilePic.jpg')}
+              resizeMode={'cover'}
+            />
+          )}
         </View>
         <View style={styles.collapsedTextContainer}>
           {Platform.OS === 'ios' && (

@@ -42,10 +42,11 @@ const Album = ({navigation, route}) => {
       albumData.nextToken,
     ).then(data => {
       const {albums, nextToken: newNextToken} = data;
-      setAlbumData(prev => ({
-        albums: [...prev.albums, ...albums],
-        nextToken: newNextToken,
-      }));
+      albums.length !== 0 &&
+        setAlbumData(prev => ({
+          albums: [...prev.albums, ...albums],
+          nextToken: newNextToken,
+        }));
     });
   };
 

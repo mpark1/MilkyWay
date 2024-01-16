@@ -37,7 +37,7 @@ const PetPage = ({navigation, route}) => {
   useEffect(() => {
     console.log('this is PetPAge. print redux: ', name, manager);
     //check user's profile picture url expiration once when the page is loaded.
-    checkS3urlFunc();
+    profilePic.length !== 0 && checkS3urlFunc();
   }, []);
 
   const renderBellEnvelopeSettingsIcons = () => {
@@ -76,13 +76,21 @@ const PetPage = ({navigation, route}) => {
       </View>
 
       <View style={styles.profilePicContainer}>
-        <Image
-          style={styles.profilePic}
-          source={{
-            uri: profilePic,
-          }}
-          resizeMode={'cover'}
-        />
+        {profilePic.length > 0 ? (
+          <Image
+            style={styles.profilePic}
+            source={{
+              uri: profilePic,
+            }}
+            resizeMode={'cover'}
+          />
+        ) : (
+          <Image
+            style={styles.profilePic}
+            source={require('../../assets/images/default_pet_profilePic.jpg')}
+            resizeMode={'cover'}
+          />
+        )}
       </View>
       <centerTab.Navigator
         screenOptions={{
