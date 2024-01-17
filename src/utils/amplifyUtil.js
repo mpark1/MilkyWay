@@ -295,7 +295,13 @@ export async function queryGuestBooksByPetIDPagination(
   }
 }
 
-export async function uploadImageToS3(filename, photoBlob, contentType) {
+export async function uploadImageToS3(
+  filename,
+  photoBlob,
+  contentType,
+  width,
+  height,
+) {
   try {
     const result = await uploadData({
       key: filename,
@@ -303,6 +309,7 @@ export async function uploadImageToS3(filename, photoBlob, contentType) {
       options: {
         accessLevel: 'protected', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
         contentType: contentType,
+        // metadata: {width: '', height: ''}, // 영상이면 가로,세로 길이 첨부
       },
     }).result;
     console.log('Succeeded on upload to S3: ', result);
@@ -536,6 +543,8 @@ export async function uploadPetProfilePic(newPicPath, type) {
         filename,
         photoBlob,
         'image/jpeg',
+        '',
+        '',
       );
       console.log('Inside updateProfilePic in s3: ', resultFromS3);
     });
@@ -569,6 +578,8 @@ export async function checkAsyncStorageUserProfile(
         s3key,
         photoBlob,
         'image/jpeg',
+        '',
+        '',
       );
       console.log(
         'Did profilePic in AsyncStorage get uploaded to S3? ',

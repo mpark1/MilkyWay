@@ -82,6 +82,7 @@ const ChooseMedia = ({navigation}) => {
       multiple: true,
       maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
+      includeExtra: true,
     })
       .then(async res => {
         console.log('response inside onLaunchGallery: ', res);
@@ -101,6 +102,8 @@ const ChooseMedia = ({navigation}) => {
               uri: media.path,
               blob: '',
               contentType: 'video/mp4',
+              width: media.width,
+              height: media.height,
             });
           } else {
             /* 사진 1장 이상 */

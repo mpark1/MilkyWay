@@ -66,14 +66,9 @@ const MediaPreview = ({navigation, route}) => {
     setIsVideoPaused(!isVideoPaused);
   };
 
-  const compressVideoAndConvertToBlob = async () => {
+  const convertVideoToBlob = async () => {
     const video = mediaList[0];
     try {
-      // const resFromCompressor = await VideoCompressor.compress(video.uri, {
-      //   compressionMethod: 'auto',
-      // });
-      // console.log('resultFromCompressor', resFromCompressor);
-      // const compressedVideo = await fetch(resFromCompressor);
       const fetchedVideo = await fetch(video.uri);
       const videoBlob = await fetchedVideo.blob();
       console.log('videoBlob: ', videoBlob);
@@ -144,15 +139,22 @@ const MediaPreview = ({navigation, route}) => {
   };
 
   const renderVideo = () => {
+    const aspectRatio = mediaList[0].width / mediaList[0].height;
+    const isLandscape = mediaList[0].width > mediaList[0].height;
+
     return (
-      <View style={styles.video.container}>
+      <View
+        style={[
+          styles.video.container,
+          {width: isLandscape ? '100%' : '65%', aspectRatio: aspectRatio},
+        ]}>
         <Video
           source={{
             uri: mediaList[0].uri, // 영상은 1개만 가능
           }}
           style={styles.video.style}
           paused={isVideoPaused}
-          resizeMode={'cover'}
+          resizeMode={'contain'}
           repeat={true}
         />
         {isVideoPaused ? (
@@ -225,13 +227,15 @@ const MediaPreview = ({navigation, route}) => {
         mediaList.map(async item => {
           let videoBlob;
           if (!isPhoto) {
-            videoBlob = await compressVideoAndConvertToBlob();
+            videoBlob = await convertVideoToBlob();
           }
           console.log('item inside onSubmit: ', item);
           const s3Result = await uploadImageToS3(
             'album/' + albumID + '/' + item.filename,
             isPhoto ? item.blob : videoBlob,
             item.contentType,
+            item.width?.toString(),
+            item.height?.toString(),
           );
           console.log('print s3 result value: ', s3Result);
         });
@@ -333,8 +337,6 @@ const styles = StyleSheet.create({
   },
   video: {
     container: {
-      width: Dimensions.get('window').width * 0.8,
-      height: Dimensions.get('window').width * 0.8,
       alignSelf: 'center',
       justifyContent: 'center',
       marginBottom: Dimensions.get('window').height * 0.03,

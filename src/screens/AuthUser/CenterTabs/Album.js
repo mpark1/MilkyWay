@@ -91,7 +91,10 @@ const Album = ({navigation, route}) => {
                     {item.imageType === 0 ? (
                       <PictureCarousel picURI={item.imageArray} />
                     ) : (
-                      <AlbumVideo source={item.imageArray[0]} />
+                      <AlbumVideo
+                        source={item.imageArray[0]}
+                        // width={} height={}
+                      />
                     )}
                     <View>
                       <Text style={[styles.caption, {marginVertical: 10}]}>
