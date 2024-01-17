@@ -2,10 +2,11 @@ import React, {useCallback} from 'react';
 import {
   StyleSheet,
   View,
-  Text,
   Dimensions,
   Image,
   Pressable,
+  Platform,
+  NativeModules,
 } from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
@@ -18,6 +19,7 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+const {StatusBarManager} = NativeModules;
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -33,18 +35,16 @@ const Pet = ({navigation, route}) => {
     access,
   } = route.params;
 
-  const renderBellEnvelopeSettingsIcons = () => {
+  const renderManagerActionButtons = () => {
     return (
       <View style={styles.iconsWrapper}>
-        <Pressable onPress={() => navigation.navigate('Notifications')}>
-          <MaterialCommunityIcons
-            name="bell-outline"
-            size={24}
-            color={'#FFF'}
-          />
-        </Pressable>
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
+        </Pressable>
+        <Pressable
+        // onPress
+        >
+          <SimpleLineIcons name={'picture'} color={'#FFF'} size={20} />
         </Pressable>
         <Pressable onPress={() => navigation.navigate('Settings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
@@ -55,14 +55,14 @@ const Pet = ({navigation, route}) => {
 
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      <Pressable style={styles.backgroundImageContainer}>
+      <View style={styles.backgroundImageContainer}>
         <Image
           source={require('../../assets/images/milkyWayBackgroundImage.png')}
           style={styles.backgroundImage}
           resizeMode={'cover'}
         />
-        {renderBellEnvelopeSettingsIcons()}
-      </Pressable>
+        {renderManagerActionButtons()}
+      </View>
       <View style={styles.profileContainer}>
         <PetProfile name={name} birthday={birthday} deathDay={deathDay} />
       </View>
@@ -137,5 +137,10 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     borderWidth: 4,
     borderColor: '#FFF',
+  },
+  editBackgroundImage: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? StatusBarManager.HEIGHT : 10,
+    right: 10,
   },
 });

@@ -13,7 +13,7 @@ import {Button, Input} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
 import globalStyle from '../../assets/styles/globalStyle';
 
-const SignIn = () => {
+const SignIn = ({navigation}) => {
   const renderEmailField = () => {
     return (
       <Input
@@ -72,6 +72,7 @@ const SignIn = () => {
         />
 
         <Button
+          onPress={() => navigation.navigate('SignUp')}
           title={'회원가입'}
           titleStyle={{
             fontWeight: 'bold',

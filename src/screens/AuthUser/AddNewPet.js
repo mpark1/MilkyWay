@@ -30,6 +30,7 @@ import deathCauses from '../../data/deathCauses.json';
 import AlertBox from '../../components/AlertBox';
 import Backdrop from '../../components/Backdrop';
 import {profilePicOption} from '../../constants/imagePickerOptions';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 // import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 const AddNewPet = ({navigation}) => {
@@ -367,7 +368,10 @@ const AddNewPet = ({navigation}) => {
           />
         </View>
       </View>
-      {renderBottomSheetModal()}
+      <SinglePictureBottomSheetModal
+        bottomSheetModalRef={bottomSheetModalRef}
+        setNewPicture={setProfilePic}
+      />
     </KeyboardAwareScrollView>
   );
 };
