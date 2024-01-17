@@ -5,6 +5,7 @@ import {useSelector} from 'react-redux';
 import {
   queryLettersByPetIDPagination,
   queryUser,
+  retrieveS3Url,
 } from '../../../utils/amplifyUtil';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
@@ -78,14 +79,30 @@ const Letters = ({navigation, route}) => {
         error: error => console.warn(error),
       });
     // Stop receiving data updates from the subscription
+
+    const deleteSub = client
+      .graphql({
+        query: onDeleteLetter,
+        variables: {
+          filter: {petID: {eq: petID}},
+        },
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) => {
+          processSubscriptionData('Delete', data);
+        },
+        error: error => console.warn(error),
+      });
     return () => {
       createSub.unsubscribe();
       updateSub.unsubscribe();
-      // deleteSub.unsubscribe();
+      deleteSub.unsubscribe();
     };
   }, []);
 
   const processSubscriptionData = async (mutationType, data) => {
+    setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
         // return Letter in db
@@ -96,25 +113,52 @@ const Letters = ({navigation, route}) => {
           letters: [newLetterObj, ...prev.letters],
         }));
         break;
+
       case 'Update':
-        setIsLetterFetchComplete(false);
-        const updatedLettersArray = await Promise.all(
-          lettersData.letters.map(async letter => {
-            if (letter.id === data.onUpdateLetter.id) {
-              return await queryUser(data.onUpdateLetter);
-            } else {
-              return letter;
-            }
-          }),
-        );
-        console.log('print updated letters: ', updatedLettersArray[0]);
+        console.log('this is for the update letter page!');
+        // const updatedLetterObj = data.onUpdateLetter;
+        // console.log(
+        //   '1. updated letter received for update: ',
+        //   updatedLetterObj.id,
+        // );
+        // console.log(
+        //   '1-1. print current letters data in useState in letters.js: ',
+        //   lettersData.letters[0],
+        // );
+        // const updatedLettersArray = await Promise.all(
+        //   lettersData.letters.map(async letter => {
+        //     if (letter.id === updatedLetterObj.id) {
+        //       const urlResult = await retrieveS3Url(
+        //         updatedLetterObj.author.profilePic,
+        //       );
+        //       return {
+        //         ...updatedLetterObj,
+        //         userName: updatedLetterObj.author.name,
+        //         profilePicS3Key: updatedLetterObj.author.profilePic,
+        //         profilePic: urlResult.url.href,
+        //         s3UrlExpiredAt: urlResult.expiresAt.toString(),
+        //       };
+        //     } else {
+        //       return letter;
+        //     }
+        //   }),
+        // );
+        // console.log('3. print updated letters: ', updatedLettersArray[0]);
+        // setLettersData(prev => ({
+        //   ...prev,
+        //   letters: updatedLettersArray,
+        // }));
+        break;
+
+      case 'Delete':
+        const deleteLetter = data.onDeleteLetter;
         setLettersData(prev => ({
           ...prev,
-          letters: updatedLettersArray,
+          letters: prev.letters.filter(letter => letter.id !== deleteLetter.id),
         }));
-        setIsLetterFetchComplete(true);
         break;
     }
+    setIsLetterFetchComplete(true);
   };
   const fetchLetters = async () => {
     queryLettersByPetIDPagination(
@@ -193,6 +237,7 @@ export default Letters;
 
 const styles = StyleSheet.create({
   flatListContainer: {
+    flex: 1,
     backgroundColor: '#FFF',
     paddingTop: 15,
   },
