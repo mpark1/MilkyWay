@@ -9,25 +9,18 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-
+import {useDispatch, useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {profilePicOption} from '../../constants/imagePickerOptions';
-
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
 import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
-
-import globalStyle from '../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../assets/styles/scaling';
-
-import {getCurrentDate} from '../../utils/utils';
-import Backdrop from '../../components/Backdrop';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ImagePicker from 'react-native-image-crop-picker';
+import {
+  deleteLetter,
+  deletePetFamily,
+  updatePet,
+} from '../../graphql/mutations';
 import {
   checkS3Url,
   mutationItem,
@@ -35,17 +28,14 @@ import {
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {
-  deleteLetter,
-  deletePetFamily,
-  updatePet,
-} from '../../graphql/mutations';
-import {generateClient} from 'aws-amplify/api';
-import AlertBox from '../../components/AlertBox';
-import {useDispatch, useSelector} from 'react-redux';
-import {
   setPetGeneralInfo,
   setUpdateProfilePicUrl,
 } from '../../redux/slices/Pet';
+
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
+import {getCurrentDate} from '../../utils/utils';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
@@ -68,7 +58,6 @@ const Settings = ({navigation, route}) => {
   const [petName, setPetName] = useState(name);
   const [newLastWord, setLastWord] = useState(lastWord);
 
-  const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
 
   const currentDateInString = getCurrentDate();
@@ -93,8 +82,12 @@ const Settings = ({navigation, route}) => {
   }, []);
 
   const checkS3urlFunc = async () => {
-    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
-    if (newProfileUrl.length !== 0) {
+    const newProfileUrl = await checkS3Url(
+      'petProfilePic',
+      s3UrlExpiredAt,
+      profilePicS3Key,
+    );
+    if (newProfileUrl.profilePic !== null) {
       dispatch(setUpdateProfilePicUrl(newProfileUrl));
     }
   };
@@ -107,26 +100,6 @@ const Settings = ({navigation, route}) => {
   const onChangeLastWord = useCallback(text => {
     setLastWord(text);
   }, []);
-
-  const onResponseFromImagePicker = useCallback(async res => {
-    bottomSheetModalRef.current?.close();
-    if (res.didCancel || !res) {
-      return;
-    }
-    setProfilePic(res.path);
-  }, []);
-
-  const onLaunchCamera = () => {
-    ImagePicker.openCamera(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log(err.message));
-  };
-
-  const onLaunchGallery = async () => {
-    ImagePicker.openPicker(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log('Error: ', err.message));
-  };
 
   const onChangeDate = (date, option) => {
     option === 'birthday'
@@ -143,45 +116,6 @@ const Settings = ({navigation, route}) => {
       ? setBirthdayString(localDateString)
       : setDeathDayString(localDateString);
   };
-
-  const renderBackdrop = useCallback(
-    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
-    [],
-  );
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheet.inner}>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
-          <Entypo name={'camera'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>카메라</Text>
-        </Pressable>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchGallery()}>
-          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>갤러리</Text>
-        </Pressable>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
 
   const renderProfilePic = () => {
     return (
@@ -443,7 +377,7 @@ const Settings = ({navigation, route}) => {
   }
 
   const onUpdatePetInfo = async () => {
-    // 1. 사진 업데이트 - updateProfilePic(filepath, isPet, objectId, currPicS3key)
+    // 1. 사진 업데이트
     let s3key;
     if (
       // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
@@ -526,7 +460,12 @@ const Settings = ({navigation, route}) => {
       </View>
       {renderSubmitButton()}
       {renderCloseMemorialSpace()}
-      {renderBottomSheetModal()}
+      <SinglePictureBottomSheetModal
+        type={'updatePet'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        setPicture={setProfilePic}
+        setPictureUrl={''}
+      />
     </KeyboardAwareScrollView>
   );
 };

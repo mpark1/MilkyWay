@@ -14,6 +14,9 @@ const initialState = {
   manager: false,
   profilePicS3Key: '',
   s3UrlExpiredAt: '',
+  backgroundPic: '',
+  backgroundPicS3Key: '',
+  backgroundPicS3UrlExpiredAt: '',
 };
 
 const Pet = createSlice({
@@ -31,6 +34,10 @@ const Pet = createSlice({
       state.manager = action.payload.accessLevel;
       state.profilePicS3Key = action.payload.profilePicS3Key;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
+      state.backgroundPic = action.payload.backgroundPic;
+      state.backgroundPicS3Key = action.payload.backgroundPicS3Key;
+      state.backgroundPicS3UrlExpiredAt =
+        action.payload.backgroundPicS3UrlExpiredAt;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;
@@ -41,6 +48,12 @@ const Pet = createSlice({
     setUpdateProfilePicUrl: (state, action) => {
       state.profilePic = action.payload.profilePic;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
+    },
+    updateBackgroundPicUrl: (state, action) => {
+      state.backgroundPic = action.payload.backgroundPic;
+      state.backgroundPicS3Key = action.payload.backgroundPicS3Key;
+      state.backgroundPicS3UrlExpiredAt =
+        action.payload.backgroundPicS3UrlExpiredAt;
     },
     setIntroduction: (state, action) => {
       state.introductionMsg = action.payload;
@@ -58,5 +71,6 @@ export const {
   setPetGeneralInfo,
   resetPet,
   setUpdateProfilePicUrl,
+  updateBackgroundPicUrl,
 } = Pet.actions;
 export default Pet.reducer;

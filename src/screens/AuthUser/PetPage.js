@@ -1,5 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {Dimensions, Image, Pressable, StyleSheet, View} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Alert,
+  Dimensions,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import PetProfile from '../../components/PetProfile';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
@@ -11,39 +18,142 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useDispatch, useSelector} from 'react-redux';
-import {checkS3Url} from '../../utils/amplifyUtil';
+import {
+  checkS3Url,
+  mutationItem,
+  retrieveS3Url,
+  updateProfilePic,
+} from '../../utils/amplifyUtil';
 import {
   setIsManager,
-  setPetGeneralInfo,
   setUpdateProfilePicUrl,
+  updateBackgroundPicUrl,
 } from '../../redux/slices/Pet';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import {updatePet} from '../../graphql/mutations';
+import AlertBox from '../../components/AlertBox';
 
 const centerTab = createMaterialTopTabNavigator();
 
 const PetPage = ({navigation, route}) => {
   const isFamily = route.params.isFamily; //true or false
   const {
+    id,
     name,
     birthday,
     deathday,
+    lastWord,
+    accessLevel,
     manager,
     profilePic,
     s3UrlExpiredAt,
     profilePicS3Key,
+    backgroundPic, // original background picture url if any
+    backgroundPicS3Key,
+    backgroundPicS3UrlExpiredAt,
   } = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
 
+  const [newBackgroundPic, setNewBackgroundPic] = useState(backgroundPic);
+  const bottomSheetModalRef = useRef(null);
+  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
+
+  // subscription to be added
+
   useEffect(() => {
     console.log('this is PetPAge. print redux: ', name, manager);
-    //check user's profile picture url expiration once when the page is loaded.
-    profilePic.length !== 0 && checkS3urlFunc();
+    //check pet's profile and background picture url expiration once when the page is loaded.
+    profilePic.length !== 0 && checkS3urlFunc('profilePic');
+    backgroundPic.length !== 0 && checkS3urlFunc('backgroundPic');
   }, []);
 
-  const renderBellEnvelopeSettingsIcons = () => {
-    // 매니저일 경우에만 보여주기
+  useEffect(() => {
+    if (newBackgroundPic !== backgroundPic) {
+      Alert.alert(
+        '배경사진 미리보기',
+        '선택된 사진으로 변경을 진행하려면 계속하기를 눌러주세요.',
+        [
+          {
+            text: '취소',
+            onPress: () => {
+              setNewBackgroundPic(backgroundPic);
+            },
+          },
+          {
+            text: '계속하기',
+            onPress: async () => {
+              await onUpdateBackgroundPic();
+            },
+          },
+        ],
+      );
+    }
+  }, [newBackgroundPic]);
+
+  const onUpdateBackgroundPic = async () => {
+    // 1. S3
+    const newS3key = await updateProfilePic(
+      newBackgroundPic, // newBackgroundPic local path
+      'pet',
+      backgroundPicS3Key, // needed for deleting existing background pic from s3
+    );
+    console.log('New background pic s3key: ', newS3key);
+
+    // 2. Pet backgroundPic 을 새로운 사진의 uuid 로 업데이트
+    const newPetInput = {
+      id: id,
+      profilePic: profilePicS3Key,
+      name: name,
+      birthday: birthday,
+      deathDay: deathday,
+      lastWord: lastWord,
+      state: 'ACTIVE',
+      accessLevel: accessLevel,
+      backgroundPic: 'petProfile/' + newS3key,
+    };
+    await mutationItem(
+      isCallingUpdateAPI,
+      setIsCallingUpdateAPI,
+      newPetInput,
+      updatePet,
+      '배경사진이 성공적으로 변경되었습니다.',
+      'none',
+    );
+
+    // 3. Redux
+    const res = await retrieveS3Url('petProfile/' + newS3key);
+    dispatch(
+      updateBackgroundPicUrl({
+        backgroundPic: res.url.href,
+        backgroundPicS3Key: 'petProfile/' + newS3key,
+        backgroundPicS3UrlExpiredAt: res.expiresAt,
+      }),
+    );
+  };
+
+  const renderBackgroundImage = () => {
+    return backgroundPic.length === 0 ? (
+      <Image
+        source={require('../../assets/images/milkyWayBackgroundImage.png')}
+        style={styles.backgroundImage}
+        resizeMode={'cover'}
+      />
+    ) : (
+      <Image
+        source={{uri: newBackgroundPic}}
+        style={styles.backgroundImage}
+        resizeMode={'cover'}
+      />
+    );
+  };
+
+  const renderManagerActionButtons = () => {
     return (
       <View style={styles.iconsWrapper}>
+        <Pressable onPress={() => bottomSheetModalRef.current?.present()}>
+          <Ionicons name={'image-outline'} color={'#FFF'} size={24} />
+        </Pressable>
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
         </Pressable>
@@ -54,27 +164,8 @@ const PetPage = ({navigation, route}) => {
     );
   };
 
-  const checkS3urlFunc = async () => {
-    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
-    if (newProfileUrl.length !== 0) {
-      dispatch(setUpdateProfilePicUrl(newProfileUrl));
-    }
-  };
-
-  return (
-    <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
-      <View style={styles.backgroundImageContainer}>
-        <Image
-          source={require('../../assets/images/milkyWayBackgroundImage.png')}
-          style={styles.backgroundImage}
-          resizeMode={'cover'}
-        />
-        {manager && renderBellEnvelopeSettingsIcons()}
-      </View>
-      <View style={styles.profileContainer}>
-        <PetProfile name={name} birthday={birthday} deathday={deathday} />
-      </View>
-
+  const renderProfilePic = () => {
+    return (
       <View style={styles.profilePicContainer}>
         {profilePic.length > 0 ? (
           <Image
@@ -92,6 +183,41 @@ const PetPage = ({navigation, route}) => {
           />
         )}
       </View>
+    );
+  };
+
+  const checkS3urlFunc = async type => {
+    if (type === 'profilePic') {
+      const res = await checkS3Url(
+        'petProfilePic',
+        s3UrlExpiredAt,
+        profilePicS3Key,
+      );
+      if (res.profilePic !== null) {
+        dispatch(setUpdateProfilePicUrl(res));
+      }
+    } else {
+      const res = await checkS3Url(
+        'petBackground',
+        backgroundPicS3UrlExpiredAt,
+        profilePicS3Key,
+      );
+      if (res.backgroundPic !== null) {
+        dispatch(setUpdateProfilePicUrl(res));
+      }
+    }
+  };
+
+  return (
+    <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+      <View style={styles.backgroundImageContainer}>
+        {renderBackgroundImage()}
+        {manager && renderManagerActionButtons()}
+      </View>
+      <View style={styles.profileContainer}>
+        <PetProfile name={name} birthday={birthday} deathday={deathday} />
+      </View>
+      {renderProfilePic()}
       <centerTab.Navigator
         screenOptions={{
           tabBarLabelStyle: {fontSize: scaleFontSize(18)},
@@ -125,6 +251,12 @@ const PetPage = ({navigation, route}) => {
           }}
         />
       </centerTab.Navigator>
+      <SinglePictureBottomSheetModal
+        bottomSheetModalRef={bottomSheetModalRef}
+        setPicture={setNewBackgroundPic}
+        setPictureUrl={''}
+        type={'updatePetPageBackground'}
+      />
     </View>
   );
 };

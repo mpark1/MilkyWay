@@ -26,6 +26,7 @@ import {
   queryLettersByPetIDPagination,
   queryMyPetsPagination,
   querySingleItem,
+  retrieveS3Url,
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
@@ -70,6 +71,7 @@ const Pets = ({navigation}) => {
           }),
         );
         dispatch(setUserProfilePic(response.profilePic)); // update s3 key
+        await retrieveS3Url(response.profilePic);
       }
     };
     firstFetchPet();

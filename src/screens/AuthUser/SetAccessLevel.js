@@ -15,7 +15,7 @@ import {setCurrentPetID} from '../../redux/slices/User';
 import {
   getIdentityID,
   mutationItem,
-  uploadPetProfilePic,
+  uploadProfilePic,
 } from '../../utils/amplifyUtil';
 import {setPetID} from '../../redux/slices/Pet';
 
@@ -51,7 +51,7 @@ const SetAccessLevel = ({navigation}) => {
         let s3key;
         // 0. save profile picture in S3
         if (profilePic.length > 0) {
-          s3key = await uploadPetProfilePic(profilePic, 'pet');
+          s3key = await uploadProfilePic(profilePic, 'pet');
         }
         // 1. create a new item in Pet table
         const newPetDetails = {

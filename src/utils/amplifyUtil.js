@@ -295,13 +295,7 @@ export async function queryGuestBooksByPetIDPagination(
   }
 }
 
-export async function uploadImageToS3(
-  filename,
-  photoBlob,
-  contentType,
-  width,
-  height,
-) {
+export async function uploadImageToS3(filename, photoBlob, contentType) {
   try {
     const result = await uploadData({
       key: filename,
@@ -309,7 +303,30 @@ export async function uploadImageToS3(
       options: {
         accessLevel: 'protected', // defaults to `guest` but can be 'private' | 'protected' | 'guest'
         contentType: contentType,
-        // metadata: {width: '', height: ''}, // 영상이면 가로,세로 길이 첨부
+      },
+    }).result;
+    console.log('Succeeded on upload to S3: ', result);
+    return result;
+  } catch (error) {
+    console.log('Error uploading image to S3: ', error);
+  }
+}
+
+export async function uploadVideoToS3(
+  filename,
+  videoBlob,
+  contentType,
+  width,
+  height,
+) {
+  try {
+    const result = await uploadData({
+      key: filename,
+      data: videoBlob,
+      options: {
+        accessLevel: 'protected',
+        contentType: contentType,
+        metadata: {width: width, height: height}, // metadata?: {key: "value"}
       },
     }).result;
     console.log('Succeeded on upload to S3: ', result);
@@ -493,6 +510,16 @@ export async function queryMyPetsPagination(
             petObject.profilePic = getUrlResult.url.href;
             petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
           }
+          if (petObject.backgroundPic.length > 0) {
+            getUrlResult = await retrieveS3UrlForOthers(
+              petObject.backgroundPic,
+              petObject.identityId,
+            );
+            petObject.backgroundPicS3Key = petObject.backgroundPic;
+            petObject.backgroundPic = getUrlResult.url.href;
+            petObject.backgroundPicS3UrlExpiredAt =
+              getUrlResult.expiresAt.toString();
+          }
           return petObject;
         }),
       );
@@ -512,7 +539,7 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
    *    - length > 0? S3에 있는 기존 사진 지우기
    */
   if (currPicS3key && currPicS3key.length > 0) {
-    // currPicS3key format - 유저는 userProfile/uuid.jpeg, 동물은 petProfile/petId/uuid.jpeg
+    // currPicS3key format - 유저는 userProfile/uuid.jpeg, 동물은 petProfile/uuid.jpeg
     try {
       await remove({key: currPicS3key, options: {accessLevel: 'protected'}});
     } catch (error) {
@@ -521,10 +548,10 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
   }
 
   // 2. 새로운 사진 리사이징 후 blob 으로 만들기
-  return await uploadPetProfilePic(newPicPath, type);
+  return await uploadProfilePic(newPicPath, type);
 }
 
-export async function uploadPetProfilePic(newPicPath, type) {
+export async function uploadProfilePic(newPicPath, type) {
   const newPicId = uuid.v4() + '.jpeg';
   try {
     await ImageResizer.createResizedImage(
@@ -537,14 +564,14 @@ export async function uploadPetProfilePic(newPicPath, type) {
       const photo = await fetch(resFromResizer.uri);
       const photoBlob = await photo.blob();
       const filename =
-        type === 'pet' ? 'petProfile/' + newPicId : 'userProfile/' + newPicId;
+        type === 'pet' || 'petBackground'
+          ? 'petProfile/' + newPicId
+          : 'userProfile/' + newPicId;
       // 3. send over to s3
       const resultFromS3 = await uploadImageToS3(
         filename,
         photoBlob,
         'image/jpeg',
-        '',
-        '',
       );
       console.log('Inside updateProfilePic in s3: ', resultFromS3);
     });
@@ -578,8 +605,6 @@ export async function checkAsyncStorageUserProfile(
         s3key,
         photoBlob,
         'image/jpeg',
-        '',
-        '',
       );
       console.log(
         'Did profilePic in AsyncStorage get uploaded to S3? ',
@@ -618,16 +643,32 @@ export async function checkAsyncStorageUserProfile(
   }
 }
 
-export async function checkS3Url(s3UrlExpiredAt, profilePicS3Key) {
+export async function checkS3Url(type, s3UrlExpiredAt, s3Key) {
   if (new Date(Date.now()) >= new Date(s3UrlExpiredAt)) {
-    const returnData = {};
     // renew presigned url
-    const newProfilePic = retrieveS3Url(profilePicS3Key);
-    returnData.profilePic = newProfilePic.url.href; //profile picture url is renewed
-    returnData.s3UrlExpiredAt = newProfilePic.expiresAt.toString();
-    return returnData;
+    const newPicInfo = retrieveS3Url(s3Key); // pet/user profile or background picture url is renewed
+    const newUrl = newPicInfo.url.href;
+    const newExpiresAt = newPicInfo.expiresAt.toString();
+    switch (type) {
+      case 'petProfilePic':
+        return {
+          profilePic: newUrl,
+          s3UrlExpiredAt: newExpiresAt,
+        };
+      case 'petBackgroundPic':
+        return {
+          backgroundPic: newUrl,
+          backgroundPicS3UrlExpiredAt: newExpiresAt,
+        };
+      default:
+        return null;
+    }
   }
-  return ''; // profile picture url is still valid
+  // picture url is still valid
+  return {
+    profilePic: null,
+    s3UrlExpiredAt: null,
+  };
 }
 
 export async function retrieveS3Url(key) {

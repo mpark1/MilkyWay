@@ -9,28 +9,26 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
+import {useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Video from 'react-native-video';
-
+import {generateClient} from 'aws-amplify/api';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
-import BlueButton from '../../components/Buttons/BlueButton';
-
-import ages from '../../data/albumCategories.json';
+import {createAlbum} from '../../graphql/mutations';
 import {
   getIdentityID,
-  mutationItem,
   uploadImageToS3,
+  uploadVideoToS3,
 } from '../../utils/amplifyUtil';
-import {useSelector} from 'react-redux';
-import {createAlbum, createImage} from '../../graphql/mutations';
-import {generateClient} from 'aws-amplify/api';
+
+import ages from '../../data/albumCategories.json';
 import {albumCategory} from '../../constants/albumCategoryMapping';
-import {getUrl, list} from 'aws-amplify/storage';
+import BlueButton from '../../components/Buttons/BlueButton';
 import AlertBox from '../../components/AlertBox';
 
 const MediaPreview = ({navigation, route}) => {
@@ -141,7 +139,6 @@ const MediaPreview = ({navigation, route}) => {
   const renderVideo = () => {
     const aspectRatio = mediaList[0].width / mediaList[0].height;
     const isLandscape = mediaList[0].width > mediaList[0].height;
-
     return (
       <View
         style={[
@@ -225,19 +222,27 @@ const MediaPreview = ({navigation, route}) => {
         const albumID = response.data.createAlbum.id;
 
         mediaList.map(async item => {
+          console.log('item inside onSubmit: ', item);
           let videoBlob;
+          const filename = 'album/' + albumID + '/' + item.filename;
           if (!isPhoto) {
             videoBlob = await convertVideoToBlob();
+            const s3Result = await uploadVideoToS3(
+              filename,
+              videoBlob,
+              item.contentType,
+              item.width.toString(),
+              item.height.toString(),
+            );
+            console.log('print s3 result value: ', s3Result);
+          } else {
+            const s3Result = await uploadImageToS3(
+              filename,
+              item.blob, // photoBlob
+              item.contentType,
+            );
+            console.log('print s3 result value: ', s3Result);
           }
-          console.log('item inside onSubmit: ', item);
-          const s3Result = await uploadImageToS3(
-            'album/' + albumID + '/' + item.filename,
-            isPhoto ? item.blob : videoBlob,
-            item.contentType,
-            item.width?.toString(),
-            item.height?.toString(),
-          );
-          console.log('print s3 result value: ', s3Result);
         });
         AlertBox(
           '앨범이 성공적으로 등록되었습니다.',

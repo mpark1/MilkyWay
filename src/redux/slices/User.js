@@ -2,11 +2,13 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
   cognitoUsername: undefined,
-  profilePic: '',
+  profilePic: '', // url
   email: '',
   name: '',
   myPets: [],
   readyForCommunityFetch: false,
+  profilePicS3Key: '',
+  s3UrlExpiredAt: '',
 };
 
 const User = createSlice({
@@ -43,6 +45,9 @@ const User = createSlice({
     setMyPetsFetchComplete: (state, action) => {
       state.readyForCommunityFetch = action.payload;
     },
+    updateUserProfilePicUrl: (state, action) => {
+      state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
+    },
   },
 });
 
@@ -56,5 +61,6 @@ export const {
   setUserProfilePic,
   setMyPets,
   setMyPetsFetchComplete,
+  updateUserProfilePicUrl,
 } = User.actions;
 export default User.reducer;

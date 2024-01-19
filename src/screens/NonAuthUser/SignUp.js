@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   Image,
   View,
@@ -8,25 +8,18 @@ import {
   TextInput,
   Pressable,
 } from 'react-native';
-import {signUp} from 'aws-amplify/auth';
+import {useDispatch} from 'react-redux';
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ImagePicker from 'react-native-image-crop-picker';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
+import {signUp} from 'aws-amplify/auth';
 import {Button} from '@rneui/base';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
+import {setOwnerDetails} from '../../redux/slices/User';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-
 import AlertBox from '../../components/AlertBox';
-import {useDispatch} from 'react-redux';
-import {setOwnerDetails} from '../../redux/slices/User';
-import Backdrop from '../../components/Backdrop';
-import {profilePicOption} from '../../constants/imagePickerOptions';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 
 const SignUp = ({navigation}) => {
   const dispatch = useDispatch();
@@ -38,7 +31,6 @@ const SignUp = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [confirmPW, setConfirmPW] = useState('');
 
-  const snapPoints = useMemo(() => ['53%'], []);
   const bottomSheetModalRef = useRef(null);
 
   const canGoNext = name && email && password && confirmPW;
@@ -66,26 +58,6 @@ const SignUp = ({navigation}) => {
     setConfirmPW(trimmedText);
   }, []);
 
-  const onResponseFromImagePicker = async res => {
-    bottomSheetModalRef.current?.close();
-    if (res.didCancel || !res) {
-      return;
-    }
-    setProfilePic(res.path);
-  };
-
-  const onLaunchCamera = () => {
-    ImagePicker.openCamera(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log(err.message));
-  };
-
-  const onLaunchGallery = async () => {
-    ImagePicker.openPicker(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log('Error: ', err.message));
-  };
-
   const renderProfilePicField = () => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
@@ -104,45 +76,6 @@ const SignUp = ({navigation}) => {
       </View>
     );
   };
-
-  const renderBackdrop = useCallback(
-    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
-    [],
-  );
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheet.inner}>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
-          <Entypo name={'camera'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>카메라</Text>
-        </Pressable>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchGallery()}>
-          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>갤러리</Text>
-        </Pressable>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
 
   const renderNameField = () => {
     return (
@@ -361,7 +294,12 @@ const SignUp = ({navigation}) => {
         </Text>
       </View>
       {renderSignUpButton()}
-      {renderBottomSheetModal()}
+      <SinglePictureBottomSheetModal
+        type={'createUser'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        setPicture={setProfilePic}
+        setPictureUrl={''}
+      />
     </View>
   );
 };

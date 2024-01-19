@@ -82,7 +82,7 @@ const ChooseMedia = ({navigation}) => {
       multiple: true,
       maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
-      includeExtra: true,
+      includeExif: isVideo,
     })
       .then(async res => {
         console.log('response inside onLaunchGallery: ', res);
@@ -131,24 +131,27 @@ const ChooseMedia = ({navigation}) => {
       width: 300,
       height: 300,
       mediaType: mediaTypeRef.current,
-      durationLimit: isVideo ? 60 : undefined, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
+      durationLimit: isVideo ? 60 : undefined, // 촬영 가능한 영상 길이 제한 (초단위)
+      includeExtra: isVideo,
     })
-      .then(async resFromCamera => {
-        console.log('response inside onLaunchCamera: ', resFromCamera);
+      .then(async res => {
+        console.log('response inside onLaunchCamera: ', res);
 
         let mediaList = [];
         if (!isVideo) {
           const convertedPhotoObject = await resizePhotoAndConvertToBlob(
-            resFromCamera,
-            resFromCamera.assets[0].uri,
+            res,
+            res.assets[0].uri,
           );
           mediaList.push(convertedPhotoObject);
         } else {
           mediaList.push({
             filename: uuid.v4() + '.mp4',
-            uri: resFromCamera.assets[0].uri,
+            uri: res.assets[0].uri,
             blob: '',
             contentType: 'video/mp4',
+            width: res.assets[0].width,
+            height: res.assets[0].height,
           });
         }
         bottomSheetModalRef.current?.close();

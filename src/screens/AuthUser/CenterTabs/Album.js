@@ -93,7 +93,8 @@ const Album = ({navigation, route}) => {
                     ) : (
                       <AlbumVideo
                         source={item.imageArray[0]}
-                        // width={} height={}
+                        // width={parseInt(item.metadata.width)}
+                        // height={parseInt(item.metadata.height)}
                       />
                     )}
                     <View>

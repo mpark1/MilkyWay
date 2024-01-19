@@ -45,17 +45,12 @@ const SinglePictureBottomSheetModal = ({
           .catch(err => console.log(err.message));
         break;
       case 'createUser' || 'updatePet' || 'updatePetPageBackground':
-        bottomSheetModalRef.current?.close();
         setPicture(res.path);
         break;
       case 'updateUser':
-        bottomSheetModalRef.current?.close();
         setPicture(res.path); // setNewProfilePicPath - replace original s3 key from redux with new profilePic's path
         setPictureUrl(res.path); // selected picture's uri - for displaying newly selected profile picture
         break;
-      // case 'updatePetPageBackground':
-      //   setPicture(res.path); // 사진 미리보기 상태 -> PetPage 에 Alert 띄우기 (취소, 완료)
-      //   break;
       default:
         break;
     }

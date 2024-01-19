@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -10,32 +10,23 @@ import {
 } from 'react-native';
 import {useDispatch} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import DatePicker from 'react-native-date-picker';
 import DropDownPicker from 'react-native-dropdown-picker';
+import DatePicker from 'react-native-date-picker';
 import {Button} from '@rneui/base';
-import ImagePicker from 'react-native-image-crop-picker';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
 import {getCurrentDate} from '../../utils/utils';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+
 import PetTypes from '../../data/PetTypes.json';
 import deathCauses from '../../data/deathCauses.json';
-import AlertBox from '../../components/AlertBox';
-import Backdrop from '../../components/Backdrop';
-import {profilePicOption} from '../../constants/imagePickerOptions';
-import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 const AddNewPet = ({navigation}) => {
   const dispatch = useDispatch();
   const [profilePic, setProfilePic] = useState('');
-  const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
   const [value, setValue] = useState(null);
   const petOptions = Object.keys(PetTypes).map(key => ({
@@ -70,69 +61,6 @@ const AddNewPet = ({navigation}) => {
     birthdayString !== 'YYYY-MM-DD' &&
     deathDayString !== 'YYYY-MM-DD';
 
-  const renderBackdrop = useCallback(
-    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
-    [],
-  );
-
-  const onResponseFromImagePicker = useCallback(async res => {
-    bottomSheetModalRef.current?.close();
-    if (res.didCancel || !res) {
-      return;
-    }
-    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
-      .then(r => {
-        setProfilePic(r.uri);
-      })
-      .catch(err => console.log(err.message));
-  }, []);
-
-  const onLaunchCamera = () => {
-    ImagePicker.openCamera(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log(err.message));
-  };
-
-  const onLaunchGallery = async () => {
-    ImagePicker.openPicker(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log('Error: ', err.message));
-  };
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheet.inner}>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
-          <Entypo name={'camera'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>카메라</Text>
-        </Pressable>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchGallery()}>
-          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>갤러리</Text>
-        </Pressable>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
-
   const renderProfilePicField = () => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
@@ -160,9 +88,7 @@ const AddNewPet = ({navigation}) => {
     const localDate = new Date(
       date.getTime() - date.getTimezoneOffset() * 60000,
     );
-
     const localDateString = localDate.toISOString().split('T')[0];
-
     option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
     option === 'birthday'
       ? setBirthdayString(localDateString)
@@ -367,7 +293,12 @@ const AddNewPet = ({navigation}) => {
           />
         </View>
       </View>
-      {renderBottomSheetModal()}
+      <SinglePictureBottomSheetModal
+        type={'createPet'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        setPicture={setProfilePic}
+        setPictureUrl={''}
+      />
     </KeyboardAwareScrollView>
   );
 };

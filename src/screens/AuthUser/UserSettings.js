@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -8,62 +8,73 @@ import {
   Dimensions,
   TextInput,
 } from 'react-native';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {useDispatch, useSelector} from 'react-redux';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
 import {deleteUser, signOut} from 'aws-amplify/auth';
-
-import globalStyle from '../../assets/styles/globalStyle';
-import {scaleFontSize} from '../../assets/styles/scaling';
-
-import Backdrop from '../../components/Backdrop';
-import AlertBox from '../../components/AlertBox';
-
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
-import ImagePicker from 'react-native-image-crop-picker';
-import {profilePicOption} from '../../constants/imagePickerOptions';
-
+import {updateUser} from '../../graphql/mutations';
 import {
+  setCognitoUserToNull,
+  setUserName,
+  setUserProfilePic,
+  updateUserNameOrPic,
+  updateUserProfilePicUrl,
+} from '../../redux/slices/User';
+import {
+  checkS3Url,
   getIdentityID,
   mutationItem,
   mutationItemNoAlertBox,
   retrieveS3Url,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
-import {updateUser} from '../../graphql/mutations';
 
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  setCognitoUserToNull,
-  setUserName,
-  setUserProfilePic,
-  updateUserNameOrPic,
-} from '../../redux/slices/User';
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
+import AlertBox from '../../components/AlertBox';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 
 const UserSettings = ({navigation}) => {
   const dispatch = useDispatch();
-  const {cognitoUsername, name, email, profilePic} = useSelector(
-    state => state.user,
-  );
-  const [newProfilePicPath, setNewProfilePicPath] = useState('');
-  const [userProfilePicUrl, setProfilePicUrl] = useState('');
+  const {
+    cognitoUsername,
+    name,
+    email,
+    profilePic, // url
+    profilePicS3Key,
+    s3UrlExpiredAt,
+  } = useSelector(state => state.user);
+
+  // 프로필 사진
+  const [newProfilePicPath, setNewProfilePicPath] = useState(''); // local path from camera/gallery
+  const [newProfilePic, setNewProfilePicUrl] = useState(profilePic); // url
+  const bottomSheetModalRef = useRef(null);
+
   const [userName, setName] = useState(name);
 
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
 
-  const snapPoints = useMemo(() => ['30%'], []);
-  const bottomSheetModalRef = useRef(null);
-
   useEffect(() => {
-    //get user's profile picture from S3 if a user profile pic exists
-    profilePic.length !== 0 &&
-      retrieveS3Url(profilePic).then(res => {
-        setProfilePicUrl(res.url.href);
-        // console.log('s3 presigned url in settings.js: ', res.url.href);
-      });
+    // get user's profile picture from S3 if a user profile pic exists
+    profilePicS3Key.length !== 0 &&
+      retrieveS3Url(profilePicS3Key)
+        .then(res => {
+          setNewProfilePicUrl(res.url.href);
+          dispatch(setUserProfilePic(res.url.href));
+        })
+        .then(checkS3urlFunc);
   }, []);
+
+  const checkS3urlFunc = async () => {
+    const newProfileUrl = await checkS3Url(
+      'petProfilePic',
+      s3UrlExpiredAt,
+      profilePicS3Key,
+    );
+    if (newProfileUrl.profilePic !== null) {
+      dispatch(updateUserProfilePicUrl(newProfileUrl));
+    }
+  };
 
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
@@ -107,40 +118,21 @@ const UserSettings = ({navigation}) => {
     }
   };
 
-  const onResponseFromImagePicker = useCallback(async res => {
-    bottomSheetModalRef.current?.close();
-    if (res.didCancel || !res) {
-      return;
-    }
-    setNewProfilePicPath(res.path); // selected picture's uri
-    setProfilePicUrl(res.path); // for displaying newly selected profile picture
-  }, []);
-
-  const onLaunchCamera = () => {
-    ImagePicker.openCamera(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log(err.message));
-  };
-
-  const onLaunchGallery = async () => {
-    ImagePicker.openPicker(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log('Error: ', err.message));
-  };
-
   const renderProfilePicField = () => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
         <View style={styles.profilePicPlaceholder}>
-          {userProfilePicUrl.length !== 0 ? (
+          {newProfilePic.length !== 0 ? (
             <Image
               style={styles.profilePic}
-              source={{uri: userProfilePicUrl}}
+              source={{uri: newProfilePic}}
+              resizeMode={'cover'}
             />
           ) : (
             <Image
               style={styles.profilePic}
               source={require('../../assets/images/default_user_profilePic.jpg')}
+              resizeMode={'cover'}
             />
           )}
         </View>
@@ -152,45 +144,6 @@ const UserSettings = ({navigation}) => {
       </View>
     );
   };
-
-  const renderBackdrop = useCallback(
-    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
-    [],
-  );
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheet.inner}>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
-          <Entypo name={'camera'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>카메라</Text>
-        </Pressable>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchGallery()}>
-          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>갤러리</Text>
-        </Pressable>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
 
   const renderNameField = () => {
     return (
@@ -312,11 +265,16 @@ const UserSettings = ({navigation}) => {
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
-        {renderProfilePicField()}
+        {profilePic.length !== 0 && renderProfilePicField()}
         <View style={styles.fieldsContainer}>
           {renderNameField()}
           {renderEmailField()}
-          {renderBottomSheetModal()}
+          <SinglePictureBottomSheetModal
+            type={'updateUser'}
+            bottomSheetModalRef={bottomSheetModalRef}
+            setPicture={setNewProfilePicPath}
+            setPictureUrl={setNewProfilePicUrl}
+          />
         </View>
         {renderSubmitButton()}
         {renderChangePWButton()}
