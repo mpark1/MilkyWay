@@ -44,6 +44,9 @@ const Letters = ({navigation, route}) => {
     };
     firstFetch();
     console.log('Letters tab is rendered');
+    return () => {
+      console.log('letter page - Unmounted!');
+    };
   }, [petID]);
 
   useEffect(() => {
@@ -95,6 +98,7 @@ const Letters = ({navigation, route}) => {
         error: error => console.warn(error),
       });
     return () => {
+      console.log('letter subscriptions are turned off!');
       createSub.unsubscribe();
       updateSub.unsubscribe();
       deleteSub.unsubscribe();
@@ -102,7 +106,7 @@ const Letters = ({navigation, route}) => {
   }, []);
 
   const processSubscriptionData = async (mutationType, data) => {
-    setIsLetterFetchComplete(false);
+    // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
         // return Letter in db
@@ -116,38 +120,38 @@ const Letters = ({navigation, route}) => {
 
       case 'Update':
         console.log('this is for the update letter page!');
-        // const updatedLetterObj = data.onUpdateLetter;
-        // console.log(
-        //   '1. updated letter received for update: ',
-        //   updatedLetterObj.id,
-        // );
-        // console.log(
-        //   '1-1. print current letters data in useState in letters.js: ',
-        //   lettersData.letters[0],
-        // );
-        // const updatedLettersArray = await Promise.all(
-        //   lettersData.letters.map(async letter => {
-        //     if (letter.id === updatedLetterObj.id) {
-        //       const urlResult = await retrieveS3Url(
-        //         updatedLetterObj.author.profilePic,
-        //       );
-        //       return {
-        //         ...updatedLetterObj,
-        //         userName: updatedLetterObj.author.name,
-        //         profilePicS3Key: updatedLetterObj.author.profilePic,
-        //         profilePic: urlResult.url.href,
-        //         s3UrlExpiredAt: urlResult.expiresAt.toString(),
-        //       };
-        //     } else {
-        //       return letter;
-        //     }
-        //   }),
-        // );
-        // console.log('3. print updated letters: ', updatedLettersArray[0]);
-        // setLettersData(prev => ({
-        //   ...prev,
-        //   letters: updatedLettersArray,
-        // }));
+        const updatedLetterObj = data.onUpdateLetter;
+        console.log(
+          '1. updated letter received for update: ',
+          updatedLetterObj.id,
+        );
+        console.log(
+          '1-1. print current letters data in useState in letters.js: ',
+          lettersData.letters[0],
+        );
+        const updatedLettersArray = await Promise.all(
+          lettersData.letters.map(async letter => {
+            if (letter.id === updatedLetterObj.id) {
+              const urlResult = await retrieveS3Url(
+                updatedLetterObj.author.profilePic,
+              );
+              return {
+                ...updatedLetterObj,
+                userName: updatedLetterObj.author.name,
+                profilePicS3Key: updatedLetterObj.author.profilePic,
+                profilePic: urlResult.url.href,
+                s3UrlExpiredAt: urlResult.expiresAt.toString(),
+              };
+            } else {
+              return letter;
+            }
+          }),
+        );
+        console.log('3. print updated letters: ', updatedLettersArray[0]);
+        setLettersData(prev => ({
+          ...prev,
+          letters: updatedLettersArray,
+        }));
         break;
 
       case 'Delete':
@@ -158,7 +162,7 @@ const Letters = ({navigation, route}) => {
         }));
         break;
     }
-    setIsLetterFetchComplete(true);
+    // setIsLetterFetchComplete(true);
   };
   const fetchLetters = async () => {
     queryLettersByPetIDPagination(
@@ -184,6 +188,7 @@ const Letters = ({navigation, route}) => {
           item={item}
           linesToTruncate={2}
           whichTab={'Letters'}
+          userID={userID}
         />
       )
     );

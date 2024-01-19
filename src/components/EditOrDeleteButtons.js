@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Pressable, View, StyleSheet, Alert} from 'react-native';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {useNavigation} from '@react-navigation/core';
@@ -10,6 +10,12 @@ import DeleteAlertBox from './DeleteAlertBox';
 
 const EditOrDeleteButtons = ({item}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+  useEffect(() => {
+    console.log('EditOrDeleteButtons component - Mounted');
+    return () => {
+      console.log('EditOrDeleteButtons - Unmounted');
+    };
+  }, []);
 
   const deleteLetterOnSubmit = async () => {
     const deleteLetterInput = {

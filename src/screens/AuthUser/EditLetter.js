@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CheckBox} from '@rneui/themed';
@@ -9,6 +9,7 @@ import BlueButton from '../../components/Buttons/BlueButton';
 import {updateLetter} from '../../graphql/mutations';
 import {useSelector} from 'react-redux';
 import {mutationItem} from '../../utils/amplifyUtil';
+import EditOrDeleteButtons from '../../components/EditOrDeleteButtons';
 
 const EditLetter = ({navigation, route}) => {
   const {
@@ -30,6 +31,13 @@ const EditLetter = ({navigation, route}) => {
   // check box
   const [checked, setChecked] = useState(accessLevel === 'PRIVATE');
   const toggleCheckbox = () => setChecked(!checked);
+
+  useEffect(() => {
+    console.log('EditLetter component - Mounted');
+    return () => {
+      console.log('EditLetter - Unmounted');
+    };
+  }, []);
 
   const renderTitleField = () => {
     return (

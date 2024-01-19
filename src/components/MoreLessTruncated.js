@@ -1,20 +1,23 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, StyleSheet, Text, View, Platform} from 'react-native';
-import {useSelector} from 'react-redux';
-
 import MoreLessComponent from './MoreLess';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
 
 import {scaleFontSize} from '../assets/styles/scaling';
 
-const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
-  const userID = useSelector(state => state.user.cognitoUsername);
+const MoreLessTruncated = ({item, linesToTruncate, whichTab, userID}) => {
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const {createdAt, relationship, title, profilePic} = item;
   const text = item.content.trim();
   // console.log('print profilepic url in letters: ', profilePic);
+  useEffect(() => {
+    console.log('MoreLessTruncated component - Mounted');
+    return () => {
+      console.log('MoreLessTruncated component - Unmounted');
+    };
+  }, []);
 
   const handleTextLayout = event => {
     const {lines} = event.nativeEvent;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import {Button} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
@@ -10,6 +10,13 @@ const DashedBorderButton = ({title, onPress, circleSize, type, titleColor}) => {
       <AntDesign name={'pluscircle'} size={circleSize} color={'#6395E1'} />
     </View>
   );
+
+  useEffect(() => {
+    console.log('DashedBorderButton - Mounted');
+    return () => {
+      console.log('DashedBorderButton - Unmounted');
+    };
+  }, []);
 
   return (
     <Button
