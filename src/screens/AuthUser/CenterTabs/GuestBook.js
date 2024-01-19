@@ -244,6 +244,7 @@ export default GuestBook;
 
 const styles = StyleSheet.create({
   flatListContainer: {
+    flex: 1,
     backgroundColor: '#FFF',
     paddingTop: 10,
   },

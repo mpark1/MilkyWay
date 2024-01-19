@@ -35,7 +35,6 @@ const BottomSheetModalTextInputWrapper = ({
 }) => {
   const [newMessage, setNewMessage] = useState(originalMsg);
   const onChangeNewMessage = useCallback(text => setNewMessage(text), []);
-  const userName = useSelector(state => state.user.name);
   const dispatch = useDispatch();
 
   const snapPoints = useMemo(() => ['53%'], []);
