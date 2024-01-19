@@ -1,21 +1,30 @@
 import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, View, Platform} from 'react-native';
+import {Image, StyleSheet, Text, View, Platform, Pressable} from 'react-native';
+import {useSelector} from 'react-redux';
+
 import MoreLessComponent from './MoreLess';
-import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
 
 import {scaleFontSize} from '../assets/styles/scaling';
+import {mutationItem} from '../utils/amplifyUtil';
+import {deleteLetter} from '../graphql/mutations';
+import {useNavigation} from '@react-navigation/core';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import DeleteAlertBox from './DeleteAlertBox';
 
-const MoreLessTruncated = ({item, linesToTruncate, whichTab, userID}) => {
+const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
+  const userID = useSelector(state => state.user.cognitoUsername);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const {createdAt, relationship, title, profilePic} = item;
   const text = item.content.trim();
+  const navigation = useNavigation();
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
   // console.log('print profilepic url in letters: ', profilePic);
   useEffect(() => {
     console.log('MoreLessTruncated component - Mounted');
     return () => {
-      console.log('MoreLessTruncated component - Unmounted');
+      console.log('MoreLessTruncated - Unmounted');
     };
   }, []);
 
@@ -47,6 +56,26 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab, userID}) => {
         {text}
       </Text>
     );
+  };
+
+  const deleteLetterOnSubmit = async () => {
+    const deleteLetterInput = {
+      id: item.id,
+      petID: item.petID,
+      createdAt: item.createdAt,
+    };
+    await mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      deleteLetterInput,
+      deleteLetter,
+      '편지가 성공적으로 삭제되었습니다.',
+      'none',
+    );
+  };
+
+  const updateLetterOnSubmit = () => {
+    navigation.navigate('EditLetter', {item: item});
   };
 
   return (
@@ -101,7 +130,17 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab, userID}) => {
           <View style={styles.editAndDeleteContainer}>
             {whichTab === 'Letters' &&
               !isTruncated &&
-              item.owner === userID && <EditOrDeleteButtons item={item} />}
+              item.owner === userID && (
+                <View style={styles.editAndDeleteContainerInner}>
+                  <Pressable onPress={() => updateLetterOnSubmit()}>
+                    <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
+                    <EvilIcons name={'trash'} color={'#373737'} size={26} />
+                  </Pressable>
+                </View>
+              )}
             {whichTab === 'GuestBook' &&
               !isTruncated &&
               item.owner === userID && <DeleteIcon item={item} />}
@@ -172,5 +211,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     width: '100%',
+  },
+  editAndDeleteContainerInner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 50,
   },
 });

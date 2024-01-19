@@ -9,7 +9,10 @@ import {
   Pressable,
 } from 'react-native';
 import {useSelector} from 'react-redux';
-import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
+import {
+  queryGuestBooksByPetIDPagination,
+  queryUser,
+} from '../../../utils/amplifyUtil';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
@@ -19,12 +22,21 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import {
   onCreateGuestBook,
+  onCreateLetter,
   onDeleteGuestBook,
+  onDeleteLetter,
   onUpdateGuestBook,
+  onUpdateLetter,
 } from '../../../graphql/subscriptions';
-import {sucriptionForAllMutation} from '../../../utils/amplifyUtilSubscription';
+import {
+  addUserDetailsToNewObj,
+  petPageTabsSubscription,
+  processUpdateSubscription,
+  sucriptionForAllMutation,
+} from '../../../utils/amplifyUtilSubscription';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {Button} from '@rneui/base';
+import {generateClient} from 'aws-amplify/api';
 
 const GuestBook = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -40,20 +52,69 @@ const GuestBook = ({navigation, route}) => {
   const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
-    console.log('this is GuestBook tab. print redux: ', petID);
+    console.log('GuestBook tab is mounted. print redux: ', petID);
     const firstFetch = async () => {
       await fetchMessages();
       setIsFetchComplete(true);
     };
     console.log('GuestBook tab is rendered');
     firstFetch();
-    // sucriptionForAllMutation(
-    //   petID,
-    //   onCreateGuestBook,
-    //   onUpdateGuestBook,
-    //   onDeleteGuestBook,
-    // );
+    return () => {
+      console.log('GuestBook tab is Unmounted!');
+    };
   }, [petID]);
+
+  useEffect(() => {
+    const client = generateClient();
+    // create mutation
+    const createSub = petPageTabsSubscription(
+      client,
+      onCreateGuestBook,
+      'Create',
+      processSubscriptionData,
+      petID,
+    );
+    const deleteSub = petPageTabsSubscription(
+      client,
+      onDeleteGuestBook,
+      'Delete',
+      processSubscriptionData,
+      petID,
+    );
+    return () => {
+      console.log('guestbook subscriptions are turned off!');
+      createSub.unsubscribe();
+      deleteSub.unsubscribe();
+    };
+  }, []);
+
+  async function processSubscriptionData(mutationType, data) {
+    // setIsLetterFetchComplete(false);
+    switch (mutationType) {
+      case 'Create':
+        // return Letter in db
+        const newMessageObj = await addUserDetailsToNewObj(
+          data.onCreateGuestBook,
+        );
+        console.log('print newly added guest message data: ', newMessageObj);
+        setGuestBookData(prev => ({
+          ...prev,
+          guestMessages: [newMessageObj, ...prev.guestMessages],
+        }));
+        break;
+
+      case 'Delete':
+        const deleteLetter = data.onDeleteGuestBook;
+        setGuestBookData(prev => ({
+          ...prev,
+          guestMessages: prev.guestMessages.filter(
+            message => message.id !== deleteLetter.id,
+          ),
+        }));
+        break;
+    }
+    // setIsLetterFetchComplete(true);
+  }
 
   const fetchMessages = async () => {
     queryGuestBooksByPetIDPagination(

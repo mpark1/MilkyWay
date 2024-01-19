@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 
@@ -14,6 +14,9 @@ import MoreLessTruncated from '../../../components/MoreLessTruncated';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import {
+  addUserDetailsToNewObj,
+  petPageTabsSubscription,
+  processUpdateSubscription,
   sucriptionForAllMutation,
   supscriptionForCreate,
 } from '../../../utils/amplifyUtilSubscription';
@@ -35,6 +38,8 @@ const Letters = ({navigation, route}) => {
   });
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
   const [isLetterFetchComplete, setIsLetterFetchComplete] = useState(false);
+  // Ref to track the latest letters data
+  const lettersDataRef = useRef(lettersData.letters);
 
   useEffect(() => {
     console.log('this is Letter tab. print redux: ', petID, userID);
@@ -50,53 +55,34 @@ const Letters = ({navigation, route}) => {
   }, [petID]);
 
   useEffect(() => {
+    lettersDataRef.current = lettersData.letters;
+  }, [lettersData.letters]);
+
+  useEffect(() => {
     const client = generateClient();
     // create mutation
-    const createSub = client
-      .graphql({
-        query: onCreateLetter,
-        variables: {
-          filter: {petID: {eq: petID}},
-        },
-        authMode: 'userPool',
-      })
-      .subscribe({
-        next: ({data}) => {
-          processSubscriptionData('Create', data);
-        },
-        error: error => console.warn(error),
-      });
+    const createSub = petPageTabsSubscription(
+      client,
+      onCreateLetter,
+      'Create',
+      processSubscriptionData,
+      petID,
+    );
+    const updateSub = petPageTabsSubscription(
+      client,
+      onUpdateLetter,
+      'Update',
+      processSubscriptionData,
+      petID,
+    );
+    const deleteSub = petPageTabsSubscription(
+      client,
+      onDeleteLetter,
+      'Delete',
+      processSubscriptionData,
+      petID,
+    );
 
-    const updateSub = client
-      .graphql({
-        query: onUpdateLetter,
-        variables: {
-          filter: {petID: {eq: petID}},
-        },
-        authMode: 'userPool',
-      })
-      .subscribe({
-        next: ({data}) => {
-          processSubscriptionData('Update', data);
-        },
-        error: error => console.warn(error),
-      });
-    // Stop receiving data updates from the subscription
-
-    const deleteSub = client
-      .graphql({
-        query: onDeleteLetter,
-        variables: {
-          filter: {petID: {eq: petID}},
-        },
-        authMode: 'userPool',
-      })
-      .subscribe({
-        next: ({data}) => {
-          processSubscriptionData('Delete', data);
-        },
-        error: error => console.warn(error),
-      });
     return () => {
       console.log('letter subscriptions are turned off!');
       createSub.unsubscribe();
@@ -105,12 +91,12 @@ const Letters = ({navigation, route}) => {
     };
   }, []);
 
-  const processSubscriptionData = async (mutationType, data) => {
+  async function processSubscriptionData(mutationType, data) {
     // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
         // return Letter in db
-        const newLetterObj = await queryUser(data.onCreateLetter);
+        const newLetterObj = await addUserDetailsToNewObj(data.onCreateLetter);
         console.log('print newly added letter data: ', newLetterObj);
         setLettersData(prev => ({
           ...prev,
@@ -119,35 +105,12 @@ const Letters = ({navigation, route}) => {
         break;
 
       case 'Update':
-        console.log('this is for the update letter page!');
         const updatedLetterObj = data.onUpdateLetter;
-        console.log(
-          '1. updated letter received for update: ',
-          updatedLetterObj.id,
+        const currentLetters = lettersDataRef.current;
+        const updatedLettersArray = await processUpdateSubscription(
+          currentLetters,
+          updatedLetterObj,
         );
-        console.log(
-          '1-1. print current letters data in useState in letters.js: ',
-          lettersData.letters[0],
-        );
-        const updatedLettersArray = await Promise.all(
-          lettersData.letters.map(async letter => {
-            if (letter.id === updatedLetterObj.id) {
-              const urlResult = await retrieveS3Url(
-                updatedLetterObj.author.profilePic,
-              );
-              return {
-                ...updatedLetterObj,
-                userName: updatedLetterObj.author.name,
-                profilePicS3Key: updatedLetterObj.author.profilePic,
-                profilePic: urlResult.url.href,
-                s3UrlExpiredAt: urlResult.expiresAt.toString(),
-              };
-            } else {
-              return letter;
-            }
-          }),
-        );
-        console.log('3. print updated letters: ', updatedLettersArray[0]);
         setLettersData(prev => ({
           ...prev,
           letters: updatedLettersArray,
@@ -163,7 +126,8 @@ const Letters = ({navigation, route}) => {
         break;
     }
     // setIsLetterFetchComplete(true);
-  };
+  }
+
   const fetchLetters = async () => {
     queryLettersByPetIDPagination(
       isLoadingLetters,
@@ -188,7 +152,6 @@ const Letters = ({navigation, route}) => {
           item={item}
           linesToTruncate={2}
           whichTab={'Letters'}
-          userID={userID}
         />
       )
     );
