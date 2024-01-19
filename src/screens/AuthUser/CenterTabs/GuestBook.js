@@ -124,10 +124,10 @@ const GuestBook = ({navigation, route}) => {
       petID,
       guestBookData.nextToken,
     ).then(data => {
-      const {letters, nextToken: newNextToken} = data;
-      letters !== null &&
+      const {guestMessages, nextToken: newNextToken} = data;
+      guestMessages !== null &&
         setGuestBookData(prev => ({
-          guestMessages: [...prev.guestMessages, ...letters],
+          guestMessages: [...prev.guestMessages, ...guestMessages],
           nextToken: newNextToken,
         }));
     });

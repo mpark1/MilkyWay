@@ -245,18 +245,18 @@ export async function queryGuestBooksByPetIDPagination(
     });
 
     const {items, nextToken} = response.data.listGuestBooks;
-    const letterData = {letters: [], nextToken: null};
+    const guestbookData = {guestMessages: [], nextToken: null};
     if (items.length === 0) {
-      return letterData;
+      return guestbookData;
     }
 
-    const lettersWithUserDetails = await Promise.all(
-      items.map(async letter => {
+    const guestbooksWithUserDetails = await Promise.all(
+      items.map(async guestbook => {
         try {
           // get user info from db
           const userDetails = await client.graphql({
             query: getUser,
-            variables: {id: letter.guestBookAuthorId},
+            variables: {id: guestbook.guestBookAuthorId},
             authMode: 'userPool',
           });
           const userObject = userDetails.data.getUser;
@@ -264,10 +264,10 @@ export async function queryGuestBooksByPetIDPagination(
           if (userObject.profilePic.length !== 0) {
             const getUrlResult = await retrieveS3UrlForOthers(
               userObject.profilePic,
-              letter.identityId,
+              guestbook.identityId,
             );
             return {
-              ...letter,
+              ...guestbook,
               userName: userObject.name,
               profilePicS3Key: userObject.profilePic,
               profilePic: getUrlResult.url.href,
@@ -275,7 +275,7 @@ export async function queryGuestBooksByPetIDPagination(
             };
           } else {
             return {
-              ...letter,
+              ...guestbook,
               userName: userObject.name,
             };
           }
@@ -286,10 +286,10 @@ export async function queryGuestBooksByPetIDPagination(
         }
       }),
     );
-    return {letters: lettersWithUserDetails, nextToken};
+    return {guestMessages: guestbooksWithUserDetails, nextToken};
   } catch (error) {
     console.log('error for list fetching: ', error);
-    return {letters: [], nextToken: null};
+    return {guestMessages: [], nextToken: null};
   } finally {
     setIsLoading(false);
   }
