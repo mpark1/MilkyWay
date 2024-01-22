@@ -372,13 +372,15 @@ export async function queryAlbumsByPetIDPagination(
           albumObj.height = height;
         }
         const s3response = await list({
-          prefix: 'album/' + albumObj.id + '/',
+          prefix: 'album/' + albumObj.s3Folder + '/',
           options: {
             accessLevel: 'protected',
             targetIdentityId: albumObj.authorIdentityID,
           },
         });
+        albumObj.keyArray = [];
         const urlPromises = s3response.items.map(async imageObj => {
+          albumObj.keyArray.push(imageObj.key);
           const getUrlResult = await retrieveS3UrlForOthers(
             imageObj.key,
             albumObj.authorIdentityID,
@@ -389,6 +391,10 @@ export async function queryAlbumsByPetIDPagination(
         albumObj.imageArray = await Promise.all(urlPromises);
       });
       await Promise.all(albumPromises);
+      console.log(
+        'print the first keyArray of the albums: ',
+        albumData.albums[0].keyArray,
+      );
       setIsLoadingAlbums(false);
       return albumData;
     } catch (error) {

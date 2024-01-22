@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View, Text, StyleSheet, FlatList, Pressable} from 'react-native';
+import {View, Text, StyleSheet, FlatList, Pressable, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -9,6 +9,7 @@ import AlbumVideo from '../../../components/AlbumVideo';
 
 import {
   fetchImageArrayFromS3,
+  mutationItem,
   queryAlbumsByPetIDPagination,
 } from '../../../utils/amplifyUtil';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
@@ -29,16 +30,21 @@ import {
   onUpdateAlbum,
   onUpdateLetter,
 } from '../../../graphql/subscriptions';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import DeleteAlertBox from '../../../components/DeleteAlertBox';
+import {deleteAlbum, deleteGuestBook} from '../../../graphql/mutations';
+import {remove} from 'aws-amplify/storage';
 
 const Album = ({navigation, route}) => {
   const {isFamily} = route.params;
   const pageSize = 3;
   const petID = useSelector(state => state.pet.id);
+  const userId = useSelector(state => state.user.cognitoUsername);
   const [albumData, setAlbumData] = useState({
     albums: [],
     nextToken: null,
   });
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
   const albumDataRef = useRef(albumData.albums);
 
@@ -62,7 +68,7 @@ const Album = ({navigation, route}) => {
       processSubscriptionData,
       petID,
     );
-    const updateAlubmSub = petPageTabsSubscription(
+    const updateAlbumSub = petPageTabsSubscription(
       client,
       onUpdateAlbum,
       'Update',
@@ -96,12 +102,9 @@ const Album = ({navigation, route}) => {
         const newAlbumObj = data.onCreateAlbum;
         console.log('print newly added album data: ', newAlbumObj);
         // add image array from s3
-        let newAlbumObjWithImages;
-        setTimeout(async () => {
-          newAlbumObjWithImages = await fetchImageArrayForOneAlbumFromS3(
-            newAlbumObj,
-          );
-        }, 2000); // 500 milliseconds delay
+        const newAlbumObjWithImages = await fetchImageArrayForOneAlbumFromS3(
+          newAlbumObj,
+        );
         console.log(
           'print newly added album data with images: ',
           newAlbumObjWithImages,
@@ -137,8 +140,8 @@ const Album = ({navigation, route}) => {
   }
   const fetchAlbums = async () => {
     await queryAlbumsByPetIDPagination(
-      isLoadingAlbums,
-      setIsLoadingAlbums,
+      isCallingAPI,
+      setIsCallingAPI,
       pageSize,
       petID,
       albumData.nextToken,
@@ -150,6 +153,40 @@ const Album = ({navigation, route}) => {
           nextToken: newNextToken,
         }));
     });
+  };
+
+  const deleteAlbumApi = async ({item}) => {
+    Alert.alert('정말 삭제하시겠습니까?', '삭제 후 복구가 불가능합니다.', [
+      {text: '취소'},
+      {
+        text: '삭제',
+        onPress: async () => {
+          const deleteAlbumInput = {
+            petID: petID,
+            createdAt: item.createdAt,
+            id: item.id,
+          };
+          // remove an album folder in S3.
+          try {
+            item.keyArray.map(
+              async s3key =>
+                await remove({key: s3key, options: {accessLevel: 'protected'}}),
+            );
+          } catch (error) {
+            console.log('Error while deleting an album folder in S3 ', error);
+          }
+          // remove an album item in Album table in db.
+          await mutationItem(
+            isCallingAPI,
+            setIsCallingAPI,
+            deleteAlbumInput,
+            deleteAlbum,
+            '앨범이 삭제되었습니다.',
+            'none',
+          );
+        },
+      },
+    ]);
   };
 
   const renderDottedBorderButton = () => {
@@ -187,12 +224,7 @@ const Album = ({navigation, route}) => {
               height={item.height}
             />
           )}
-          <View>
-            <Text style={[styles.caption, {marginVertical: 10}]}>
-              {item.category !== 0
-                ? '                 ' + item.caption
-                : item.caption}
-            </Text>
+          <View style={styles.captionContainer}>
             <Text
               style={styles.tag}
               onPress={() => {
@@ -201,6 +233,16 @@ const Album = ({navigation, route}) => {
               }}>
               {albumCategoryMapping[item.category]}
             </Text>
+            <Text style={styles.caption}>
+              {item.category !== 0 ? item.caption : item.caption}
+            </Text>
+            {userId === item.owner && (
+              <Pressable
+                style={styles.trashCan}
+                onPress={async () => deleteAlbumApi({item})}>
+                <EvilIcons name={'trash'} color={'#373737'} size={26} />
+              </Pressable>
+            )}
           </View>
         </View>
       )
@@ -227,7 +269,7 @@ const Album = ({navigation, route}) => {
       {isAlbumFetchComplete && albumData.albums.length > 0 && (
         <View style={styles.flatListContainer}>
           <FlatList
-            onMomentumScrollBegin={() => setIsLoadingAlbums(false)}
+            onMomentumScrollBegin={() => setIsCallingAPI(false)}
             onEndReachedThreshold={0.8}
             onEndReached={onEndReached}
             showsVerticalScrollIndicator={false}
@@ -257,18 +299,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatListItemContainer: {
-    marginBottom: 10,
+    marginBottom: 15,
+  },
+  captionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 7,
+    backgroundColor: 'yellow',
   },
   caption: {
     color: '#374957',
-    fontSize: scaleFontSize(16),
-    lineHeight: scaleFontSize(20),
+    fontSize: scaleFontSize(18),
+    marginLeft: 7,
+    backgroundColor: 'grey',
   },
   tag: {
-    position: 'absolute',
-    top: 10,
     color: '#6395E1',
     fontSize: scaleFontSize(18),
-    marginBottom: 10,
+    backgroundcolor: 'red',
+  },
+  trashCan: {
+    paddingLeft: 5,
+    backgroundcolor: 'blue',
   },
 });

@@ -30,6 +30,7 @@ import ages from '../../data/albumCategories.json';
 import {albumCategory} from '../../constants/albumCategoryMapping';
 import BlueButton from '../../components/Buttons/BlueButton';
 import AlertBox from '../../components/AlertBox';
+import uuid from 'react-native-uuid';
 
 const MediaPreview = ({navigation, route}) => {
   const {isPhoto, mediaList: initialMediaList, category} = route.params;
@@ -197,24 +198,52 @@ const MediaPreview = ({navigation, route}) => {
   }
 
   const onSubmit = async () => {
-    // get author's identity ID
-    const identityId = await getIdentityID();
-    // 1. create a new album item
-    const newAlbumInput = {
-      petID: petID,
-      category: albumCategory[newCategory], // category: Int!
-      caption: description,
-      authorIdentityID: identityId,
-      imageType: isPhoto ? 0 : 1,
-    };
-    if (!isPhoto) {
-      newAlbumInput.widthHeight =
-        mediaList[0].width.toString() + '.' + mediaList[0].height.toString();
-    }
-
     try {
       if (!isCallingAPI) {
         setIsCallingAPI(true);
+        // 1. first, save images in S3 in the same new folder
+        const newAlbumFolder = uuid.v4();
+        await Promise.all(
+          mediaList.map(async item => {
+            console.log('item inside onSubmit: ', item);
+            let videoBlob;
+            const filename = 'album/' + newAlbumFolder + '/' + item.filename;
+            if (!isPhoto) {
+              videoBlob = await convertVideoToBlob();
+              const s3Result = await uploadVideoToS3(
+                filename,
+                videoBlob,
+                item.contentType,
+              );
+              console.log('print s3 result value: ', s3Result);
+            } else {
+              const s3Result = await uploadImageToS3(
+                filename,
+                item.blob, // photoBlob
+                item.contentType,
+              );
+              console.log('print s3 result value: ', s3Result);
+            }
+          }),
+        );
+        // 2. save item in db
+        // get author's identity ID
+        const identityId = await getIdentityID();
+        // create a new album item
+        const newAlbumInput = {
+          petID: petID,
+          category: albumCategory[newCategory], // category: Int!
+          caption: description,
+          authorIdentityID: identityId,
+          imageType: isPhoto ? 0 : 1,
+          s3Folder: newAlbumFolder,
+        };
+        if (!isPhoto) {
+          newAlbumInput.widthHeight =
+            mediaList[0].width.toString() +
+            '.' +
+            mediaList[0].height.toString();
+        }
         const client = generateClient();
         const response = await client.graphql({
           query: createAlbum,
@@ -222,29 +251,6 @@ const MediaPreview = ({navigation, route}) => {
           authMode: 'userPool',
         });
         console.log('response after create album ', response);
-        const albumID = response.data.createAlbum.id;
-
-        mediaList.map(async item => {
-          console.log('item inside onSubmit: ', item);
-          let videoBlob;
-          const filename = 'album/' + albumID + '/' + item.filename;
-          if (!isPhoto) {
-            videoBlob = await convertVideoToBlob();
-            const s3Result = await uploadVideoToS3(
-              filename,
-              videoBlob,
-              item.contentType,
-            );
-            console.log('print s3 result value: ', s3Result);
-          } else {
-            const s3Result = await uploadImageToS3(
-              filename,
-              item.blob, // photoBlob
-              item.contentType,
-            );
-            console.log('print s3 result value: ', s3Result);
-          }
-        });
         AlertBox(
           '앨범이 성공적으로 등록되었습니다.',
           '',

@@ -136,4 +136,5 @@ type Album @model
     authorIdentityID: String!
     imageType: Int!
     widthHeight: String
+    s3Folder: String!
 }

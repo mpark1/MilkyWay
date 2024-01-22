@@ -84,7 +84,7 @@ export async function fetchImageArrayForOneAlbumFromS3(albumObj) {
   try {
     // returns all image objects from s3 bucket
     const s3response = await list({
-      prefix: 'album/' + albumObj.id + '/',
+      prefix: 'album/' + albumObj.s3Folder + '/',
       options: {
         accessLevel: 'protected',
         targetIdentityId: albumObj.authorIdentityID,

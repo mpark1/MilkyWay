@@ -396,6 +396,7 @@ export const createAlbum = /* GraphQL */ `
       authorIdentityID
       imageType
       widthHeight
+      s3Folder
       updatedAt
       owner
       __typename
@@ -416,6 +417,7 @@ export const updateAlbum = /* GraphQL */ `
       authorIdentityID
       imageType
       widthHeight
+      s3Folder
       updatedAt
       owner
       __typename
@@ -436,6 +438,7 @@ export const deleteAlbum = /* GraphQL */ `
       authorIdentityID
       imageType
       widthHeight
+      s3Folder
       updatedAt
       owner
       __typename

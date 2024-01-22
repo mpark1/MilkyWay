@@ -352,6 +352,7 @@ export const getAlbum = /* GraphQL */ `
       authorIdentityID
       imageType
       widthHeight
+      s3Folder
       updatedAt
       owner
       __typename
@@ -384,6 +385,7 @@ export const listAlbums = /* GraphQL */ `
         authorIdentityID
         imageType
         widthHeight
+        s3Folder
         updatedAt
         owner
         __typename
@@ -417,6 +419,7 @@ export const albumByCategory = /* GraphQL */ `
         authorIdentityID
         imageType
         widthHeight
+        s3Folder
         updatedAt
         owner
         __typename
