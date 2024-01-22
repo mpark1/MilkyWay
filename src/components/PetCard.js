@@ -15,16 +15,19 @@ import {setCurrentPetID} from '../redux/slices/User';
 import {
   resetPet,
   setIsManager,
+  setNewBackgroundPicS3Key,
+  setNewBackgroundPicUrl,
   setPetGeneralInfo,
   setPetID,
 } from '../redux/slices/Pet';
+import {querySingleItem, retrieveS3UrlForOthers} from '../utils/amplifyUtil';
 
 const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     // update pet redux
     dispatch(
       setPetGeneralInfo({
@@ -37,6 +40,7 @@ const PetCard = ({item, isFamily}) => {
         accessLevel: item.accessLevel,
         profilePicS3Key: item.profilePicS3Key,
         s3UrlExpiredAt: item.s3UrlExpiredAt,
+        identityId: item.identityId,
       }),
     );
     dispatch(setIsManager(item.owner === userID));
@@ -44,6 +48,33 @@ const PetCard = ({item, isFamily}) => {
       'is user an owner of the selected pet? ',
       item.owner === userID,
     );
+
+    await querySingleItem(getPetPageBackgroundImage, {petID: item.id}).then(
+      async resFromDB => {
+        console.log('does the pet have background image?', resFromDB);
+        if (resFromDB.getPetPageBackgroundImage !== null) {
+          let s3key;
+          if (
+            resFromDB.getPetPageBackgroundImage.backgroundImageKey.length > 0
+          ) {
+            s3key = resFromDB.getPetPageBackgroundImage.backgroundImageKey;
+            dispatch(setNewBackgroundPicS3Key(s3key));
+
+            const getUrlResult = await retrieveS3UrlForOthers(
+              s3key,
+              item.identityId,
+            );
+            dispatch(
+              setNewBackgroundPicUrl({
+                backgroundPic: getUrlResult.url.href,
+                backgroundPicS3UrlExpiredAt: getUrlResult.expiresAt.toString(),
+              }),
+            );
+          }
+        }
+      },
+    );
+
     navigation.navigate('PetPage', {isFamily: isFamily});
   };
 

@@ -66,11 +66,7 @@ const UserSettings = ({navigation}) => {
   }, []);
 
   const checkS3urlFunc = async () => {
-    const newProfileUrl = await checkS3Url(
-      'petProfilePic',
-      s3UrlExpiredAt,
-      profilePicS3Key,
-    );
+    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
     if (newProfileUrl.profilePic !== null) {
       dispatch(updateUserProfilePicUrl(newProfileUrl));
     }

@@ -634,10 +634,31 @@ export async function checkAsyncStorageUserProfile(
   }
 }
 
-export async function checkS3Url(type, s3UrlExpiredAt, s3Key) {
+export async function checkS3Url(s3UrlExpiredAt, s3Key) {
+  if (new Date(Date.now()) >= new Date(s3UrlExpiredAt)) {
+    const newPicInfo = retrieveS3Url(s3Key); // pet/user profile or background picture url is renewed
+    const newUrl = newPicInfo.url.href;
+    const newExpiresAt = newPicInfo.expiresAt.toString();
+    return {
+      profilePic: newUrl,
+      s3UrlExpiredAt: newExpiresAt,
+    };
+  }
+  return {
+    profilePic: null,
+    s3UrlExpiredAt: null,
+  };
+}
+
+export async function checkS3UrlForOthers(
+  type,
+  s3UrlExpiredAt,
+  s3Key,
+  identityId,
+) {
   if (new Date(Date.now()) >= new Date(s3UrlExpiredAt)) {
     // renew presigned url
-    const newPicInfo = retrieveS3Url(s3Key); // pet/user profile or background picture url is renewed
+    const newPicInfo = retrieveS3UrlForOthers(s3Key, identityId);
     const newUrl = newPicInfo.url.href;
     const newExpiresAt = newPicInfo.expiresAt.toString();
     switch (type) {
@@ -652,7 +673,10 @@ export async function checkS3Url(type, s3UrlExpiredAt, s3Key) {
           backgroundPicS3UrlExpiredAt: newExpiresAt,
         };
       default:
-        return null;
+        return {
+          profilePic: null,
+          s3UrlExpiredAt: null,
+        };
     }
   }
   // picture url is still valid

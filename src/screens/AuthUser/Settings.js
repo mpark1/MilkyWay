@@ -51,6 +51,7 @@ const Settings = ({navigation, route}) => {
     accessLevel,
     profilePicS3Key,
     s3UrlExpiredAt,
+    identityId,
   } = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
@@ -82,11 +83,7 @@ const Settings = ({navigation, route}) => {
   }, []);
 
   const checkS3urlFunc = async () => {
-    const newProfileUrl = await checkS3Url(
-      'petProfilePic',
-      s3UrlExpiredAt,
-      profilePicS3Key,
-    );
+    const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
     if (newProfileUrl.profilePic !== null) {
       dispatch(setUpdateProfilePicUrl(newProfileUrl));
     }
