@@ -18,9 +18,11 @@ import {
   processUpdateSubscription,
 } from '../../../utils/amplifyUtilSubscription';
 import {
+  onCreateAlbum,
   onCreateLetter,
   onDeleteAlbum,
   onDeleteLetter,
+  onUpdateAlbum,
   onUpdateLetter,
 } from '../../../graphql/subscriptions';
 
@@ -86,8 +88,7 @@ const Album = ({navigation, route}) => {
     // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
-        // return Letter in db
-        const newAlbumObj = await addUserDetailsToNewObj(data.onCreateAlbum);
+        const newAlbumObj = data.onCreateAlbum;
         console.log('print newly added album data: ', newAlbumObj);
         setAlbumData(prev => ({
           ...prev,
@@ -178,8 +179,10 @@ const Album = ({navigation, route}) => {
                     ) : (
                       <AlbumVideo
                         source={item.imageArray[0]}
-                        // width={parseInt(item.metadata.width)}
-                        // height={parseInt(item.metadata.height)}
+                        width={300}
+                        height={300}
+                        // width={parseInt(item.metadata.width, 10)}
+                        // height={parseInt(item.metadata.height, 10)}
                       />
                     )}
                     <View>

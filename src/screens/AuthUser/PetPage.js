@@ -126,6 +126,7 @@ const PetPage = ({navigation, route}) => {
 
   const renderBackgroundImage = () => {
     // TODO: 배경사진 가로, 세로 비율 (aspectRatio)
+    console.log('print background image usestate: ', newBackgroundPic);
     return newBackgroundPic.length === 0 ? (
       <Image
         source={require('../../assets/images/milkyWayBackgroundImage.png')}

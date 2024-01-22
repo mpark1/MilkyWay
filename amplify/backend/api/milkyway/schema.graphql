@@ -135,4 +135,5 @@ type Album @model
     createdAt: String!
     authorIdentityID: String!
     imageType: Int!
+    widthHeight: String
 }

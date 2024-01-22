@@ -92,14 +92,11 @@ const GuestBook = ({navigation, route}) => {
     // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
-        // return Letter in db
-        const newMessageObj = await addUserDetailsToNewObj(
-          data.onCreateGuestBook,
-        );
-        console.log('print newly added guest message data: ', newMessageObj);
+        const newGuestBookObj = data.onCreateGuestBook;
+        console.log('print newly added guest message data: ', newGuestBookObj);
         setGuestBookData(prev => ({
           ...prev,
-          guestMessages: [newMessageObj, ...prev.guestMessages],
+          guestMessages: [newGuestBookObj, ...prev.guestMessages],
         }));
         break;
 
