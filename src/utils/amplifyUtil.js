@@ -312,13 +312,7 @@ export async function uploadImageToS3(filename, photoBlob, contentType) {
   }
 }
 
-export async function uploadVideoToS3(
-  filename,
-  videoBlob,
-  contentType,
-  width,
-  height,
-) {
+export async function uploadVideoToS3(filename, videoBlob, contentType) {
   try {
     const result = await uploadData({
       key: filename,
@@ -326,7 +320,6 @@ export async function uploadVideoToS3(
       options: {
         accessLevel: 'protected',
         contentType: contentType,
-        metadata: {width: width, height: height}, // metadata?: {key: "value"}
       },
     }).result;
     console.log('Succeeded on upload to S3: ', result);

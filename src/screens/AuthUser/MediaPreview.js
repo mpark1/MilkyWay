@@ -200,12 +200,17 @@ const MediaPreview = ({navigation, route}) => {
     // get author's identity ID
     const identityId = await getIdentityID();
     // 1. create a new album item
+    const widthHeight = !isPhoto
+      ? mediaList[0].width.toString() + '.' + mediaList[0].height.toString()
+      : '';
+
     const newAlbumInput = {
       petID: petID,
       category: albumCategory[newCategory], // category: Int!
       caption: description,
       authorIdentityID: identityId,
       imageType: isPhoto ? 0 : 1,
+      widthHeight: widthHeight,
     };
 
     try {
@@ -230,8 +235,6 @@ const MediaPreview = ({navigation, route}) => {
               filename,
               videoBlob,
               item.contentType,
-              item.width.toString(),
-              item.height.toString(),
             );
             console.log('print s3 result value: ', s3Result);
           } else {
