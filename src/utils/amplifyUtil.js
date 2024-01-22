@@ -673,17 +673,11 @@ export async function checkS3UrlForOthers(
           backgroundPicS3UrlExpiredAt: newExpiresAt,
         };
       default:
-        return {
-          profilePic: null,
-          s3UrlExpiredAt: null,
-        };
+        return null;
     }
   }
   // picture url is still valid
-  return {
-    profilePic: null,
-    s3UrlExpiredAt: null,
-  };
+  return null;
 }
 
 export async function retrieveS3Url(key) {
