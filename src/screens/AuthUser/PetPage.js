@@ -119,14 +119,14 @@ const PetPage = ({navigation, route}) => {
     dispatch(
       setNewBackgroundPicUrl({
         backgroundPic: res.url.href,
-        backgroundPicS3UrlExpiredAt: res.expiresAt,
+        backgroundPicS3UrlExpiredAt: res.expiresAt.toString(),
       }),
     );
   };
 
   const renderBackgroundImage = () => {
     // TODO: 배경사진 가로, 세로 비율 (aspectRatio)
-    return backgroundPic.length === 0 ? (
+    return newBackgroundPic.length === 0 ? (
       <Image
         source={require('../../assets/images/milkyWayBackgroundImage.png')}
         style={styles.backgroundImage}
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     right: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    width: 60,
+    width: 80,
     justifyContent: 'space-between',
   },
   profileContainer: {
