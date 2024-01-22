@@ -53,7 +53,11 @@ const Pets = ({navigation}) => {
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
-    navigation.popToTop();
+    try {
+      navigation.popToTop();
+    } catch (error) {
+      console.log('this is an error message for popToTop in Pets: ', error);
+    }
     const firstFetchPet = async () => {
       await fetchPets();
       setIsFetchPetsComplete(true);

@@ -82,6 +82,9 @@ const Letters = ({navigation, route}) => {
       processSubscriptionData,
       petID,
     );
+    console.log(
+      'create, update, delete subscriptions are on for Letters table.',
+    );
 
     return () => {
       console.log('letter subscriptions are turned off!');

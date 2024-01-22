@@ -21,6 +21,7 @@ import {
   setPetID,
 } from '../redux/slices/Pet';
 import {querySingleItem, retrieveS3UrlForOthers} from '../utils/amplifyUtil';
+import {getPetpageBackgroundImage} from '../graphql/queries';
 
 const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
@@ -49,15 +50,13 @@ const PetCard = ({item, isFamily}) => {
       item.owner === userID,
     );
 
-    await querySingleItem(getPetPageBackgroundImage, {petID: item.id}).then(
+    await querySingleItem(getPetpageBackgroundImage, {petID: item.id}).then(
       async resFromDB => {
         console.log('does the pet have background image?', resFromDB);
-        if (resFromDB.getPetPageBackgroundImage !== null) {
-          let s3key;
-          if (
-            resFromDB.getPetPageBackgroundImage.backgroundImageKey.length > 0
-          ) {
-            s3key = resFromDB.getPetPageBackgroundImage.backgroundImageKey;
+        const obj = resFromDB.getPetpageBackgroundImage;
+        if (obj !== null) {
+          if (obj.backgroundImageKey.length > 0) {
+            const s3key = obj.backgroundImageKey;
             dispatch(setNewBackgroundPicS3Key(s3key));
 
             const getUrlResult = await retrieveS3UrlForOthers(

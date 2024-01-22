@@ -57,7 +57,6 @@ const GuestBook = ({navigation, route}) => {
       await fetchMessages();
       setIsFetchComplete(true);
     };
-    console.log('GuestBook tab is rendered');
     firstFetch();
     return () => {
       console.log('GuestBook tab is Unmounted!');
@@ -81,6 +80,7 @@ const GuestBook = ({navigation, route}) => {
       processSubscriptionData,
       petID,
     );
+    console.log('create, delete subscriptions are on for GuestBook table.');
     return () => {
       console.log('guestbook subscriptions are turned off!');
       createSub.unsubscribe();
