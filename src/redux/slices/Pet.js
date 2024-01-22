@@ -36,10 +36,6 @@ const Pet = createSlice({
       state.profilePicS3Key = action.payload.profilePicS3Key;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
       state.identityId = action.payload.identityId;
-      state.backgroundPic = action.payload.backgroundPic;
-      state.backgroundPicS3Key = action.payload.backgroundPicS3Key;
-      state.backgroundPicS3UrlExpiredAt =
-        action.payload.backgroundPicS3UrlExpiredAt;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;

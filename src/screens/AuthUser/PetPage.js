@@ -30,7 +30,7 @@ import {
   setNewBackgroundPicUrl,
 } from '../../redux/slices/Pet';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
-import {updatePet} from '../../graphql/mutations';
+import {updatePet, updatePetPageBackgroundImage} from '../../graphql/mutations';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -187,7 +187,7 @@ const PetPage = ({navigation, route}) => {
         profilePicS3Key,
         identityId,
       );
-      if (res.profilePic !== null) {
+      if (res !== null) {
         dispatch(setUpdateProfilePicUrl(res));
       }
     } else {
@@ -197,7 +197,7 @@ const PetPage = ({navigation, route}) => {
         backgroundPicS3Key,
         identityId,
       );
-      if (res.profilePic !== null) {
+      if (res !== null) {
         dispatch(setNewBackgroundPicUrl(res));
       }
     }
