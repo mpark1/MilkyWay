@@ -172,9 +172,16 @@ const Album = ({navigation, route}) => {
   };
 
   const renderFlatListItem = useCallback(({item}) => {
-    let parts = item.widthHeight.split('.');
-    let width = parseInt(parts[0], 10);
-    let height = parseInt(parts[1], 10);
+    let parts;
+    let width;
+    let height;
+
+    if (item.imageArray.length > 0) {
+      parts = item.widthHeight.split('.');
+      width = parseInt(parts[0], 10);
+      height = parseInt(parts[1], 10);
+    }
+
     return (
       item.imageArray.length > 0 && (
         <View style={styles.flatListItemContainer}>
