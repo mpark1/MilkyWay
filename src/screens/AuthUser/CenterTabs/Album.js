@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet, FlatList, Pressable} from 'react-native';
 import {useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -11,6 +11,18 @@ import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import {generateClient} from 'aws-amplify/api';
+import {
+  addUserDetailsToNewObj,
+  petPageTabsSubscription,
+  processUpdateSubscription,
+} from '../../../utils/amplifyUtilSubscription';
+import {
+  onCreateLetter,
+  onDeleteAlbum,
+  onDeleteLetter,
+  onUpdateLetter,
+} from '../../../graphql/subscriptions';
 
 const Album = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -22,6 +34,7 @@ const Album = ({navigation, route}) => {
   });
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
+  const albumDataRef = useRef(albumData.albums);
 
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
@@ -33,6 +46,78 @@ const Album = ({navigation, route}) => {
     firstFetch();
   }, [petID]);
 
+  useEffect(() => {
+    const client = generateClient();
+    // create mutation
+    const createSub = petPageTabsSubscription(
+      client,
+      onCreateAlbum,
+      'Create',
+      processSubscriptionData,
+      petID,
+    );
+    const updateSub = petPageTabsSubscription(
+      client,
+      onUpdateAlbum,
+      'Update',
+      processSubscriptionData,
+      petID,
+    );
+    const deleteSub = petPageTabsSubscription(
+      client,
+      onDeleteAlbum,
+      'Delete',
+      processSubscriptionData,
+      petID,
+    );
+    console.log(
+      'create, update, delete subscriptions are on for Letters table.',
+    );
+
+    return () => {
+      console.log('album subscriptions are turned off!');
+      createSub.unsubscribe();
+      updateSub.unsubscribe();
+      deleteSub.unsubscribe();
+    };
+  }, []);
+
+  async function processSubscriptionData(mutationType, data) {
+    // setIsLetterFetchComplete(false);
+    switch (mutationType) {
+      case 'Create':
+        // return Letter in db
+        const newAlbumObj = await addUserDetailsToNewObj(data.onCreateAlbum);
+        console.log('print newly added album data: ', newAlbumObj);
+        setAlbumData(prev => ({
+          ...prev,
+          albums: [newAlbumObj, ...prev.albums],
+        }));
+        break;
+
+      // case 'Update':
+      //   const updatedAlbumObj = data.onUpdateAlbum;
+      //   const currentAlbums = albumDataRef.current;
+      //   const updatedAlbumsArray = await processUpdateSubscription(
+      //     currentAlbums,
+      //     updatedAlbumObj,
+      //   );
+      //   setAlbumData(prev => ({
+      //     ...prev,
+      //     albums: updatedAlbumsArray,
+      //   }));
+      //   break;
+
+      case 'Delete':
+        const deleteAlbum = data.onDeleteAlbum;
+        setAlbumData(prev => ({
+          ...prev,
+          albums: prev.albums.filter(album => album.id !== deleteAlbum.id),
+        }));
+        break;
+    }
+    // setIsLetterFetchComplete(true);
+  }
   const fetchAlbums = async () => {
     await queryAlbumsByPetIDPagination(
       isLoadingAlbums,
