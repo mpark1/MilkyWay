@@ -172,16 +172,6 @@ const Album = ({navigation, route}) => {
   };
 
   const renderFlatListItem = useCallback(({item}) => {
-    let parts;
-    let width;
-    let height;
-
-    if (item.imageArray.length > 0) {
-      parts = item.widthHeight.split('.');
-      width = parseInt(parts[0], 10);
-      height = parseInt(parts[1], 10);
-    }
-
     return (
       item.imageArray.length > 0 && (
         <View style={styles.flatListItemContainer}>
@@ -190,8 +180,8 @@ const Album = ({navigation, route}) => {
           ) : (
             <AlbumVideo
               source={item.imageArray[0]}
-              width={width}
-              height={height}
+              width={item.width}
+              height={item.height}
             />
           )}
           <View>
