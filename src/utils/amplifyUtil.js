@@ -510,16 +510,6 @@ export async function queryMyPetsPagination(
             petObject.profilePic = getUrlResult.url.href;
             petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
           }
-          if (petObject.backgroundPic.length > 0) {
-            getUrlResult = await retrieveS3UrlForOthers(
-              petObject.backgroundPic,
-              petObject.identityId,
-            );
-            petObject.backgroundPicS3Key = petObject.backgroundPic;
-            petObject.backgroundPic = getUrlResult.url.href;
-            petObject.backgroundPicS3UrlExpiredAt =
-              getUrlResult.expiresAt.toString();
-          }
           return petObject;
         }),
       );
