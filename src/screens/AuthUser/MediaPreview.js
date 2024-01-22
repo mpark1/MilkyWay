@@ -37,7 +37,6 @@ const MediaPreview = ({navigation, route}) => {
 
   const [mediaList, setMediaList] = useState(initialMediaList);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
-  console.log('imageList: ', mediaList);
 
   const [isDropDownPickerOpen, setIsDropDownPickerOpen] = useState(false);
   const ageOptions = ages.map(item => ({

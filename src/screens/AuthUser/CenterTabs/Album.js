@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet, FlatList, Pressable} from 'react-native';
 import {useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -158,6 +158,55 @@ const Album = ({navigation, route}) => {
     }
   };
 
+  const renderFlatListItem = useCallback(({item}) => {
+    let parts = item.widthHeight.split('.');
+    let width = parseInt(parts[0], 10);
+    let height = parseInt(parts[1], 10);
+    return (
+      item.imageArray.length > 0 && (
+        <View style={styles.flatListItemContainer}>
+          {item.imageType === 0 ? (
+            <PictureCarousel picURI={item.imageArray} />
+          ) : (
+            <AlbumVideo
+              source={item.imageArray[0]}
+              width={width}
+              height={height}
+            />
+          )}
+          <View>
+            <Text style={[styles.caption, {marginVertical: 10}]}>
+              {item.category !== 0
+                ? '                 ' + item.caption
+                : item.caption}
+            </Text>
+            <Text
+              style={styles.tag}
+              onPress={() => {
+                // 태그별 모아보기용 쿼리 부르기
+                console.log('tag pressed');
+              }}>
+              {albumCategoryMapping[item.category]}
+            </Text>
+          </View>
+        </View>
+      )
+    );
+  }, []);
+
+  const renderAddNewAlbumButton = useCallback(() => {
+    return (
+      <View style={styles.plusButtonContainer}>
+        <Pressable
+          onPress={() => {
+            navigation.navigate('ChooseMedia');
+          }}>
+          <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
+        </Pressable>
+      </View>
+    );
+  }, []);
+
   return (
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
@@ -170,51 +219,9 @@ const Album = ({navigation, route}) => {
             onEndReached={onEndReached}
             showsVerticalScrollIndicator={false}
             data={albumData.albums}
-            renderItem={({item}) => {
-              return (
-                item.imageArray.length > 0 && (
-                  <View style={styles.flatListItemContainer}>
-                    {item.imageType === 0 ? (
-                      <PictureCarousel picURI={item.imageArray} />
-                    ) : (
-                      <AlbumVideo
-                        source={item.imageArray[0]}
-                        width={300}
-                        height={300}
-                        // width={parseInt(item.metadata.width, 10)}
-                        // height={parseInt(item.metadata.height, 10)}
-                      />
-                    )}
-                    <View>
-                      <Text style={[styles.caption, {marginVertical: 10}]}>
-                        {item.category !== 0
-                          ? '                 ' + item.caption
-                          : item.caption}
-                      </Text>
-                      <Text
-                        style={styles.tag}
-                        onPress={() => {
-                          // 태그별 모아보기용 쿼리 부르기
-                          console.log('tag pressed');
-                        }}>
-                        {albumCategoryMapping[item.category]}
-                      </Text>
-                    </View>
-                  </View>
-                )
-              );
-            }}
+            renderItem={renderFlatListItem}
           />
-          {isFamily && (
-            <View style={styles.plusButtonContainer}>
-              <Pressable
-                onPress={() => {
-                  navigation.navigate('ChooseMedia');
-                }}>
-                <AntDesign name={'pluscircle'} size={40} color={'#6395E1'} />
-              </Pressable>
-            </View>
-          )}
+          {isFamily && renderAddNewAlbumButton()}
         </View>
       )}
     </View>
@@ -227,13 +234,13 @@ const styles = StyleSheet.create({
   spacer: {paddingHorizontal: 15},
   plusButtonContainer: {
     position: 'absolute',
-    right: 10,
+    right: 5,
     bottom: 10,
     backgroundColor: '#FFF',
     borderRadius: 50,
   },
   flatListContainer: {
-    paddingVertical: 15,
+    paddingTop: 15,
     flex: 1,
   },
   flatListItemContainer: {
