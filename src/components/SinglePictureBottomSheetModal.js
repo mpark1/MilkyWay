@@ -29,30 +29,18 @@ const SinglePictureBottomSheetModal = ({
     if (res.didCancel || !res) {
       return;
     }
-    switch (type) {
-      case 'createPet':
-        await ImageResizer.createResizedImage(
-          res.path,
-          300,
-          300,
-          'JPEG',
-          100,
-          0,
-        )
-          .then(r => {
-            setPicture(r.uri);
-          })
-          .catch(err => console.log(err.message));
-        break;
-      case 'createUser' || 'updatePet' || 'updatePetPageBackground':
-        setPicture(res.path);
-        break;
-      case 'updateUser':
-        setPicture(res.path); // setNewProfilePicPath - replace original s3 key from redux with new profilePic's path
-        setPictureUrl(res.path); // selected picture's uri - for displaying newly selected profile picture
-        break;
-      default:
-        break;
+
+    if (type === 'createPet') {
+      await ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
+        .then(r => {
+          setPicture(r.uri);
+        })
+        .catch(err => console.log(err.message));
+    } else if (type === 'updateUser') {
+      setPicture(res.path); // setNewProfilePicPath - replace original s3 key from redux with new profilePic's path
+      setPictureUrl(res.path); // selected picture's uri - for displaying newly selected profile picture
+    } else {
+      setPicture(res.path);
     }
   };
 
