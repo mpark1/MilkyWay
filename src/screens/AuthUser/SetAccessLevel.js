@@ -99,8 +99,8 @@ const SetAccessLevel = ({navigation}) => {
           petID: newPetID,
           backgroundImageKey: '',
         };
-        const newPetBackgroundImageResponse = await client.graphql({
-          query: createPetBackgroundImage,
+        const newPetPageBackgroundImageResponse = await client.graphql({
+          query: createPetPageBackgroundImage,
           variables: {input: newPetBackgroundImageInput},
           authMode: 'userPool',
         });

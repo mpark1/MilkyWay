@@ -48,19 +48,19 @@ const PetCard = ({item, isFamily}) => {
       item.owner === userID,
     );
 
-    await querySingleItem(getPetBackgroundImage, {petID: item.id}).then(
+    await querySingleItem(getPetPageBackgroundImage, {petID: item.id}).then(
       async resFromDB => {
         console.log('does the pet have background image?', resFromDB);
-        if (resFromDB.getPetBackgroundImage !== null) {
-          if (resFromDB.getPetBackgroundImage.backgroundImageKey.length > 0) {
-            dispatch(
-              setNewBackgroundPicS3Key(
-                resFromDB.getPetBackgroundImage.backgroundImageKey,
-              ),
-            );
+        if (resFromDB.getPetPageBackgroundImage !== null) {
+          let s3key;
+          if (
+            resFromDB.getPetPageBackgroundImage.backgroundImageKey.length > 0
+          ) {
+            s3key = resFromDB.getPetPageBackgroundImage.backgroundImageKey;
+            dispatch(setNewBackgroundPicS3Key(s3key));
 
             const getUrlResult = await retrieveS3UrlForOthers(
-              resFromDB.getPetBackgroundImage.backgroundImageKey,
+              s3key,
               item.identityId,
             );
             dispatch(
