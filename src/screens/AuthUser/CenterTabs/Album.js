@@ -7,13 +7,17 @@ import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import PictureCarousel from '../../../components/PictureCarousel';
 import AlbumVideo from '../../../components/AlbumVideo';
 
-import {queryAlbumsByPetIDPagination} from '../../../utils/amplifyUtil';
+import {
+  fetchImageArrayFromS3,
+  queryAlbumsByPetIDPagination,
+} from '../../../utils/amplifyUtil';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import {generateClient} from 'aws-amplify/api';
 import {
   addUserDetailsToNewObj,
+  fetchImageArrayForOneAlbumFromS3,
   petPageTabsSubscription,
   processUpdateSubscription,
 } from '../../../utils/amplifyUtilSubscription';
@@ -73,7 +77,7 @@ const Album = ({navigation, route}) => {
       petID,
     );
     console.log(
-      'create, update, delete subscriptions are on for Letters table.',
+      'create, update, delete subscriptions are on for Albums table.',
     );
 
     return () => {
@@ -88,11 +92,20 @@ const Album = ({navigation, route}) => {
     // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
+        // new album object from db
         const newAlbumObj = data.onCreateAlbum;
         console.log('print newly added album data: ', newAlbumObj);
+        // add image array from s3
+        const newAlbumObjWithImages = await fetchImageArrayForOneAlbumFromS3(
+          newAlbumObj,
+        );
+        console.log(
+          'print newly added album data with images: ',
+          newAlbumObjWithImages,
+        );
         setAlbumData(prev => ({
           ...prev,
-          albums: [newAlbumObj, ...prev.albums],
+          albums: [newAlbumObjWithImages, ...prev.albums],
         }));
         break;
 
