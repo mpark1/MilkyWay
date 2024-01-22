@@ -14,6 +14,7 @@ const initialState = {
   manager: false,
   profilePicS3Key: '',
   s3UrlExpiredAt: '',
+  identityId: '',
   backgroundPic: '',
   backgroundPicS3Key: '',
   backgroundPicS3UrlExpiredAt: '',
@@ -34,6 +35,7 @@ const Pet = createSlice({
       state.manager = action.payload.accessLevel;
       state.profilePicS3Key = action.payload.profilePicS3Key;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
+      state.identityId = action.payload.identityId;
       state.backgroundPic = action.payload.backgroundPic;
       state.backgroundPicS3Key = action.payload.backgroundPicS3Key;
       state.backgroundPicS3UrlExpiredAt =

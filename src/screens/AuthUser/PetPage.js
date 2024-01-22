@@ -19,9 +19,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {
-  checkS3Url,
+  checkS3UrlForOthers,
   mutationItem,
-  retrieveS3Url,
+  retrieveS3UrlForOthers,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {
@@ -50,6 +50,7 @@ const PetPage = ({navigation, route}) => {
     backgroundPic, // original background picture url if any
     backgroundPicS3Key,
     backgroundPicS3UrlExpiredAt,
+    identityId,
   } = useSelector(state => state.pet);
   const dispatch = useDispatch();
 
@@ -79,7 +80,7 @@ const PetPage = ({navigation, route}) => {
             },
           },
           {
-            text: '변경',
+            text: '네',
             onPress: () => onUpdateBackgroundPic(),
           },
         ],
@@ -96,11 +97,25 @@ const PetPage = ({navigation, route}) => {
     );
     console.log('New background pic s3key: ', newS3key);
 
-    // 2. PetBackgroundImage 을 새로운 사진의 uuid 로 업데이트
+    // 2. DB
+    await mutationItem(
+      isCallingUpdateAPI,
+      setIsCallingUpdateAPI,
+      {
+        petID: id,
+        backgroundImageKey: 'petProfile/' + newS3key,
+      },
+      updatePetPageBackgroundImage,
+      '배경사진이 성공적으로 변경되었습니다',
+      'none',
+    );
 
     // 3. Redux
-    const res = await retrieveS3Url('petProfile/' + newS3key);
-    // dispatch(setNewBackgroundPicS3Key('petProfile/' + newS3key));
+    const res = await retrieveS3UrlForOthers(
+      'petProfile/' + newS3key,
+      identityId,
+    );
+    dispatch(setNewBackgroundPicS3Key('petProfile/' + newS3key));
     dispatch(
       setNewBackgroundPicUrl({
         backgroundPic: res.url.href,
@@ -166,21 +181,23 @@ const PetPage = ({navigation, route}) => {
 
   const checkS3urlFunc = async type => {
     if (type === 'profilePic') {
-      const res = await checkS3Url(
+      const res = await checkS3UrlForOthers(
         'petProfilePic',
         s3UrlExpiredAt,
         profilePicS3Key,
+        identityId,
       );
       if (res.profilePic !== null) {
         dispatch(setUpdateProfilePicUrl(res));
       }
     } else {
-      const res = await checkS3Url(
+      const res = await checkS3UrlForOthers(
         'petBackground',
         backgroundPicS3UrlExpiredAt,
         backgroundPicS3Key,
+        identityId,
       );
-      if (res.backgroundPic !== null) {
+      if (res.profilePic !== null) {
         dispatch(setNewBackgroundPicUrl(res));
       }
     }

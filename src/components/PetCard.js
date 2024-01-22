@@ -40,6 +40,7 @@ const PetCard = ({item, isFamily}) => {
         accessLevel: item.accessLevel,
         profilePicS3Key: item.profilePicS3Key,
         s3UrlExpiredAt: item.s3UrlExpiredAt,
+        identityId: item.identityId,
       }),
     );
     dispatch(setIsManager(item.owner === userID));

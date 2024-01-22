@@ -46,6 +46,7 @@ const User = createSlice({
       state.readyForCommunityFetch = action.payload;
     },
     updateUserProfilePicUrl: (state, action) => {
+      state.profilePic = action.payload.profilePic;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
   },
