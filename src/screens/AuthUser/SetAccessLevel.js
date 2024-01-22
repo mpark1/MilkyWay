@@ -94,6 +94,16 @@ const SetAccessLevel = ({navigation}) => {
           'print if create new petFamily is successful: ',
           newPetFamilyResponse.data.createPetFamily,
         );
+
+        const newPetBackgroundImageInput = {
+          petID: newPetID,
+          backgroundImageKey: '',
+        };
+        const newPetBackgroundImageResponse = await client.graphql({
+          query: createPetBackgroundImage,
+          variables: {input: newPetBackgroundImageInput},
+          authMode: 'userPool',
+        });
       }
     } catch (error) {
       console.log('error while creating a new pet in db: ', error);

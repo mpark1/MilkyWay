@@ -90,13 +90,13 @@ const PetPage = ({navigation, route}) => {
   const onUpdateBackgroundPic = async () => {
     // 1. S3
     const newS3key = await updateProfilePic(
-      newBackgroundPic, // local path
+      newBackgroundPic, // new local path
       'petBackground',
-      backgroundPicS3Key,
+      backgroundPicS3Key, // current
     );
     console.log('New background pic s3key: ', newS3key);
 
-    // 2. Pet backgroundPic 을 새로운 사진의 uuid 로 업데이트
+    // 2. PetBackgroundImage 을 새로운 사진의 uuid 로 업데이트
 
     // 3. Redux
     const res = await retrieveS3Url('petProfile/' + newS3key);

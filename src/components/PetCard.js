@@ -15,16 +15,19 @@ import {setCurrentPetID} from '../redux/slices/User';
 import {
   resetPet,
   setIsManager,
+  setNewBackgroundPicS3Key,
+  setNewBackgroundPicUrl,
   setPetGeneralInfo,
   setPetID,
 } from '../redux/slices/Pet';
+import {querySingleItem, retrieveS3UrlForOthers} from '../utils/amplifyUtil';
 
 const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     // update pet redux
     dispatch(
       setPetGeneralInfo({
@@ -44,6 +47,33 @@ const PetCard = ({item, isFamily}) => {
       'is user an owner of the selected pet? ',
       item.owner === userID,
     );
+
+    await querySingleItem(getPetBackgroundImage, {petID: item.id}).then(
+      async resFromDB => {
+        console.log('does the pet have background image?', resFromDB);
+        if (resFromDB.getPetBackgroundImage !== null) {
+          if (resFromDB.getPetBackgroundImage.backgroundImageKey.length > 0) {
+            dispatch(
+              setNewBackgroundPicS3Key(
+                resFromDB.getPetBackgroundImage.backgroundImageKey,
+              ),
+            );
+
+            const getUrlResult = await retrieveS3UrlForOthers(
+              resFromDB.getPetBackgroundImage.backgroundImageKey,
+              item.identityId,
+            );
+            dispatch(
+              setNewBackgroundPicUrl({
+                backgroundPic: getUrlResult.url.href,
+                backgroundPicS3UrlExpiredAt: getUrlResult.expiresAt.toString(),
+              }),
+            );
+          }
+        }
+      },
+    );
+
     navigation.navigate('PetPage', {isFamily: isFamily});
   };
 
