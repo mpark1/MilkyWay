@@ -97,25 +97,6 @@ const PetPage = ({navigation, route}) => {
     console.log('New background pic s3key: ', newS3key);
 
     // 2. Pet backgroundPic 을 새로운 사진의 uuid 로 업데이트
-    const newPetInput = {
-      id: id,
-      profilePic: profilePicS3Key,
-      name: name,
-      birthday: birthday,
-      deathDay: deathday,
-      lastWord: lastWord,
-      state: 'ACTIVE',
-      accessLevel: accessLevel,
-      backgroundPic: 'petProfile/' + newS3key,
-    };
-    await mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      newPetInput,
-      updatePet,
-      '배경사진이 성공적으로 변경되었습니다.',
-      'none',
-    );
 
     // 3. Redux
     const res = await retrieveS3Url('petProfile/' + newS3key);
