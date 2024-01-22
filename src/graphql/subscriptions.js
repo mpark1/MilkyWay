@@ -361,6 +361,7 @@ export const onCreateAlbum = /* GraphQL */ `
       createdAt
       authorIdentityID
       imageType
+      widthHeight
       updatedAt
       owner
       __typename
@@ -380,6 +381,7 @@ export const onUpdateAlbum = /* GraphQL */ `
       createdAt
       authorIdentityID
       imageType
+      widthHeight
       updatedAt
       owner
       __typename
@@ -399,6 +401,7 @@ export const onDeleteAlbum = /* GraphQL */ `
       createdAt
       authorIdentityID
       imageType
+      widthHeight
       updatedAt
       owner
       __typename
