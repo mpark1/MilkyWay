@@ -49,17 +49,19 @@ const Pet = createSlice({
       state.profilePic = action.payload.profilePic;
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
-    updateBackgroundPicUrl: (state, action) => {
-      state.backgroundPic = action.payload.backgroundPic;
-      state.backgroundPicS3Key = action.payload.backgroundPicS3Key;
-      state.backgroundPicS3UrlExpiredAt =
-        action.payload.backgroundPicS3UrlExpiredAt;
-    },
     setIntroduction: (state, action) => {
       state.introductionMsg = action.payload;
     },
     resetPet: (state, action) => {
       return initialState;
+    },
+    setNewBackgroundPicUrl: (state, action) => {
+      state.backgroundPic = action.payload.backgroundPic;
+      state.backgroundPicS3UrlExpiredAt =
+        action.payload.backgroundPicS3UrlExpiredAt;
+    },
+    setNewBackgroundPicS3Key: (state, action) => {
+      state.backgroundPicS3Key = action.payload;
     },
   },
 });
@@ -71,6 +73,7 @@ export const {
   setPetGeneralInfo,
   resetPet,
   setUpdateProfilePicUrl,
-  updateBackgroundPicUrl,
+  setNewBackgroundPicUrl,
+  setNewBackgroundPicS3Key,
 } = Pet.actions;
 export default Pet.reducer;

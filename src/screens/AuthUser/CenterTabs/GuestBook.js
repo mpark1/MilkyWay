@@ -224,18 +224,18 @@ const GuestBook = ({navigation, route}) => {
         <View>
           {!isFamily ? renderLeaveMessageButton() : renderFamilyComponent()}
           {renderGuestBooks()}
-          <BottomSheetModalTextInputWrapper
-            petID={petID}
-            whichTab={'GuestBook'}
-            option={'Create'}
-            bottomSheetModalRef={bottomSheetModalRef}
-            originalMsg={''}
-            userID={userID}
-          />
         </View>
       ) : (
         renderIfPrivateSpace()
       )}
+      <BottomSheetModalTextInputWrapper
+        petID={petID}
+        whichTab={'GuestBook'}
+        option={'Create'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        originalMsg={''}
+        userID={userID}
+      />
     </View>
   );
 };

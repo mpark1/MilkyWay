@@ -553,6 +553,7 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
 
 export async function uploadProfilePic(newPicPath, type) {
   const newPicId = uuid.v4() + '.jpeg';
+  // TODO: type === 'petBackground' 일때 resizer 가로,세로 비율 바꾸기
   try {
     await ImageResizer.createResizedImage(
       newPicPath, // path

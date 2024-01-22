@@ -25,13 +25,12 @@ import {
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {
-  setIsManager,
   setUpdateProfilePicUrl,
-  updateBackgroundPicUrl,
+  setNewBackgroundPicS3Key,
+  setNewBackgroundPicUrl,
 } from '../../redux/slices/Pet';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 import {updatePet} from '../../graphql/mutations';
-import AlertBox from '../../components/AlertBox';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -52,7 +51,6 @@ const PetPage = ({navigation, route}) => {
     backgroundPicS3Key,
     backgroundPicS3UrlExpiredAt,
   } = useSelector(state => state.pet);
-  const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
 
   const [newBackgroundPic, setNewBackgroundPic] = useState(backgroundPic);
@@ -72,7 +70,7 @@ const PetPage = ({navigation, route}) => {
     if (newBackgroundPic !== backgroundPic) {
       Alert.alert(
         '배경사진 미리보기',
-        '선택된 사진으로 변경을 진행하려면 계속하기를 눌러주세요.',
+        '선택된 사진으로 변경을 진행하시겠습니까?',
         [
           {
             text: '취소',
@@ -81,10 +79,8 @@ const PetPage = ({navigation, route}) => {
             },
           },
           {
-            text: '계속하기',
-            onPress: async () => {
-              await onUpdateBackgroundPic();
-            },
+            text: '변경',
+            onPress: () => onUpdateBackgroundPic(),
           },
         ],
       );
@@ -94,9 +90,9 @@ const PetPage = ({navigation, route}) => {
   const onUpdateBackgroundPic = async () => {
     // 1. S3
     const newS3key = await updateProfilePic(
-      newBackgroundPic, // newBackgroundPic local path
-      'pet',
-      backgroundPicS3Key, // needed for deleting existing background pic from s3
+      newBackgroundPic, // local path
+      'petBackground',
+      backgroundPicS3Key,
     );
     console.log('New background pic s3key: ', newS3key);
 
@@ -123,16 +119,17 @@ const PetPage = ({navigation, route}) => {
 
     // 3. Redux
     const res = await retrieveS3Url('petProfile/' + newS3key);
+    // dispatch(setNewBackgroundPicS3Key('petProfile/' + newS3key));
     dispatch(
-      updateBackgroundPicUrl({
+      setNewBackgroundPicUrl({
         backgroundPic: res.url.href,
-        backgroundPicS3Key: 'petProfile/' + newS3key,
         backgroundPicS3UrlExpiredAt: res.expiresAt,
       }),
     );
   };
 
   const renderBackgroundImage = () => {
+    // TODO: 배경사진 가로, 세로 비율 (aspectRatio)
     return backgroundPic.length === 0 ? (
       <Image
         source={require('../../assets/images/milkyWayBackgroundImage.png')}
@@ -200,10 +197,10 @@ const PetPage = ({navigation, route}) => {
       const res = await checkS3Url(
         'petBackground',
         backgroundPicS3UrlExpiredAt,
-        profilePicS3Key,
+        backgroundPicS3Key,
       );
       if (res.backgroundPic !== null) {
-        dispatch(setUpdateProfilePicUrl(res));
+        dispatch(setNewBackgroundPicUrl(res));
       }
     }
   };
