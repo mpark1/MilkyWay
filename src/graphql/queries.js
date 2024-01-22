@@ -139,6 +139,18 @@ export const petsByAccessLevel = /* GraphQL */ `
     }
   }
 `;
+export const getPetpageBackgroundImage = /* GraphQL */ `
+  query GetPetpageBackgroundImage($petID: ID!) {
+    getPetpageBackgroundImage(petID: $petID) {
+      petID
+      backgroundImageKey
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
 export const getPetFamily = /* GraphQL */ `
   query GetPetFamily($familyMemberID: ID!, $petID: ID!) {
     getPetFamily(familyMemberID: $familyMemberID, petID: $petID) {

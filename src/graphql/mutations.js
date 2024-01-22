@@ -51,6 +51,51 @@ export const updatePet = /* GraphQL */ `
     }
   }
 `;
+export const createPetPageBackgroundImage = /* GraphQL */ `
+  mutation CreatePetPageBackgroundImage(
+    $input: CreatePetPageBackgroundImageInput!
+    $condition: ModelPetPageBackgroundImageConditionInput
+  ) {
+    createPetPageBackgroundImage(input: $input, condition: $condition) {
+      petID
+      backgroundImageKey
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const updatePetPageBackgroundImage = /* GraphQL */ `
+  mutation UpdatePetPageBackgroundImage(
+    $input: UpdatePetPageBackgroundImageInput!
+    $condition: ModelPetPageBackgroundImageConditionInput
+  ) {
+    updatePetPageBackgroundImage(input: $input, condition: $condition) {
+      petID
+      backgroundImageKey
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deletePetPageBackgroundImage = /* GraphQL */ `
+  mutation DeletePetPageBackgroundImage(
+    $input: DeletePetPageBackgroundImageInput!
+    $condition: ModelPetPageBackgroundImageConditionInput
+  ) {
+    deletePetPageBackgroundImage(input: $input, condition: $condition) {
+      petID
+      backgroundImageKey
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
 export const createPetFamily = /* GraphQL */ `
   mutation CreatePetFamily(
     $input: CreatePetFamilyInput!

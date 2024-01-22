@@ -29,6 +29,17 @@ type Pet @model (mutations: {create: "createPet", update: "updatePet"})
     managerID: ID!
 }
 
+type PetPageBackgroundImage @model (queries: {get: "getPetpageBackgroundImage"})
+@auth(
+    rules: [
+        { allow: owner},
+        { allow: private, operations: [read]}
+    ])
+{
+    petID: ID! @primaryKey
+    backgroundImageKey: String!
+}
+
 type PetFamily @model (
     mutations: {create: "createPetFamily", delete: "deletePetFamily"})
 @auth(
