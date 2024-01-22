@@ -55,21 +55,21 @@ const Album = ({navigation, route}) => {
   useEffect(() => {
     const client = generateClient();
     // create mutation
-    const createSub = petPageTabsSubscription(
+    const createAlbumSub = petPageTabsSubscription(
       client,
       onCreateAlbum,
       'Create',
       processSubscriptionData,
       petID,
     );
-    const updateSub = petPageTabsSubscription(
+    const updateAlubmSub = petPageTabsSubscription(
       client,
       onUpdateAlbum,
       'Update',
       processSubscriptionData,
       petID,
     );
-    const deleteSub = petPageTabsSubscription(
+    const deleteAlbumSub = petPageTabsSubscription(
       client,
       onDeleteAlbum,
       'Delete',
@@ -82,9 +82,9 @@ const Album = ({navigation, route}) => {
 
     return () => {
       console.log('album subscriptions are turned off!');
-      createSub.unsubscribe();
-      updateSub.unsubscribe();
-      deleteSub.unsubscribe();
+      createAlbumSub.unsubscribe();
+      updateAlbumSub.unsubscribe();
+      deleteAlbumSub.unsubscribe();
     };
   }, []);
 
@@ -96,9 +96,12 @@ const Album = ({navigation, route}) => {
         const newAlbumObj = data.onCreateAlbum;
         console.log('print newly added album data: ', newAlbumObj);
         // add image array from s3
-        const newAlbumObjWithImages = await fetchImageArrayForOneAlbumFromS3(
-          newAlbumObj,
-        );
+        let newAlbumObjWithImages;
+        setTimeout(async () => {
+          newAlbumObjWithImages = await fetchImageArrayForOneAlbumFromS3(
+            newAlbumObj,
+          );
+        }, 2000); // 500 milliseconds delay
         console.log(
           'print newly added album data with images: ',
           newAlbumObjWithImages,
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     color: '#6395E1',
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     marginBottom: 10,
   },
 });
