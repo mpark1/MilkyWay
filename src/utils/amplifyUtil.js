@@ -20,6 +20,7 @@ import {updateUser} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
 import {Buffer} from '@craftzdog/react-native-buffer';
 import config from '../amplifyconfiguration.json';
+import album from '../screens/AuthUser/CenterTabs/Album';
 
 export async function checkUser() {
   try {
@@ -363,6 +364,13 @@ export async function queryAlbumsByPetIDPagination(
       //2. get images from S3
       // returns all image objects from s3 bucket
       const albumPromises = albumData.albums.map(async albumObj => {
+        if (albumObj.imageType === 1) {
+          let parts = albumObj.widthHeight.split('.');
+          let width = parseInt(parts[0], 10);
+          let height = parseInt(parts[1], 10);
+          albumObj.width = width;
+          albumObj.height = height;
+        }
         const s3response = await list({
           prefix: 'album/' + albumObj.id + '/',
           options: {
