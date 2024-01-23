@@ -13,7 +13,6 @@ import {getIdentityID} from '../utils/amplifyUtil';
 export default function RootNavigation() {
   const dispatch = useDispatch();
   let loggedInUserId = useSelector(state => state.user.cognitoUsername); //userID
-  // console.log('user cognitousername: ', loggedInUserId);
 
   useEffect(() => {
     const executeCheckUser = async () => {
@@ -39,7 +38,7 @@ export default function RootNavigation() {
       loggedInUserId,
     );
     executeCheckUser();
-  }, [loggedInUserId]);
+  }, []);
 
   if (loggedInUserId === undefined) {
     return (

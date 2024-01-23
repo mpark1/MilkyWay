@@ -10,6 +10,8 @@ import AlbumVideo from '../../../components/AlbumVideo';
 import {
   fetchImageArrayFromS3,
   mutationItem,
+  queryAlbumsBy,
+  queryAlbumsByCategory,
   queryAlbumsByPetIDPagination,
 } from '../../../utils/amplifyUtil';
 import {albumCategoryMapping} from '../../../constants/albumCategoryMapping';
@@ -46,6 +48,7 @@ const Album = ({navigation, route}) => {
   });
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
+  // const [isTagSelected, setIsTagSelected] = useState(false);
 
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
@@ -189,7 +192,16 @@ const Album = ({navigation, route}) => {
     }
   };
 
-  const getAllImagesForCat = async () => {};
+  // const getAllImagesForCategory = async selectedCat => {
+  //   const {albums, nextToken} = await queryAlbumsByCategory(
+  //     pageSize,
+  //     petID,
+  //     null,
+  //     selectedCat,
+  //   );
+  //   albumData.albums = albums;
+  //   albumData.nextToken = nextToken;
+  // };
 
   const renderFlatListItem = useCallback(({item}) => {
     return (
@@ -205,12 +217,7 @@ const Album = ({navigation, route}) => {
             />
           )}
           <View style={styles.captionContainer}>
-            <Text
-              style={styles.tag}
-              onPress={() => {
-                getAllImagesForCat;
-                console.log('tag pressed');
-              }}>
+            <Text style={styles.tag}>
               {albumCategoryMapping[item.category]}
             </Text>
             <View style={styles.captionAndIconWrapper}>

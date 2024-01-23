@@ -390,36 +390,40 @@ const Settings = ({navigation, route}) => {
 
   const onUpdatePetInfo = async () => {
     // 1. 사진 업데이트
-    let s3key;
-    if (
-      // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
-      (profilePic.length === 0 && newProfilePic.length > 0) ||
-      // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
-      (profilePic.length !== 0 && newProfilePic !== profilePic)
-    ) {
-      s3key = await updateProfilePic(newProfilePic, 'pet', profilePicS3Key);
+    let s3key = '';
+    try {
+      if (
+        // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
+        (profilePic.length === 0 && newProfilePic.length > 0) ||
+        // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
+        (profilePic.length !== 0 && newProfilePic !== profilePic)
+      ) {
+        s3key = await updateProfilePic(newProfilePic, 'pet', profilePicS3Key);
+      }
+
+      // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
+      const newPetInput = {
+        id: id,
+        name: petName,
+        birthday: birthdayString,
+        deathDay: deathDayString,
+        lastWord: newLastWord,
+        state: 'ACTIVE',
+        accessLevel: checkPrivate ? 'Private' : 'Public',
+        profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
+      };
+
+      await mutationItem(
+        isCallingUpdateAPI,
+        setIsCallingUpdateAPI,
+        newPetInput,
+        updatePet,
+        '정보가 성공적으로 변경되었습니다.',
+        popPage,
+      );
+    } catch (error) {
+      console.log('Error in onUpdatePetInfo: ', error);
     }
-
-    // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
-    const newPetInput = {
-      id: id,
-      name: petName,
-      birthday: birthdayString,
-      deathDay: deathDayString,
-      lastWord: newLastWord,
-      state: 'ACTIVE',
-      accessLevel: checkPrivate ? 'Private' : 'Public',
-      profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
-    };
-
-    await mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      newPetInput,
-      updatePet,
-      '정보가 성공적으로 변경되었습니다.',
-      popPage,
-    );
   };
 
   const renderSubmitButton = () => {
@@ -431,7 +435,7 @@ const Settings = ({navigation, route}) => {
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}
-          onPress={() => onUpdatePetInfo}
+          onPress={onUpdatePetInfo}
         />
       </View>
     );

@@ -83,34 +83,39 @@ const UserSettings = ({navigation}) => {
 
   const onUpdateUserInfo = async () => {
     // 1. update profile picture in s3 if changed
-    let s3key;
-    if (
-      // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
-      (profilePic.length === 0 && newProfilePicPath.length > 0) ||
-      // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
-      (profilePic.length !== 0 && newProfilePicPath !== profilePic)
-    ) {
-      s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
-      dispatch(setUserProfilePic('userProfile/' + s3key));
-    }
-    // 2. update username in redux if it has been changed
-    name !== userName && dispatch(setUserName(name));
-    // 3. update in db
-    if (newProfilePicPath !== profilePic || name !== userName) {
-      const newUserInput = {
-        id: cognitoUsername,
-        profilePic: 'userProfile/' + s3key,
-        name: name,
-        state: 'ACTIVE',
-      };
-      await mutationItem(
-        isCallingUpdateAPI,
-        setIsCallingUpdateAPI,
-        newUserInput,
-        updateUser,
-        '정보가 성공적으로 변경되었습니다.',
-        popPage,
-      );
+    let s3key = '';
+    try {
+      if (
+        // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
+        (profilePic.length === 0 && newProfilePicPath.length > 0) ||
+        // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
+        (profilePic.length !== 0 && newProfilePicPath !== profilePic)
+      ) {
+        s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
+        dispatch(setUserProfilePic('userProfile/' + s3key));
+      }
+      // 2. update username in redux if it has been changed
+      name !== userName && dispatch(setUserName(name));
+      // 3. update in db
+      if (newProfilePicPath !== profilePic || name !== userName) {
+        const newUserInput = {
+          id: cognitoUsername,
+          profilePic:
+            s3key.length > 0 ? 'userProfile/' + s3key : profilePicS3Key,
+          name: name,
+          state: 'ACTIVE',
+        };
+        await mutationItem(
+          isCallingUpdateAPI,
+          setIsCallingUpdateAPI,
+          newUserInput,
+          updateUser,
+          '정보가 성공적으로 변경되었습니다.',
+          popPage,
+        );
+      }
+    } catch (error) {
+      console.log('Error in onUpdateUserInfo: ', error);
     }
   };
 
@@ -217,10 +222,6 @@ const UserSettings = ({navigation}) => {
         userInput,
         updateUser,
       );
-      // console.log(
-      //   '1. updated db to update user to INACTIVE',
-      //   res.data.updateUser.state,
-      // );
       // 2. delete user from cognito userpool
       if (res) {
         await deleteUser();

@@ -2,6 +2,7 @@ import {fetchAuthSession, getCurrentUser} from 'aws-amplify/auth';
 import {generateClient} from 'aws-amplify/api';
 import {Alert} from 'react-native';
 import {
+  albumByCategory,
   getPet,
   getPetFamily,
   getUser,
@@ -366,47 +367,77 @@ export async function queryAlbumsByPetIDPagination(
       if (items.length === 0) {
         return albumData;
       }
-
-      //2. get images from S3
-      // returns all image objects from s3 bucket
-      const albumPromises = albumData.albums.map(async albumObj => {
-        if (albumObj.imageType === 1) {
-          let parts = albumObj.widthHeight.split('.');
-          let width = parseInt(parts[0], 10);
-          let height = parseInt(parts[1], 10);
-          albumObj.width = width;
-          albumObj.height = height;
-        }
-        const s3response = await list({
-          prefix: 'album/' + albumObj.s3Folder + '/',
-          options: {
-            accessLevel: 'protected',
-            targetIdentityId: albumObj.authorIdentityID,
-          },
-        });
-        albumObj.keyArray = [];
-        const urlPromises = s3response.items.map(async imageObj => {
-          albumObj.keyArray.push(imageObj.key);
-          const getUrlResult = await retrieveS3UrlForOthers(
-            imageObj.key,
-            albumObj.authorIdentityID,
-          );
-          return getUrlResult.url.href;
-        });
-        // save s3 images as an album object's attribute
-        albumObj.imageArray = await Promise.all(urlPromises);
-      });
-      await Promise.all(albumPromises);
-      console.log(
-        'print the first keyArray of the albums: ',
-        albumData.albums[0].keyArray,
-      );
+      // get urls for album data from S3
+      albumData.albums = await getUrlsFromS3ForAlbums(albumData);
       setIsLoadingAlbums(false);
       return albumData;
     } catch (error) {
       console.log('error for list fetching, albums: ', error);
       setIsLoadingAlbums(false);
     }
+  }
+}
+
+async function getUrlsFromS3ForAlbums(albumData) {
+  // returns all image objects from s3 bucket
+  const albumPromises = await Promise.all(
+    albumData.albums.map(async albumObj => {
+      if (albumObj.imageType === 1) {
+        let parts = albumObj.widthHeight.split('.');
+        let width = parseInt(parts[0], 10);
+        let height = parseInt(parts[1], 10);
+        albumObj.width = width;
+        albumObj.height = height;
+      }
+      const s3response = await list({
+        prefix: 'album/' + albumObj.s3Folder + '/',
+        options: {
+          accessLevel: 'protected',
+          targetIdentityId: albumObj.authorIdentityID,
+        },
+      });
+      albumObj.keyArray = [];
+      const urlPromises = s3response.items.map(async imageObj => {
+        albumObj.keyArray.push(imageObj.key);
+        const getUrlResult = await retrieveS3UrlForOthers(
+          imageObj.key,
+          albumObj.authorIdentityID,
+        );
+        return getUrlResult.url.href;
+      });
+      // save s3 images as an album object's attribute
+      albumObj.imageArray = await Promise.all(urlPromises);
+    }),
+  );
+  return albumPromises;
+}
+
+export async function queryAlbumsByCategory(pageSize, petID, token, category) {
+  try {
+    const client = generateClient();
+    const response = await client.graphql({
+      query: albumByCategory,
+      variables: {
+        category: category,
+        filter: {petID: {eq: petID}},
+        limit: pageSize,
+        nextToken: token,
+        sortDirection: 'DESC',
+      },
+      authMode: 'userPool',
+    });
+    const albumData = {albums: [], nextToken: null};
+    const {items, nextToken} = response.data.albumByCategory; // includes items (array format), nextToken
+    albumData.albums = items;
+    albumData.nextToken = nextToken;
+    // if none found, just return
+    if (items.length === 0) {
+      return albumData;
+    }
+    // get images from S3 for selected albums
+    albumData.albums = await getUrlsFromS3ForAlbums(albumData);
+  } catch (error) {
+    console.log('error for albumByCategory fetching, albums: ', error);
   }
 }
 
@@ -432,10 +463,6 @@ export async function queryPetsPagination(
         },
         authMode: 'userPool',
       });
-      console.log(
-        'print number of pets in community page: ',
-        response.data.petsByAccessLevel.items.length,
-      );
       const petsData = {pets: [], nextToken: null};
       const {items, nextToken} = response.data.petsByAccessLevel; // includes items (array format), nextToken
       petsData.pets = items;
