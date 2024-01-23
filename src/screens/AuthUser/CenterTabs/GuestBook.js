@@ -64,30 +64,30 @@ const GuestBook = ({navigation, route}) => {
     };
   }, [petID]);
 
-  // useEffect(() => {
-  //   const client = generateClient();
-  //   // create mutation
-  //   const createGuestBookSub = petPageTabsSubscription(
-  //     client,
-  //     onCreateGuestBook,
-  //     'Create',
-  //     processSubscriptionData,
-  //     petID,
-  //   );
-  //   const deleteGuestBookSub = petPageTabsSubscription(
-  //     client,
-  //     onDeleteGuestBook,
-  //     'Delete',
-  //     processSubscriptionData,
-  //     petID,
-  //   );
-  //   console.log('create, delete subscriptions are on for GuestBook table.');
-  //   return () => {
-  //     console.log('guestbook subscriptions are turned off!');
-  //     createGuestBookSub.unsubscribe();
-  //     deleteGuestBookSub.unsubscribe();
-  //   };
-  // }, []);
+  useEffect(() => {
+    const client = generateClient();
+    // create mutation
+    const createGuestBookSub = petPageTabsSubscription(
+      client,
+      onCreateGuestBook,
+      'Create',
+      processSubscriptionData,
+      petID,
+    );
+    const deleteGuestBookSub = petPageTabsSubscription(
+      client,
+      onDeleteGuestBook,
+      'Delete',
+      processSubscriptionData,
+      petID,
+    );
+    console.log('create, delete subscriptions are on for GuestBook table.');
+    return () => {
+      console.log('guestbook subscriptions are turned off!');
+      createGuestBookSub.unsubscribe();
+      deleteGuestBookSub.unsubscribe();
+    };
+  }, []);
 
   async function processSubscriptionData(mutationType, data) {
     // setIsLetterFetchComplete(false);
@@ -228,7 +228,7 @@ const GuestBook = ({navigation, route}) => {
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       {accessLevel === 'Public' ? (
-        <View>
+        <View style={globalStyle.flex}>
           {!isFamily ? renderLeaveMessageButton() : renderFamilyComponent()}
           {renderGuestBooks()}
         </View>

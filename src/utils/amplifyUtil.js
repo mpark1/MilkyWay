@@ -176,7 +176,7 @@ export async function queryLettersByPetIDPagination(
       }),
     );
     // console.log('print first fetched letter obj: ', lettersWithUserDetails[0]);
-    return {letters: lettersWithUserDetails, nextToken};
+    return {letters: lettersWithUserDetails, nextToken: nextToken};
   } catch (error) {
     console.log('error for list fetching: ', error);
   } finally {
