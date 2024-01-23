@@ -61,21 +61,21 @@ const Letters = ({navigation, route}) => {
   useEffect(() => {
     const client = generateClient();
     // create mutation
-    const createSub = petPageTabsSubscription(
+    const createLetterSub = petPageTabsSubscription(
       client,
       onCreateLetter,
       'Create',
       processSubscriptionData,
       petID,
     );
-    const updateSub = petPageTabsSubscription(
+    const updateLetterSub = petPageTabsSubscription(
       client,
       onUpdateLetter,
       'Update',
       processSubscriptionData,
       petID,
     );
-    const deleteSub = petPageTabsSubscription(
+    const deleteLetterSub = petPageTabsSubscription(
       client,
       onDeleteLetter,
       'Delete',
@@ -88,9 +88,9 @@ const Letters = ({navigation, route}) => {
 
     return () => {
       console.log('letter subscriptions are turned off!');
-      createSub.unsubscribe();
-      updateSub.unsubscribe();
-      deleteSub.unsubscribe();
+      createLetterSub.unsubscribe();
+      updateLetterSub.unsubscribe();
+      deleteLetterSub.unsubscribe();
     };
   }, []);
 

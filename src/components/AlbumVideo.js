@@ -18,7 +18,7 @@ const AlbumVideo = ({source, width, height}) => {
         styles.container,
         {
           width: width > height ? '100%' : '65%',
-          aspectRatio: width > height ? width / height + 0.3 : width / height,
+          aspectRatio: width > height ? width / height + 0.1 : width / height,
         },
       ]}
       onPress={onTogglePlayVideo}>

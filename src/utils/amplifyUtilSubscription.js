@@ -50,7 +50,10 @@ export async function processUpdateSubscription(letterArray, updatedObj) {
 export async function addUserDetailsToNewObj(updatedObj) {
   try {
     // get user's profile picture from s3
-    if (updatedObj.author.profilePic.length !== 0) {
+    if (
+      updatedObj.author.profilePic &&
+      updatedObj.author.profilePic.length !== 0
+    ) {
       console.log(
         "print added obj's author, profilepic: ",
         updatedObj.author.profilePic,

@@ -262,7 +262,7 @@ export async function queryGuestBooksByPetIDPagination(
           });
           const userObject = userDetails.data.getUser;
           // get user profile pic from S3 if profile pic exists
-          if (userObject.profilePic.length !== 0) {
+          if (userObject.profilePic && userObject.profilePic.length !== 0) {
             const getUrlResult = await retrieveS3UrlForOthers(
               userObject.profilePic,
               guestbook.identityId,
@@ -278,6 +278,7 @@ export async function queryGuestBooksByPetIDPagination(
             return {
               ...guestbook,
               userName: userObject.name,
+              profilePic: '',
             };
           }
         } catch (error) {
@@ -287,7 +288,12 @@ export async function queryGuestBooksByPetIDPagination(
         }
       }),
     );
-    return {guestMessages: guestbooksWithUserDetails, nextToken};
+    console.log(
+      'print the first guestbook message: ',
+      guestbooksWithUserDetails[0],
+      nextToken,
+    );
+    return {guestMessages: guestbooksWithUserDetails, nextToken: nextToken};
   } catch (error) {
     console.log('error for list fetching: ', error);
     return {guestMessages: [], nextToken: null};

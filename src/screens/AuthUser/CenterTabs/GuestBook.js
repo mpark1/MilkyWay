@@ -56,6 +56,7 @@ const GuestBook = ({navigation, route}) => {
     const firstFetch = async () => {
       await fetchMessages();
       setIsFetchComplete(true);
+      console.log('Guestbook initial fetch complete!');
     };
     firstFetch();
     return () => {
@@ -63,37 +64,46 @@ const GuestBook = ({navigation, route}) => {
     };
   }, [petID]);
 
-  useEffect(() => {
-    const client = generateClient();
-    // create mutation
-    const createSub = petPageTabsSubscription(
-      client,
-      onCreateGuestBook,
-      'Create',
-      processSubscriptionData,
-      petID,
-    );
-    const deleteSub = petPageTabsSubscription(
-      client,
-      onDeleteGuestBook,
-      'Delete',
-      processSubscriptionData,
-      petID,
-    );
-    console.log('create, delete subscriptions are on for GuestBook table.');
-    return () => {
-      console.log('guestbook subscriptions are turned off!');
-      createSub.unsubscribe();
-      deleteSub.unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const client = generateClient();
+  //   // create mutation
+  //   const createGuestBookSub = petPageTabsSubscription(
+  //     client,
+  //     onCreateGuestBook,
+  //     'Create',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   const deleteGuestBookSub = petPageTabsSubscription(
+  //     client,
+  //     onDeleteGuestBook,
+  //     'Delete',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   console.log('create, delete subscriptions are on for GuestBook table.');
+  //   return () => {
+  //     console.log('guestbook subscriptions are turned off!');
+  //     createGuestBookSub.unsubscribe();
+  //     deleteGuestBookSub.unsubscribe();
+  //   };
+  // }, []);
 
   async function processSubscriptionData(mutationType, data) {
     // setIsLetterFetchComplete(false);
     switch (mutationType) {
       case 'Create':
-        const newGuestBookObj = data.onCreateGuestBook;
-        console.log('print newly added guest message data: ', newGuestBookObj);
+        console.log(
+          'print newly added guest message data: ',
+          data.onCreateGuestBook,
+        );
+        const newGuestBookObj = await addUserDetailsToNewObj(
+          data.onCreateGuestBook,
+        );
+        console.log(
+          'print newly added guestbook data after adding user info: ',
+          newGuestBookObj,
+        );
         setGuestBookData(prev => ({
           ...prev,
           guestMessages: [newGuestBookObj, ...prev.guestMessages],

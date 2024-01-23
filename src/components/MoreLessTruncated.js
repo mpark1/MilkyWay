@@ -16,7 +16,6 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
-  const {createdAt, relationship, title, profilePic} = item;
   const text = item.content.trim();
   const navigation = useNavigation();
   const [isCallingAPI, setIsCallingAPI] = useState(false);
@@ -80,14 +79,14 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
 
   return (
     <View style={styles.letter}>
-      <Text style={styles.title}>{title}</Text>
+      {whichTab === 'Letters' && <Text style={styles.title}>{item.title}</Text>}
       <View style={styles.flexDirectionRow}>
         <View style={styles.profilePicContainer}>
-          {profilePic.length > 0 ? (
+          {item.profilePic.length > 0 ? (
             <Image
               style={styles.profilePic}
               source={{
-                uri: profilePic,
+                uri: item.profilePic,
               }}
               resizeMode={'cover'}
             />
@@ -122,8 +121,11 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
               {item.userName}
               {'   '}
             </Text>
-            <Text style={styles.relationshipAndDate}>
-              {relationship} ({createdAt.substring(0, 10)})
+            {whichTab === 'Letters' && (
+              <Text style={styles.relationship}>{item.relationship}</Text>
+            )}
+            <Text style={styles.relationship}>
+              ({item.createdAt.substring(0, 10)})
             </Text>
           </View>
           {renderText()}
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#374957',
-    fontSize: scaleFontSize(17),
+    fontSize: scaleFontSize(18),
     fontWeight: 'bold',
     paddingBottom: 7,
   },
@@ -193,16 +195,17 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: 'bold',
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     color: '#374957',
   },
-  relationshipAndDate: {
+  relationship: {
+    paddingRight: 5,
     color: '#939393',
     fontSize: scaleFontSize(16),
   },
   content: {
     color: '#374957',
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     lineHeight: scaleFontSize(24),
     paddingTop: 10,
   },
