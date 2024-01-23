@@ -75,6 +75,17 @@ const ChooseMedia = ({navigation}) => {
     return media;
   };
 
+  const convertVideoToBlob = async uri => {
+    try {
+      const fetchedVideo = await fetch(uri);
+      const videoBlob = await fetchedVideo.blob();
+      console.log('videoBlob: ', videoBlob);
+      return videoBlob;
+    } catch (error) {
+      console.log('Error while converting video to blob: ', error);
+    }
+  };
+
   const onLaunchGallery = async () => {
     const isVideo = mediaTypeRef.current === 'video';
     let mediaList = [];
@@ -97,10 +108,11 @@ const ChooseMedia = ({navigation}) => {
               );
               return;
             }
+            const videoBlob = await convertVideoToBlob(media.path);
             mediaList.push({
               filename: uuid.v4() + '.mp4', // single video object
               uri: media.path,
-              blob: '',
+              blob: videoBlob,
               contentType: 'video/mp4',
               width: media.width,
               height: media.height,
@@ -145,10 +157,11 @@ const ChooseMedia = ({navigation}) => {
           );
           mediaList.push(convertedPhotoObject);
         } else {
+          const videoBlob = await convertVideoToBlob(res.assets[0].uri);
           mediaList.push({
             filename: uuid.v4() + '.mp4',
             uri: res.assets[0].uri,
-            blob: '',
+            blob: videoBlob,
             contentType: 'video/mp4',
             width: res.assets[0].width,
             height: res.assets[0].height,

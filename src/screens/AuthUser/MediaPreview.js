@@ -64,18 +64,6 @@ const MediaPreview = ({navigation, route}) => {
     setIsVideoPaused(!isVideoPaused);
   };
 
-  const convertVideoToBlob = async () => {
-    const video = mediaList[0];
-    try {
-      const fetchedVideo = await fetch(video.uri);
-      const videoBlob = await fetchedVideo.blob();
-      console.log('videoBlob: ', videoBlob);
-      return videoBlob;
-    } catch (error) {
-      console.log('Error while converting video to blob: ', error);
-    }
-  };
-
   const renderCategoryField = () => {
     return (
       <View style={styles.ageField}>
@@ -206,13 +194,11 @@ const MediaPreview = ({navigation, route}) => {
         await Promise.all(
           mediaList.map(async item => {
             console.log('item inside onSubmit: ', item);
-            let videoBlob;
             const filename = 'album/' + newAlbumFolder + '/' + item.filename;
             if (!isPhoto) {
-              videoBlob = await convertVideoToBlob();
               const s3Result = await uploadVideoToS3(
                 filename,
-                videoBlob,
+                item.blob,
                 item.contentType,
               );
               console.log('print s3 result value: ', s3Result);
