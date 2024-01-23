@@ -189,6 +189,8 @@ const Album = ({navigation, route}) => {
     }
   };
 
+  const getAllImagesForCat = async () => {};
+
   const renderFlatListItem = useCallback(({item}) => {
     return (
       item.imageArray.length > 0 && (
@@ -206,7 +208,7 @@ const Album = ({navigation, route}) => {
             <Text
               style={styles.tag}
               onPress={() => {
-                // 태그별 모아보기용 쿼리 부르기
+                getAllImagesForCat;
                 console.log('tag pressed');
               }}>
               {albumCategoryMapping[item.category]}

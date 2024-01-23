@@ -20,6 +20,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   checkS3UrlForOthers,
+  getUrlForProfilePic,
   mutationItem,
   retrieveS3UrlForOthers,
   updateProfilePic,
@@ -28,9 +29,18 @@ import {
   setUpdateProfilePicUrl,
   setNewBackgroundPicS3Key,
   setNewBackgroundPicUrl,
+  setPetGeneralInfo,
 } from '../../redux/slices/Pet';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
 import {updatePet, updatePetPageBackgroundImage} from '../../graphql/mutations';
+import {generateClient} from 'aws-amplify/api';
+import {petPageTabsSubscription} from '../../utils/amplifyUtilSubscription';
+import {
+  onCreatePetIntroduction,
+  onDeletePetIntroduction,
+  onUpdatePet,
+  onUpdatePetIntroduction,
+} from '../../graphql/subscriptions';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -66,6 +76,40 @@ const PetPage = ({navigation, route}) => {
     profilePic.length !== 0 && checkS3urlFunc('profilePic');
     backgroundPic.length !== 0 && checkS3urlFunc('backgroundPic');
   }, []);
+
+  useEffect(() => {
+    const client = generateClient();
+    const updatePetSub = petPageTabsSubscription(
+      client,
+      onUpdatePet,
+      'Update',
+      processSubscriptionData,
+      id,
+    );
+    console.log('update subscription is on for Pets table.');
+    return () => {
+      console.log('Petpage subscription is turned off!');
+      updatePetSub.unsubscribe();
+    };
+  }, []);
+
+  async function processSubscriptionData(mutationType, data) {
+    const newObj = data.onUpdatePet;
+    console.log('print modified intro message: ', newObj);
+    const item = await getUrlForProfilePic(newObj);
+    setPetGeneralInfo({
+      id: item.id,
+      name: item.name,
+      birthday: item.birthday,
+      deathday: item.deathDay,
+      profilePic: item.profilePic,
+      lastWord: item.lastWord,
+      accessLevel: item.accessLevel,
+      profilePicS3Key: item.profilePicS3Key,
+      s3UrlExpiredAt: item.s3UrlExpiredAt,
+      identityId: item.identityId,
+    });
+  }
 
   useEffect(() => {
     if (newBackgroundPic !== backgroundPic) {
@@ -262,7 +306,7 @@ export default PetPage;
 const styles = StyleSheet.create({
   backgroundImageContainer: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.15,
+    height: Dimensions.get('window').height * 0.2,
   },
   backgroundImage: {
     width: '100%',
@@ -279,8 +323,8 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     width: '100%',
-    height: 100,
-    paddingTop: 15,
+    height: Dimensions.get('window').height * 0.15,
+    paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 40,
   },

@@ -444,25 +444,14 @@ export async function queryPetsPagination(
       if (items.length === 0) {
         return petsData;
       }
-      // console.log(
-      //   'print first pet object in fetch pets in community page: ',
-      //   petsData.pets[0],
-      // );
       // remove pets that are in my pets list (in petFamilies)
       let filteredPets = petsData.pets.filter(
         pet => !myPetsIdArray.includes(pet.id),
       );
       // iterate pet object and update profile picture related attributes
       for (let pet of filteredPets) {
-        if (pet.profilePic.length > 0) {
-          const getUrlResult = await retrieveS3UrlForOthers(
-            pet.profilePic,
-            pet.identityId,
-          );
-          pet.profilePicS3Key = pet.profilePic;
-          pet.profilePic = getUrlResult.url.href;
-          pet.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
-        }
+        // update profilepic's url and expiration time
+        await getUrlForProfilePic(pet);
       }
       // Update petsData with the processed pets
       petsData.pets = filteredPets;
@@ -471,6 +460,26 @@ export async function queryPetsPagination(
       console.log('error for fetching pets for community: ', error);
       setIsLoadingPets(false);
     }
+  }
+}
+
+export async function getUrlForProfilePic(obj) {
+  try {
+    if (obj.profilePic && obj.profilePic.length > 0) {
+      const getUrlResult = await retrieveS3UrlForOthers(
+        obj.profilePic,
+        obj.identityId,
+      );
+      obj.profilePicS3Key = obj.profilePic;
+      obj.profilePic = getUrlResult.url.href;
+      obj.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
+    }
+    return obj;
+  } catch (error) {
+    console.log(
+      'print error while getting profile pic url and expiration date: ',
+      error,
+    );
   }
 }
 
@@ -511,19 +520,8 @@ export async function queryMyPetsPagination(
             authMode: 'userPool',
           });
           const petObject = petDetails.data.getPet;
-          let getUrlResult;
-          // console.log('get pet profile pic', petObject.profilePic);
-          // console.log('get pet identity id', petObject.identityId);
-          if (petObject.profilePic.length > 0) {
-            getUrlResult = await retrieveS3UrlForOthers(
-              petObject.profilePic,
-              petObject.identityId,
-            );
-            petObject.profilePicS3Key = petObject.profilePic;
-            petObject.profilePic = getUrlResult.url.href;
-            petObject.s3UrlExpiredAt = getUrlResult.expiresAt.toString();
-          }
-          return petObject;
+          // update profilepic's url and expiration time
+          return await getUrlForProfilePic(petObject);
         }),
       );
       petsData.pets = await Promise.all(fetchPetDetails);

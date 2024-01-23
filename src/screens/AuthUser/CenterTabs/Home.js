@@ -19,12 +19,29 @@ import {getIntroductionMessage} from '../../../graphql/queries';
 import BottomSheetModalTextInputWrapper from '../../../components/BottomSheetModalTextInputWrapper';
 import {setIntroduction} from '../../../redux/slices/Pet';
 import {useDispatch, useSelector} from 'react-redux';
+import {generateClient} from 'aws-amplify/api';
+import {
+  addUserDetailsToNewObj,
+  petPageTabsSubscription,
+  processUpdateSubscription,
+} from '../../../utils/amplifyUtilSubscription';
+import {
+  onCreateGuestBook,
+  onCreateLetter,
+  onCreatePetIntroduction,
+  onDeleteGuestBook,
+  onDeleteLetter,
+  onDeletePetIntroduction,
+  onUpdateLetter,
+  onUpdatePetIntroduction,
+} from '../../../graphql/subscriptions';
 
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const petID = useSelector(state => state.pet.id);
   const isManager = useSelector(state => state.pet.manager);
-  const introductionMsg = useSelector(state => state.pet.introductionMsg);
+  const existingMsg = useSelector(state => state.pet.introductionMsg);
+  const [introductionMsg, setIntroductionMsg] = useState(existingMsg);
   const lastWord = useSelector(state => state.pet.lastWord);
   const [fetchedData, setFetchedData] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
@@ -34,13 +51,64 @@ const Home = ({navigation}) => {
     querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
       console.log('print intro message: ', response);
       response.getIntroductionMessage !== null &&
-        dispatch(
-          setIntroduction(response.getIntroductionMessage.introductionMsg),
-        );
+        setIntroductionMsg(response.getIntroductionMessage.introductionMsg);
       setFetchedData(true);
     });
     console.log('Home tab is rendered');
   }, []);
+
+  useEffect(() => {
+    const client = generateClient();
+    // create mutation
+    const createHomeSub = petPageTabsSubscription(
+      client,
+      onCreatePetIntroduction,
+      'Create',
+      processSubscriptionData,
+      petID,
+    );
+    const updateHomeSub = petPageTabsSubscription(
+      client,
+      onUpdatePetIntroduction,
+      'Update',
+      processSubscriptionData,
+      petID,
+    );
+    const deleteHomeSub = petPageTabsSubscription(
+      client,
+      onDeletePetIntroduction,
+      'Delete',
+      processSubscriptionData,
+      petID,
+    );
+    console.log(
+      'create, update, delete subscriptions are on for Letters table.',
+    );
+
+    return () => {
+      console.log('letter subscriptions are turned off!');
+      createHomeSub.unsubscribe();
+      updateHomeSub.unsubscribe();
+      deleteHomeSub.unsubscribe();
+    };
+  }, []);
+
+  async function processSubscriptionData(mutationType, data) {
+    console.log('print modified intro message: ', data);
+    switch (mutationType) {
+      case 'Create':
+        setIntroductionMsg(data.onCreatePetIntroduction.introductionMsg);
+        break;
+
+      case 'Update':
+        setIntroductionMsg(data.onUpdatePetIntroduction.introductionMsg);
+        break;
+
+      case 'Delete':
+        setIntroductionMsg('');
+        break;
+    }
+  }
 
   const renderLastWord = () => {
     return (
