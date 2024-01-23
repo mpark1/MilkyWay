@@ -82,7 +82,7 @@ const ChooseMedia = ({navigation}) => {
       multiple: true,
       maxFiles: isVideo ? 1 : 8,
       mediaType: mediaTypeRef.current,
-      includeExtra: true,
+      includeExif: true,
     })
       .then(async res => {
         console.log('response inside onLaunchGallery: ', res);
@@ -130,11 +130,17 @@ const ChooseMedia = ({navigation}) => {
 
     const isVideo = mediaTypeRef.current === 'video';
     console.log(isVideo);
-    await launchCamera({
+
+    // await launchCamera({
+    //   mediaType: mediaTypeRef.current,
+    //   durationLimit: 60, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
+    //   includeExtra: true,
+    //   saveToPhotos: true,
+    // })
+    await ImagePicker.openCamera({
       mediaType: mediaTypeRef.current,
-      durationLimit: 60, // 촬영 가능한 영상 길이 제한 (초단위) (길이 초과했을때 영어 Alert 뜸 - 한국어로 변경해야함)
-      includeExtra: true,
-      saveToPhotos: true,
+      includeBase64: true,
+      includeExif: true,
     })
       .then(async resFromCamera => {
         console.log('response inside onLaunchCamera: ', resFromCamera);
@@ -143,7 +149,7 @@ const ChooseMedia = ({navigation}) => {
         if (!isVideo) {
           const convertedPhotoObject = await resizePhotoAndConvertToBlob(
             resFromCamera,
-            resFromCamera.assets[0].uri,
+            resFromCamera.path,
           );
           mediaList.push(convertedPhotoObject);
         } else {
