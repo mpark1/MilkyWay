@@ -36,6 +36,7 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getCurrentDate} from '../../utils/utils';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import AlertBox from '../../components/AlertBox';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
@@ -76,6 +77,20 @@ const Settings = ({navigation, route}) => {
   const [checkAll, setAll] = useState(accessLevel === 'Public'); // defaults to all
 
   const [isToolTipOpen, setIsToolTipOpen] = useState(false);
+
+  const privateAccessMapping = {
+    true: 'Private',
+    false: 'Public',
+  };
+
+  const noUpdateInPetInfo =
+    name === petName &&
+    birthday === birthdayString &&
+    deathday === deathDayString &&
+    lastWord === newLastWord &&
+    accessLevel === privateAccessMapping[checkPrivate];
+
+  const noUpdateInPetProfilePic = profilePic === newProfilePic;
 
   useEffect(() => {
     //check user's profile picture url expiration once when the page is loaded.
@@ -388,14 +403,15 @@ const Settings = ({navigation, route}) => {
     // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
     const newPetInput = {
       id: id,
-      profilePic: 'petProfile/' + s3key,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
       lastWord: newLastWord,
       state: 'ACTIVE',
       accessLevel: checkPrivate ? 'Private' : 'Public',
+      profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
     };
+
     await mutationItem(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
@@ -411,10 +427,11 @@ const Settings = ({navigation, route}) => {
       <View style={{alignSelf: 'center'}}>
         <Button
           title={'완료'}
+          disabled={noUpdateInPetInfo && noUpdateInPetProfilePic}
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}
-          onPress={onUpdatePetInfo}
+          onPress={() => onUpdatePetInfo}
         />
       </View>
     );
