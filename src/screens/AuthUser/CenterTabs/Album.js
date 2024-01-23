@@ -46,7 +46,6 @@ const Album = ({navigation, route}) => {
   });
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
-  const albumDataRef = useRef(albumData.albums);
 
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
@@ -68,13 +67,6 @@ const Album = ({navigation, route}) => {
       processSubscriptionData,
       petID,
     );
-    const updateAlbumSub = petPageTabsSubscription(
-      client,
-      onUpdateAlbum,
-      'Update',
-      processSubscriptionData,
-      petID,
-    );
     const deleteAlbumSub = petPageTabsSubscription(
       client,
       onDeleteAlbum,
@@ -89,7 +81,6 @@ const Album = ({navigation, route}) => {
     return () => {
       console.log('album subscriptions are turned off!');
       createAlbumSub.unsubscribe();
-      updateAlbumSub.unsubscribe();
       deleteAlbumSub.unsubscribe();
     };
   }, []);
@@ -114,19 +105,6 @@ const Album = ({navigation, route}) => {
           albums: [newAlbumObjWithImages, ...prev.albums],
         }));
         break;
-
-      // case 'Update':
-      //   const updatedAlbumObj = data.onUpdateAlbum;
-      //   const currentAlbums = albumDataRef.current;
-      //   const updatedAlbumsArray = await processUpdateSubscription(
-      //     currentAlbums,
-      //     updatedAlbumObj,
-      //   );
-      //   setAlbumData(prev => ({
-      //     ...prev,
-      //     albums: updatedAlbumsArray,
-      //   }));
-      //   break;
 
       case 'Delete':
         const deleteAlbum = data.onDeleteAlbum;
@@ -233,16 +211,18 @@ const Album = ({navigation, route}) => {
               }}>
               {albumCategoryMapping[item.category]}
             </Text>
-            <Text style={styles.caption}>
-              {item.category !== 0 ? item.caption : item.caption}
-            </Text>
-            {userId === item.owner && (
-              <Pressable
-                style={styles.trashCan}
-                onPress={async () => deleteAlbumApi({item})}>
-                <EvilIcons name={'trash'} color={'#373737'} size={26} />
-              </Pressable>
-            )}
+            <View style={styles.captionAndIconWrapper}>
+              <Text style={styles.caption}>
+                {item.category !== 0 ? item.caption : item.caption}
+              </Text>
+              {userId === item.owner && (
+                <Pressable
+                  style={styles.trashCan}
+                  onPress={async () => deleteAlbumApi({item})}>
+                  <EvilIcons name={'trash'} color={'#373737'} size={26} />
+                </Pressable>
+              )}
+            </View>
           </View>
         </View>
       )
@@ -305,21 +285,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 7,
-    backgroundColor: 'yellow',
+  },
+  captionAndIconWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 1,
   },
   caption: {
     color: '#374957',
     fontSize: scaleFontSize(18),
-    marginLeft: 7,
-    backgroundColor: 'grey',
+    marginLeft: 9,
+    flexShrink: 1,
   },
   tag: {
     color: '#6395E1',
     fontSize: scaleFontSize(18),
-    backgroundcolor: 'red',
   },
   trashCan: {
     paddingLeft: 5,
-    backgroundcolor: 'blue',
   },
 });
