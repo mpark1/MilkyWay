@@ -6,8 +6,15 @@ import {Icon} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {useDispatch, useSelector} from 'react-redux';
-import {setNewPetAccessLevel} from '../../redux/slices/NewPet';
-import {createPet, createPetFamily} from '../../graphql/mutations';
+import {
+  setNewPetAccessLevel,
+  setNewPetComplete,
+} from '../../redux/slices/NewPet';
+import {
+  createPet,
+  createPetFamily,
+  createPetPageBackgroundImage,
+} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,7 +85,7 @@ const SetAccessLevel = ({navigation}) => {
           newPetResponse.data.createPet,
         );
         const newPetID = newPetResponse.data.createPet.id;
-        // 2. create anew item in PetFamily table
+        // 2. create a new item in PetFamily table
         const newPetFamilyResponse = await client.graphql({
           query: createPetFamily,
           variables: {
@@ -89,12 +96,11 @@ const SetAccessLevel = ({navigation}) => {
           },
           authMode: 'userPool',
         });
-        dispatch(setPetID(newPetID));
         console.log(
           'print if create new petFamily is successful: ',
           newPetFamilyResponse.data.createPetFamily,
         );
-
+        // 3. create a new item in PetBackgroundImage table
         const newPetBackgroundImageInput = {
           petID: newPetID,
           backgroundImageKey: '',

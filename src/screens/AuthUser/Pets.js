@@ -22,6 +22,7 @@ import {
   fetchUser,
   fetchUserFromDB,
   getIdentityID,
+  getUrlForProfilePic,
   mutationItemNoAlertBox,
   queryLettersByPetIDPagination,
   queryMyPetsPagination,
@@ -37,7 +38,11 @@ import {
   setUserProfilePic,
 } from '../../redux/slices/User';
 import * as RNFS from 'react-native-fs';
-import {sucriptionForMyPets} from '../../utils/amplifyUtilSubscription';
+import {
+  petPageTabsSubscription,
+  sucriptionForMyPets,
+} from '../../utils/amplifyUtilSubscription';
+import {onCreateAlbum, onCreatePet} from '../../graphql/subscriptions';
 
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
@@ -82,13 +87,32 @@ const Pets = ({navigation}) => {
     fetchUser();
   }, []);
 
-  // useEffect(() => {
-  // const newPet = sucriptionForMyPets(userID);
-  // setPetData(prev => ({
-  //   pets: [...prev.pets, ...newPet],
-  //   nextToken: prev.nextToken,
-  // }));
-  // }, []);
+  useEffect(() => {
+    const client = generateClient();
+    try {
+      return client
+        .graphql({
+          query: onCreatePet,
+          variables: {filter: {managerID: {eq: userID}}},
+          authMode: 'userPool',
+        })
+        .subscribe({
+          next: ({data}) => processSubscriptionData(data.onCreatePet),
+          error: error => console.warn(error),
+        });
+    } catch (error) {
+      console.log('print error for subscription in Pets', error);
+    }
+  }, []);
+
+  const processSubscriptionData = async petObject => {
+    const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
+    console.log('print newly added pet data with profile pic url');
+    setPetData(prev => ({
+      ...prev,
+      pets: [petObject, ...prev.pets],
+    }));
+  };
 
   const fetchPets = async () => {
     await queryMyPetsPagination(

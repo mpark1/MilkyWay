@@ -77,21 +77,21 @@ const PetPage = ({navigation, route}) => {
     backgroundPic.length !== 0 && checkS3urlFunc('backgroundPic');
   }, []);
 
-  useEffect(() => {
-    const client = generateClient();
-    const updatePetSub = petPageTabsSubscription(
-      client,
-      onUpdatePet,
-      'Update',
-      processSubscriptionData,
-      id,
-    );
-    console.log('update subscription is on for Pets table.');
-    return () => {
-      console.log('Petpage subscription is turned off!');
-      updatePetSub.unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const client = generateClient();
+  //   const updatePetSub = petPageTabsSubscription(
+  //     client,
+  //     onUpdatePet,
+  //     'Update',
+  //     processSubscriptionData,
+  //     id,
+  //   );
+  //   console.log('update subscription is on for Pets table.');
+  //   return () => {
+  //     console.log('Petpage subscription is turned off!');
+  //     updatePetSub.unsubscribe();
+  //   };
+  // }, []);
 
   async function processSubscriptionData(mutationType, data) {
     const newObj = data.onUpdatePet;

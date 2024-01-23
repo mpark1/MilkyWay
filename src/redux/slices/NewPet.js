@@ -9,6 +9,7 @@ const initialState = {
   deathCause: '',
   lastWord: '',
   accessLevel: '', // 'Public', 'Private'
+  complete: false,
 };
 
 const NewPet = createSlice({
@@ -27,12 +28,19 @@ const NewPet = createSlice({
     setNewPetAccessLevel: (state, action) => {
       state.accessLevel = action.payload.accessLevel;
     },
+    setNewPetComplete: (state, action) => {
+      state.complete = action.payload;
+    },
     resetPet: state => {
       return initialState;
     },
   },
 });
 
-export const {setNewPetAccessLevel, setNewPetGeneralInfo, resetPet} =
-  NewPet.actions;
+export const {
+  setNewPetComplete,
+  setNewPetAccessLevel,
+  setNewPetGeneralInfo,
+  resetPet,
+} = NewPet.actions;
 export default NewPet.reducer;
