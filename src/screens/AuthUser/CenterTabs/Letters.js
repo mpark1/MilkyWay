@@ -155,6 +155,8 @@ const Letters = ({navigation, route}) => {
           item={item}
           linesToTruncate={2}
           whichTab={'Letters'}
+          userPetsBottomSheetRef={''}
+          setClickedUserId={''}
         />
       )
     );
