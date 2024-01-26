@@ -37,7 +37,6 @@ import {
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {Button} from '@rneui/base';
 import {generateClient} from 'aws-amplify/api';
-import UserPetsBottomSheet from '../../../components/UserPetsBottomSheet';
 
 const GuestBook = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -51,10 +50,6 @@ const GuestBook = ({navigation, route}) => {
   });
   const [isLoadingLetters, setIsLoadingLetters] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
-
-  const [clickedUserId, setClickedUserId] = useState('');
-  const textInputBottomSheetRef = useRef(null);
-  const userPetsBottomSheetRef = useRef(null);
 
   useEffect(() => {
     console.log('GuestBook tab is mounted. print redux: ', petID);
@@ -158,7 +153,7 @@ const GuestBook = ({navigation, route}) => {
             title={'추모 메세지 쓰기'}
             titleColor={'gray'}
             circleSize={30}
-            onPress={() => textInputBottomSheetRef.current?.present()}
+            onPress={() => bottomSheetModalRef.current?.present()}
           />
         </View>
       )
@@ -171,14 +166,14 @@ const GuestBook = ({navigation, route}) => {
     }
   };
 
+  const bottomSheetModalRef = useRef(null);
+
   const renderFlatListItem = useCallback(({item}) => {
     return (
       <MoreLessTruncated
         item={item}
         linesToTruncate={2}
         whichTab={'GuestBook'}
-        userPetsBottomSheetRef={userPetsBottomSheetRef}
-        setClickedUserId={setClickedUserId}
       />
     );
   }, []);
@@ -244,12 +239,9 @@ const GuestBook = ({navigation, route}) => {
         petID={petID}
         whichTab={'GuestBook'}
         option={'Create'}
-        bottomSheetModalRef={textInputBottomSheetRef}
+        bottomSheetModalRef={bottomSheetModalRef}
         originalMsg={''}
-      />
-      <UserPetsBottomSheet
-        bottomSheetModalRef={userPetsBottomSheetRef}
-        userID={clickedUserId}
+        userID={userID}
       />
     </View>
   );

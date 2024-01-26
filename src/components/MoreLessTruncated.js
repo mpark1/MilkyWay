@@ -12,20 +12,13 @@ import {useNavigation} from '@react-navigation/core';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from './DeleteAlertBox';
 
-const MoreLessTruncated = ({
-  item,
-  linesToTruncate,
-  whichTab,
-  userPetsBottomSheetRef,
-  setClickedUserId,
-}) => {
+const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const text = item.content.trim();
   const navigation = useNavigation();
   const [isCallingAPI, setIsCallingAPI] = useState(false);
-
   // console.log('print profilepic url in letters: ', profilePic);
   useEffect(() => {
     console.log('MoreLessTruncated component - Mounted');
@@ -124,17 +117,10 @@ const MoreLessTruncated = ({
             </Text>
           )}
           <View style={styles.nameRelationshipDateContainer}>
-            <Pressable
-              disabled={whichTab === 'Letters'}
-              onPress={() => {
-                userPetsBottomSheetRef.current?.present();
-                setClickedUserId(item.guestBookAuthorId);
-              }}>
-              <Text style={styles.name}>
-                {item.userName}
-                {'   '}
-              </Text>
-            </Pressable>
+            <Text style={styles.name}>
+              {item.userName}
+              {'   '}
+            </Text>
             {whichTab === 'Letters' && (
               <Text style={styles.relationship}>{item.relationship}</Text>
             )}
