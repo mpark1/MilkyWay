@@ -1,16 +1,29 @@
-import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, View, Platform, Pressable} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import {useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/core';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+
+import {deleteLetter} from '../graphql/mutations';
+import {mutationItem, queryPetsPagination} from '../utils/amplifyUtil';
+import {isSmall, scaleFontSize} from '../assets/styles/scaling';
 
 import MoreLessComponent from './MoreLess';
 import DeleteIcon from './DeleteIcon';
-
-import {scaleFontSize} from '../assets/styles/scaling';
-import {mutationItem} from '../utils/amplifyUtil';
-import {deleteLetter} from '../graphql/mutations';
-import {useNavigation} from '@react-navigation/core';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from './DeleteAlertBox';
+import OtherUserPet from './OtherUserPet';
+import globalStyle from '../assets/styles/globalStyle';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -19,6 +32,19 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const text = item.content.trim();
   const navigation = useNavigation();
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+
+  // whichTab === 'GuestBook'
+  // When author's name is clicked, present bottomSheet listing the author's pets
+  const [clickedUser, setClickedUser] = useState({userID: '', name: ''});
+  const snapPoints = useMemo(() => [isSmall ? '35%' : '30%'], []);
+  const userPetsBottomSheetModalRef = useRef(null);
+  const [isLoadingClickedUserPets, setIsLoadingClickedUserPets] =
+    useState(false);
+  const [bottomSheetPetData, setBottomSheetPetData] = useState({
+    pets: [],
+    nextToken: null,
+  });
+
   // console.log('print profilepic url in letters: ', profilePic);
   useEffect(() => {
     console.log('MoreLessTruncated component - Mounted');
@@ -39,6 +65,123 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     }
   };
 
+  const deleteLetterOnSubmit = async () => {
+    const deleteLetterInput = {
+      id: item.id,
+      petID: item.petID,
+      createdAt: item.createdAt,
+    };
+    await mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      deleteLetterInput,
+      deleteLetter,
+      '편지가 성공적으로 삭제되었습니다.',
+      'none',
+    );
+  };
+
+  const fetchClickedUserPets = async () => {
+    console.log('clicked user info: ', clickedUser);
+    await queryPetsPagination(
+      clickedUser.userID,
+      isLoadingClickedUserPets,
+      setIsLoadingClickedUserPets,
+      3,
+      bottomSheetPetData.nextToken,
+      [], // pass empty array
+    ).then(data => {
+      const {pets, nextToken: newNextToken} = data;
+      setBottomSheetPetData(prev => ({
+        pets: [...prev.pets, ...pets],
+        nextToken: newNextToken,
+      }));
+    });
+  };
+
+  const onBottomSheetFlatListEndReached = async () => {
+    if (bottomSheetPetData.nextToken !== null) {
+      await fetchClickedUserPets();
+    }
+  };
+
+  const updateLetterOnSubmit = () => {
+    navigation.navigate('EditLetter', {item: item});
+  };
+
+  const renderAuthorProfilePic = () => {
+    return (
+      <View style={styles.profilePicContainer}>
+        {item.profilePic.length > 0 ? (
+          <Image
+            style={styles.profilePic}
+            source={{
+              uri: item.profilePic,
+            }}
+            resizeMode={'cover'}
+          />
+        ) : (
+          <Image
+            style={styles.profilePic}
+            source={require('../assets/images/default_user_profilePic.jpg')}
+            resizeMode={'cover'}
+          />
+        )}
+      </View>
+    );
+  };
+
+  const renderTruncatedTextForIOS = () => {
+    return (
+      Platform.OS === 'ios' && (
+        <Text
+          style={{height: 0}}
+          onTextLayout={event => {
+            const {lines} = event.nativeEvent;
+            if (lines.length > linesToTruncate) {
+              setIsTruncated(true);
+              let text = lines
+                .splice(0, linesToTruncate)
+                .map(line => line.text)
+                .join('');
+              setClippedText(text.substring(0, text.length - 4));
+            }
+          }}>
+          {text}
+        </Text>
+      )
+    );
+  };
+
+  const renderNameRelationshipDate = () => {
+    return (
+      <View style={styles.nameRelationshipDateContainer}>
+        <Pressable
+          disabled={whichTab === 'Letters'}
+          onPress={async () => {
+            setClickedUser({
+              userID: item.guestBookAuthorId,
+              name: item.userName,
+            });
+            // 아래 두개의 순서를 바꿀지?
+            await fetchClickedUserPets();
+            userPetsBottomSheetModalRef.current?.present();
+          }}>
+          <Text style={styles.name}>
+            {item.userName}
+            {'   '}
+          </Text>
+        </Pressable>
+        {whichTab === 'Letters' && (
+          <Text style={styles.relationship}>{item.relationship}</Text>
+        )}
+        <Text style={styles.relationship}>
+          ({item.createdAt.substring(0, 10)})
+        </Text>
+      </View>
+    );
+  };
+
   const renderText = () => {
     return isTruncated ? (
       <MoreLessComponent
@@ -57,99 +200,107 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     );
   };
 
-  const deleteLetterOnSubmit = async () => {
-    const deleteLetterInput = {
-      id: item.id,
-      petID: item.petID,
-      createdAt: item.createdAt,
-    };
-    await mutationItem(
-      isCallingAPI,
-      setIsCallingAPI,
-      deleteLetterInput,
-      deleteLetter,
-      '편지가 성공적으로 삭제되었습니다.',
-      'none',
+  const renderAuthorActionButtons = () => {
+    return (
+      <View style={styles.editAndDeleteContainer}>
+        {whichTab === 'Letters' && !isTruncated && item.owner === userID && (
+          <View style={styles.editAndDeleteContainerInner}>
+            <Pressable onPress={() => updateLetterOnSubmit()}>
+              <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+            </Pressable>
+            <Pressable onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
+              <EvilIcons name={'trash'} color={'#373737'} size={26} />
+            </Pressable>
+          </View>
+        )}
+        {whichTab === 'GuestBook' && !isTruncated && item.owner === userID && (
+          <DeleteIcon item={item} />
+        )}
+      </View>
     );
   };
 
-  const updateLetterOnSubmit = () => {
-    navigation.navigate('EditLetter', {item: item});
-  };
+  const renderBottomSheetBackdrop = useCallback(
+    props => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.2}
+        pressBehavior={'close'}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
+
+  const renderClickedUserPets = useCallback(() => {
+    return (
+      <View
+        style={[
+          globalStyle.flex,
+          globalStyle.backgroundWhite,
+          styles.bottomSheet.inner,
+        ]}>
+        <Text style={styles.bottomSheet.clickedUserName}>
+          {clickedUser.name}님의 은하수
+        </Text>
+        {isLoadingClickedUserPets ? (
+          <View style={styles.activityIndicatorContainer}>
+            <ActivityIndicator />
+          </View>
+        ) : bottomSheetPetData.pets.length > 0 ? (
+          <FlatList
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollBegin={() => setIsLoadingClickedUserPets(false)}
+            onEndReachedThreshold={0.5}
+            onEndReached={onBottomSheetFlatListEndReached}
+            style={styles.bottomSheet.flatList}
+            data={bottomSheetPetData.pets}
+            renderItem={({petObj}) => (
+              <OtherUserPet
+                item={petObj}
+                bottomSheetRef={userPetsBottomSheetModalRef}
+                navigation={navigation}
+              />
+            )}
+          />
+        ) : (
+          <Text style={styles.bottomSheet.clickedUserName}>
+            동물이 없을 때는 어떻게? {clickedUser.name}님이 생성한 은하수가
+            없습니다
+          </Text>
+        )}
+      </View>
+    );
+  }, [clickedUser.userID]);
 
   return (
-    <View style={styles.letter}>
-      {whichTab === 'Letters' && <Text style={styles.title}>{item.title}</Text>}
-      <View style={styles.flexDirectionRow}>
-        <View style={styles.profilePicContainer}>
-          {item.profilePic.length > 0 ? (
-            <Image
-              style={styles.profilePic}
-              source={{
-                uri: item.profilePic,
-              }}
-              resizeMode={'cover'}
-            />
-          ) : (
-            <Image
-              style={styles.profilePic}
-              source={require('../assets/images/default_user_profilePic.jpg')}
-              resizeMode={'cover'}
-            />
-          )}
-        </View>
-        <View style={styles.collapsedTextContainer}>
-          {Platform.OS === 'ios' && (
-            <Text
-              style={{height: 0}}
-              onTextLayout={event => {
-                const {lines} = event.nativeEvent;
-                if (lines.length > linesToTruncate) {
-                  setIsTruncated(true);
-                  let text = lines
-                    .splice(0, linesToTruncate)
-                    .map(line => line.text)
-                    .join('');
-                  setClippedText(text.substring(0, text.length - 4));
-                }
-              }}>
-              {text}
-            </Text>
-          )}
-          <View style={styles.nameRelationshipDateContainer}>
-            <Text style={styles.name}>
-              {item.userName}
-              {'   '}
-            </Text>
-            {whichTab === 'Letters' && (
-              <Text style={styles.relationship}>{item.relationship}</Text>
-            )}
-            <Text style={styles.relationship}>
-              ({item.createdAt.substring(0, 10)})
-            </Text>
-          </View>
-          {renderText()}
-          <View style={styles.editAndDeleteContainer}>
-            {whichTab === 'Letters' &&
-              !isTruncated &&
-              item.owner === userID && (
-                <View style={styles.editAndDeleteContainerInner}>
-                  <Pressable onPress={() => updateLetterOnSubmit()}>
-                    <EvilIcons name={'pencil'} color={'#373737'} size={26} />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
-                    <EvilIcons name={'trash'} color={'#373737'} size={26} />
-                  </Pressable>
-                </View>
-              )}
-            {whichTab === 'GuestBook' &&
-              !isTruncated &&
-              item.owner === userID && <DeleteIcon item={item} />}
+    <>
+      <View style={styles.letter}>
+        {whichTab === 'Letters' && (
+          <Text style={styles.title}>{item.title}</Text>
+        )}
+        <View style={styles.flexDirectionRow}>
+          {renderAuthorProfilePic()}
+          <View style={styles.collapsedTextContainer}>
+            {renderTruncatedTextForIOS()}
+            {renderNameRelationshipDate()}
+            {renderText()}
+            {renderAuthorActionButtons()}
           </View>
         </View>
       </View>
-    </View>
+      <BottomSheetModal
+        handleStyle={styles.bottomSheet.handle}
+        ref={userPetsBottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBottomSheetBackdrop}
+        children={renderClickedUserPets}
+      />
+    </>
   );
 };
 
@@ -191,7 +342,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-end',
     marginBottom: 7,
-    // backgroundColor: '#EEEEEE',
   },
   name: {
     fontWeight: 'bold',
@@ -219,5 +369,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: 50,
+  },
+  bottomSheet: {
+    handle: {
+      height: 0,
+    },
+    inner: {
+      marginVertical: Dimensions.get('window').height * 0.02,
+      paddingHorizontal: 20,
+    },
+    clickedUserName: {
+      alignSelf: 'center',
+      color: '#374957',
+      fontSize: scaleFontSize(18),
+    },
+    flatList: {
+      flex: 1,
+      marginVertical: '3%',
+    },
+    activityIndicator: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   },
 });
