@@ -1,16 +1,40 @@
-import React, {useCallback, useState} from 'react';
-import {Image, StyleSheet, Text, View} from 'react-native';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
+import {Image, StyleSheet, Text, View, Pressable} from 'react-native';
+import {FlatList} from 'react-native-gesture-handler';
 import MoreLessComponent from './MoreLess';
 import {scaleFontSize} from '../assets/styles/scaling';
 import EditOrDeleteButtons from './EditOrDeleteButtons';
 import DeleteIcon from './DeleteIcon';
-import {isAndroid, isiOS} from '@amuizz/read-more-text/src/util/Platform';
+import {isiOS} from '@amuizz/read-more-text/src/util/Platform';
+import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
+import BottomSheetOtherUserPet from './BottomSheetOtherUserPet';
+import globalStyle from '../assets/styles/globalStyle';
+import mockData from '../data/myMilkyWays.json';
+import {useNavigation} from '@react-navigation/native';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
+  const navigation = useNavigation();
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const {timestamp, relationship, title} = item;
   const text = item.content.trim();
+
+  const [clickedId, setClickedId] = useState('');
+  const snapPoints = useMemo(() => ['35%'], []);
+  const userPetsBottomSheetRef = useRef(null);
+
+  const renderBackdrop = useCallback(
+    props => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.2}
+        pressBehavior={'close'}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
 
   const handleTextLayout = event => {
     const {lines} = event.nativeEvent;
@@ -42,11 +66,44 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     );
   };
 
-  // const printCallback = useCallback(() => {
-  //   console.log('print fulltext', text);
-  //   console.log('print isTruncated? ', isTruncated);
-  //   console.log('print clippedText', clippedText);
-  // }, [clippedText, isTruncated]);
+  const fetchUserPets = async () => {};
+
+  const renderUserPets = useCallback(() => {
+    return (
+      <View
+        style={[
+          globalStyle.flex,
+          globalStyle.backgroundWhite,
+          {paddingVertical: 10, paddingHorizontal: 15},
+        ]}>
+        <Text
+          style={{
+            alignSelf: 'center',
+            color: '#374957',
+            fontSize: scaleFontSize(18),
+          }}>
+          {clickedId}님의 은하수를 이루는 별
+        </Text>
+        <FlatList
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{
+            flex: 1,
+            marginVertical: '3%',
+          }}
+          data={mockData}
+          renderItem={({item}) => (
+            <BottomSheetOtherUserPet
+              profilePicUrl={''}
+              id={item.name}
+              navigation={navigation}
+              userPetsBottomSheetRef={userPetsBottomSheetRef}
+            />
+          )}
+        />
+      </View>
+    );
+  }, [clickedId]);
 
   return (
     <View style={styles.letter}>
@@ -68,13 +125,22 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           )}
 
           <View style={styles.nameRelationshipDateContainer}>
-            <Text style={styles.name}>한가인{'   '}</Text>
+            <Pressable
+              onPress={() => {
+                userPetsBottomSheetRef.current?.present();
+                setClickedId(item.name);
+                fetchUserPets();
+              }}>
+              <Text style={styles.name}>
+                {item.name}
+                {'   '}
+              </Text>
+            </Pressable>
             <Text style={styles.relationshipAndDate}>
               {relationship} ({timestamp.substring(0, 10)})
             </Text>
           </View>
           {renderText()}
-          {/*{printCallback()}*/}
           <View style={styles.editAndDeleteContainer}>
             {whichTab === 'Letters' && !isTruncated && (
               <EditOrDeleteButtons item={item} />
@@ -85,6 +151,16 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           </View>
         </View>
       </View>
+      <BottomSheetModal
+        handleIndicatorStyle={styles.hideBottomSheetHandle}
+        handleStyle={styles.hideBottomSheetHandle}
+        ref={userPetsBottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backdropComponent={renderBackdrop}
+        children={renderUserPets}
+      />
     </View>
   );
 };
