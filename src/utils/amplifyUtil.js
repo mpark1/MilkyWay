@@ -510,12 +510,12 @@ export async function getUrlForProfilePic(obj) {
 }
 
 export async function queryMyPetsPagination(
-  filter,
   userID,
   isLoadingPets,
   setIsLoadingPets,
   pageSize,
   token,
+  filter,
 ) {
   if (!isLoadingPets) {
     try {

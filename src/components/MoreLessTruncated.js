@@ -84,12 +84,12 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const fetchClickedUserPets = async guestbookAuthorID => {
     try {
       await queryMyPetsPagination(
-        'Public',
         guestbookAuthorID,
         isLoadingClickedUserPets,
         setIsLoadingClickedUserPets,
         3,
-        bottomSheetPetData.nextToken, // pass empty array
+        bottomSheetPetData.nextToken,
+        'Public',
       ).then(data => {
         const {pets, nextToken: newNextToken} = data;
         setBottomSheetPetData(prev => ({

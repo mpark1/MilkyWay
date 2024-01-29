@@ -116,12 +116,12 @@ const Pets = ({navigation}) => {
 
   const fetchPets = async () => {
     await queryMyPetsPagination(
-      null,
       userID,
       isLoadingPets,
       setIsLoadingPets,
       pageSize,
       petData.nextToken,
+      null,
     ).then(data => {
       const {pets, nextToken: newNextToken} = data;
       // dispatch my pets list to filter out these pets in community page
