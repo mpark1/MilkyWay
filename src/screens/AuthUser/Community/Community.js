@@ -6,16 +6,13 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
-  Text,
-  TextInput,
 } from 'react-native';
-import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 import PetCard from '../../../components/PetCard';
 import {queryPetsPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Button} from '@rneui/themed';
+import SearchBox from '../../../components/SearchBox';
+import {petByName} from '../../../graphql/queries';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -25,7 +22,6 @@ const Community = ({navigation}) => {
     pets: [],
     nextToken: null,
   });
-  const [petName, setPetName] = useState('');
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
   console.log(
@@ -47,12 +43,17 @@ const Community = ({navigation}) => {
   // }, []);
   //
   // const fetchPets = async () => {
+  //  const inputVariables = {
+  //           accessLevel: 'Public',
+  //           limit: pageSize,
+  //           nextToken: petData.token,
+  //         }
   //   queryPetsPagination(
   //     userID,
+  //      petsByAccessLevel,
+  //      inputVariables,
   //     isLoadingPets,
   //     setIsLoadingPets,
-  //     pageSize,
-  //     petData.token,
   //     myPets,
   //   ).then(data => {
   //     const {pets, nextToken: newNextToken} = data;
@@ -69,38 +70,36 @@ const Community = ({navigation}) => {
     // }
   };
 
+  const fetchSearchedPets = async petName => {
+    const inputVariables = {
+      name: petName,
+      filter: {accessLevel: {eq: 'Public'}},
+      limit: pageSize,
+      nextToken: petData.token,
+    };
+    queryPetsPagination(
+      userID,
+      petByName,
+      inputVariables,
+      isLoadingPets,
+      setIsLoadingPets,
+      myPets,
+    ).then(data => {
+      const {pets, nextToken: newNextToken} = data;
+      setPetData(prev => ({
+        pets: [...prev.pets, ...pets],
+        nextToken: newNextToken,
+      }));
+    });
+  };
+
   return (
     <SafeAreaView style={globalStyle.flex}>
       <ImageBackground
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <View style={styles.searchBox}>
-          <TextInput
-            style={styles.textInput}
-            placeholder={'동물 이름 찾기'}
-            placeholderTextColor={'#939393'}
-            autoCapitalize={'none'}
-            autoCorrect={false}
-            onChangeText={text => {
-              setPetName(text);
-            }}
-          />
-          <Ionicons
-            style={styles.searchIcon}
-            name={'search'}
-            color={'#373737'}
-            size={24}
-          />
-          <Button
-            title="검색"
-            type="solid"
-            titleStyle={styles.buttonTitleStyle}
-            buttonStyle={styles.buttonBackgroundColor}
-            containerStyle={styles.buttonContainer}
-            onPress={() => {}}
-          />
-        </View>
+        <SearchBox fetchSearchedPets={fetchSearchedPets} />
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -129,42 +128,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     alignItems: 'center',
-  },
-  textInput: {
-    width: '83%',
-    height: '95%',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 10,
-    paddingVertical: 5,
-    paddingLeft: 35,
-    color: '#000000',
-    fontSize: scaleFontSize(18),
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-  searchBox: {
-    paddingVertical: 8,
-    height: Dimensions.get('window').height * 0.09,
-    width: Dimensions.get('window').width * 0.93,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  searchIcon: {
-    position: 'absolute',
-    left: 5,
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  buttonContainer: {
-    borderRadius: 10,
-  },
-  buttonTitleStyle: {
-    color: '#FFF',
-    fontSize: scaleFontSize(18),
-  },
-  buttonBackgroundColor: {
-    backgroundColor: '#939393',
   },
 });

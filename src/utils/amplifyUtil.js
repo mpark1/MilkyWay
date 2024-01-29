@@ -446,10 +446,10 @@ export async function queryAlbumsByCategory(pageSize, petID, token, category) {
 
 export async function queryPetsPagination(
   userID,
+  queryName,
+  variables,
   isLoadingPets,
   setIsLoadingPets,
-  pageSize,
-  token,
   myPetsIdArray,
 ) {
   if (!isLoadingPets) {
@@ -458,16 +458,12 @@ export async function queryPetsPagination(
       //1 get pet data from Pets table in db. Filter is used not to show the user's own pets
       const client = generateClient();
       const response = await client.graphql({
-        query: petsByAccessLevel,
-        variables: {
-          accessLevel: 'Public',
-          limit: pageSize,
-          nextToken: token,
-        },
+        query: queryName,
+        variables: variables,
         authMode: 'userPool',
       });
       const petsData = {pets: [], nextToken: null};
-      const {items, nextToken} = response.data.petsByAccessLevel; // includes items (array format), nextToken
+      const {items, nextToken} = response.data.queryName; // includes items (array format), nextToken
       petsData.pets = items;
       petsData.nextToken = nextToken;
       // if none is found, return
