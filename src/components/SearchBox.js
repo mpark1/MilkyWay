@@ -1,11 +1,23 @@
 import {Dimensions, StyleSheet, TextInput, View} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Button} from '@rneui/themed';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {scaleFontSize} from '../assets/styles/scaling';
 
-const SearchBox = ({fetchSearchedPets}) => {
+const SearchBox = ({fetchSearchedPets, setIsSearchActive}) => {
   const [petName, setPetName] = useState('');
+  const [buttonTitle, setButtonTitle] = useState('검색');
+
+  const onSubmit = useCallback(() => {
+    if (buttonTitle === '검색') {
+      setIsSearchActive(true);
+      setButtonTitle('취소');
+    } else {
+      setIsSearchActive(false);
+      setButtonTitle('검색');
+    }
+    fetchSearchedPets(petName);
+  }, []);
 
   return (
     <View style={styles.searchBox}>
@@ -24,14 +36,12 @@ const SearchBox = ({fetchSearchedPets}) => {
         size={24}
       />
       <Button
-        title="검색"
+        title={buttonTitle}
         type="solid"
         titleStyle={styles.buttonTitleStyle}
         buttonStyle={styles.buttonBackgroundColor}
         containerStyle={styles.buttonContainer}
-        onPress={() => {
-          fetchSearchedPets(petName);
-        }}
+        onPress={onSubmit}
       />
     </View>
   );
