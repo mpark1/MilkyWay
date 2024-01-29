@@ -16,11 +16,7 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 
 import {deleteLetter} from '../graphql/mutations';
-import {
-  mutationItem,
-  queryMyPetsPagination,
-  queryPetsPagination,
-} from '../utils/amplifyUtil';
+import {mutationItem, queryMyPetsPagination} from '../utils/amplifyUtil';
 import {isSmall, scaleFontSize} from '../assets/styles/scaling';
 
 import MoreLessComponent from './MoreLess';
@@ -36,10 +32,10 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const text = item.content.trim();
   const navigation = useNavigation();
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+  const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   // whichTab === 'GuestBook'
   // When author's name is clicked, present bottomSheet listing the author's pets
-  const [clickedUser, setClickedUser] = useState({userID: '', name: ''});
   const snapPoints = useMemo(() => [isSmall ? '35%' : '30%'], []);
   const userPetsBottomSheetModalRef = useRef(null);
   const [isLoadingClickedUserPets, setIsLoadingClickedUserPets] =
@@ -86,20 +82,27 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   };
 
   const fetchClickedUserPets = async guestbookAuthorID => {
-    console.log('clicked user info: ', guestbookAuthorID);
-    await queryMyPetsPagination(
-      guestbookAuthorID,
-      isLoadingClickedUserPets,
-      setIsLoadingClickedUserPets,
-      3,
-      bottomSheetPetData.nextToken, // pass empty array
-    ).then(data => {
-      const {pets, nextToken: newNextToken} = data;
-      setBottomSheetPetData(prev => ({
-        pets: [...prev.pets, ...pets],
-        nextToken: newNextToken,
-      }));
-    });
+    try {
+      await queryMyPetsPagination(
+        'Public',
+        guestbookAuthorID,
+        isLoadingClickedUserPets,
+        setIsLoadingClickedUserPets,
+        3,
+        bottomSheetPetData.nextToken, // pass empty array
+      ).then(data => {
+        const {pets, nextToken: newNextToken} = data;
+        setBottomSheetPetData(prev => ({
+          pets: [...prev.pets, ...pets],
+          nextToken: newNextToken,
+        }));
+      });
+      setIsFetchComplete(true);
+    } catch (error) {
+      console.log('Error in fetchClickedUserPets', error);
+    } finally {
+      setIsFetchComplete(true);
+    }
   };
 
   const onBottomSheetFlatListEndReached = async () => {
@@ -162,13 +165,8 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         <Pressable
           disabled={whichTab === 'Letters'}
           onPress={async () => {
-            setClickedUser({
-              userID: item.guestBookAuthorId,
-              name: item.userName,
-            });
-            // 아래 두개의 순서를 바꿀지?
             await fetchClickedUserPets(item.guestBookAuthorId);
-            userPetsBottomSheetModalRef.current?.present();
+            isFetchComplete && userPetsBottomSheetModalRef.current?.present();
           }}>
           <Text style={styles.name}>
             {item.userName}
@@ -245,10 +243,10 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           styles.bottomSheet.inner,
         ]}>
         <Text style={styles.bottomSheet.clickedUserName}>
-          {clickedUser.name}님의 은하수
+          {item.userName}님의 은하수
         </Text>
-        {isLoadingClickedUserPets ? (
-          <View style={styles.activityIndicatorContainer}>
+        {!isFetchComplete ? (
+          <View style={styles.bottomSheet.activityIndicatorContainer}>
             <ActivityIndicator />
           </View>
         ) : bottomSheetPetData.pets.length > 0 ? (
@@ -269,13 +267,13 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             )}
           />
         ) : (
-          <Text style={styles.bottomSheet.clickedUserName}>
-            {clickedUser.name}님이 개설한 추모공간이 없습니다.
+          <Text style={(styles.bottomSheet.clickedUserName, {paddingTop: 10})}>
+            {item.userName}님이 개설한 추모공간이 없습니다.
           </Text>
         )}
       </View>
     );
-  }, [isLoadingClickedUserPets, clickedUser.userID]);
+  }, [isFetchComplete, item.guestBookAuthorId]);
 
   return (
     <>
@@ -389,7 +387,7 @@ const styles = StyleSheet.create({
       flex: 1,
       marginVertical: '3%',
     },
-    activityIndicator: {
+    activityIndicatorContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',

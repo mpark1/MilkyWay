@@ -116,6 +116,7 @@ const Pets = ({navigation}) => {
 
   const fetchPets = async () => {
     await queryMyPetsPagination(
+      null,
       userID,
       isLoadingPets,
       setIsLoadingPets,

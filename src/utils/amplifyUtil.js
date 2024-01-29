@@ -510,6 +510,7 @@ export async function getUrlForProfilePic(obj) {
 }
 
 export async function queryMyPetsPagination(
+  filter,
   userID,
   isLoadingPets,
   setIsLoadingPets,
@@ -527,6 +528,7 @@ export async function queryMyPetsPagination(
           familyMemberID: userID,
           limit: pageSize,
           nextToken: token,
+          filter: filter === null ? filter : {accessLevel: {eq: filter}},
         },
         authMode: 'userPool',
       });
