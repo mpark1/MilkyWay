@@ -14,6 +14,8 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import PetCard from '../../../components/PetCard';
 import {queryPetsPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Button} from '@rneui/themed';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -32,39 +34,39 @@ const Community = ({navigation}) => {
     readyForCommunityFetch,
   );
 
-  useEffect(() => {
-    navigation.popToTop();
-    const firstFetch = async () => {
-      await fetchPets();
-      setIsFetchComplete(true);
-    };
-    if (readyForCommunityFetch) {
-      firstFetch();
-      console.log('community first fetched pets is done!');
-    }
-  }, []);
-
-  const fetchPets = async () => {
-    queryPetsPagination(
-      userID,
-      isLoadingPets,
-      setIsLoadingPets,
-      pageSize,
-      petData.token,
-      myPets,
-    ).then(data => {
-      const {pets, nextToken: newNextToken} = data;
-      setPetData(prev => ({
-        pets: [...prev.pets, ...pets],
-        nextToken: newNextToken,
-      }));
-    });
-  };
+  // useEffect(() => {
+  //   navigation.popToTop();
+  //   const firstFetch = async () => {
+  //     await fetchPets();
+  //     setIsFetchComplete(true);
+  //   };
+  //   if (readyForCommunityFetch) {
+  //     firstFetch();
+  //     console.log('community first fetched pets is done!');
+  //   }
+  // }, []);
+  //
+  // const fetchPets = async () => {
+  //   queryPetsPagination(
+  //     userID,
+  //     isLoadingPets,
+  //     setIsLoadingPets,
+  //     pageSize,
+  //     petData.token,
+  //     myPets,
+  //   ).then(data => {
+  //     const {pets, nextToken: newNextToken} = data;
+  //     setPetData(prev => ({
+  //       pets: [...prev.pets, ...pets],
+  //       nextToken: newNextToken,
+  //     }));
+  //   });
+  // };
 
   const onEndReached = async () => {
-    if (petData.nextToken !== null) {
-      await fetchPets();
-    }
+    // if (petData.nextToken !== null) {
+    //   await fetchPets();
+    // }
   };
 
   return (
@@ -73,17 +75,30 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <View style={styles.searchbox}>
+        <View style={styles.searchBox}>
           <TextInput
             style={styles.textInput}
-            placeholder={'검색어를 입력해주세요.'}
+            placeholder={'동물 이름 찾기'}
             placeholderTextColor={'#939393'}
-            clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
             onChangeText={text => {
               setPetName(text);
             }}
+          />
+          <Ionicons
+            style={styles.searchIcon}
+            name={'search'}
+            color={'#373737'}
+            size={24}
+          />
+          <Button
+            title="검색"
+            type="solid"
+            titleStyle={styles.buttonTitleStyle}
+            buttonStyle={styles.buttonBackgroundColor}
+            containerStyle={styles.buttonContainer}
+            onPress={() => {}}
           />
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
@@ -116,18 +131,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textInput: {
-    width: Dimensions.get('window').width * 0.95,
-    height: Dimensions.get('window').height * 0.07,
+    width: '83%',
+    height: '95%',
     backgroundColor: '#F5F5F5',
     borderRadius: 10,
-    paddingTop: 10,
+    paddingVertical: 5,
+    paddingLeft: 35,
     color: '#000000',
     fontSize: scaleFontSize(18),
     fontWeight: '500',
     alignSelf: 'center',
   },
   searchBox: {
-    paddingTop: 5,
-    backgroundColor: 'yellow',
+    paddingVertical: 8,
+    height: Dimensions.get('window').height * 0.09,
+    width: Dimensions.get('window').width * 0.93,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 5,
+    justifyContent: 'center',
+    alignSelf: 'center',
+  },
+  buttonContainer: {
+    borderRadius: 10,
+  },
+  buttonTitleStyle: {
+    color: '#FFF',
+    fontSize: scaleFontSize(18),
+  },
+  buttonBackgroundColor: {
+    backgroundColor: '#939393',
   },
 });
