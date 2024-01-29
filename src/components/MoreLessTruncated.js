@@ -267,8 +267,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
           />
         ) : (
           <Text style={styles.bottomSheet.clickedUserName}>
-            동물이 없을 때는 어떻게? {clickedUser.name}님이 생성한 은하수가
-            없습니다
+            {clickedUser.name}님이 개설한 추모공간이 없습니다.
           </Text>
         )}
       </View>
