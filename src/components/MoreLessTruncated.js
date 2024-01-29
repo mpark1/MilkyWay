@@ -81,10 +81,10 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     );
   };
 
-  const fetchClickedUserPets = async () => {
+  const fetchClickedUserPets = async clickedUserID => {
     console.log('clicked user info: ', clickedUser);
     await queryPetsPagination(
-      clickedUser.userID,
+      clickedUserID,
       isLoadingClickedUserPets,
       setIsLoadingClickedUserPets,
       3,
@@ -164,7 +164,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
               name: item.userName,
             });
             // 아래 두개의 순서를 바꿀지?
-            await fetchClickedUserPets();
+            await fetchClickedUserPets(item.guestBookAuthorId);
             userPetsBottomSheetModalRef.current?.present();
           }}>
           <Text style={styles.name}>
