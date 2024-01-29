@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
   Text,
+  TextInput,
 } from 'react-native';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
@@ -22,6 +23,7 @@ const Community = ({navigation}) => {
     pets: [],
     nextToken: null,
   });
+  const [petName, setPetName] = useState('');
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
   console.log(
@@ -71,7 +73,19 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <Text>추모공간 커뮤니티에 오신것을 환영합니다.</Text>
+        <View style={styles.searchbox}>
+          <TextInput
+            style={styles.textInput}
+            placeholder={'검색어를 입력해주세요.'}
+            placeholderTextColor={'#939393'}
+            clearButtonMode={'while-editing'}
+            autoCapitalize={'none'}
+            autoCorrect={false}
+            onChangeText={text => {
+              setPetName(text);
+            }}
+          />
+        </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -95,22 +109,25 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
   },
-  settingsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 10,
-    paddingTop: 10,
-  },
-  settings: {
-    color: '#FFF',
-    fontSize: scaleFontSize(14),
-    marginLeft: 7,
-    fontWeight: '600',
-  },
   flatListContainer: {
     paddingTop: Dimensions.get('window').height * 0.02,
     flex: 1,
     backgroundColor: 'transparent',
     alignItems: 'center',
+  },
+  textInput: {
+    width: Dimensions.get('window').width * 0.95,
+    height: Dimensions.get('window').height * 0.07,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    paddingTop: 10,
+    color: '#000000',
+    fontSize: scaleFontSize(18),
+    fontWeight: '500',
+    alignSelf: 'center',
+  },
+  searchBox: {
+    paddingTop: 5,
+    backgroundColor: 'yellow',
   },
 });

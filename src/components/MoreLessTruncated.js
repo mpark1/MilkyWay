@@ -16,7 +16,11 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {BottomSheetBackdrop, BottomSheetModal} from '@gorhom/bottom-sheet';
 
 import {deleteLetter} from '../graphql/mutations';
-import {mutationItem, queryPetsPagination} from '../utils/amplifyUtil';
+import {
+  mutationItem,
+  queryMyPetsPagination,
+  queryPetsPagination,
+} from '../utils/amplifyUtil';
 import {isSmall, scaleFontSize} from '../assets/styles/scaling';
 
 import MoreLessComponent from './MoreLess';
@@ -81,15 +85,14 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     );
   };
 
-  const fetchClickedUserPets = async clickedUserID => {
-    console.log('clicked user info: ', clickedUser);
-    await queryPetsPagination(
-      clickedUserID,
+  const fetchClickedUserPets = async guestbookAuthorID => {
+    console.log('clicked user info: ', guestbookAuthorID);
+    await queryMyPetsPagination(
+      guestbookAuthorID,
       isLoadingClickedUserPets,
       setIsLoadingClickedUserPets,
       3,
-      bottomSheetPetData.nextToken,
-      [], // pass empty array
+      bottomSheetPetData.nextToken, // pass empty array
     ).then(data => {
       const {pets, nextToken: newNextToken} = data;
       setBottomSheetPetData(prev => ({
@@ -272,7 +275,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         )}
       </View>
     );
-  }, [clickedUser.userID]);
+  }, [isLoadingClickedUserPets, clickedUser.userID]);
 
   return (
     <>

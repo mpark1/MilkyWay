@@ -205,6 +205,7 @@ const Album = ({navigation, route}) => {
 
   const renderFlatListItem = useCallback(({item}) => {
     return (
+      item.imageArray &&
       item.imageArray.length > 0 && (
         <View style={styles.flatListItemContainer}>
           {item.imageType === 0 ? (
@@ -263,7 +264,7 @@ const Album = ({navigation, route}) => {
             onEndReached={onEndReached}
             showsVerticalScrollIndicator={false}
             data={albumData.albums}
-            renderItem={renderFlatListItem}
+            renderItem={({item}) => renderFlatListItem({item})}
           />
           {isFamily && renderAddNewAlbumButton()}
         </View>

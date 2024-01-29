@@ -389,6 +389,7 @@ async function getUrlsFromS3ForAlbums(albumData) {
         albumObj.width = width;
         albumObj.height = height;
       }
+      // get s3keys for images from S3 folder
       const s3response = await list({
         prefix: 'album/' + albumObj.s3Folder + '/',
         options: {
@@ -396,19 +397,21 @@ async function getUrlsFromS3ForAlbums(albumData) {
           targetIdentityId: albumObj.authorIdentityID,
         },
       });
-      albumObj.keyArray = [];
-      const urlPromises = s3response.items.map(async imageObj => {
-        albumObj.keyArray.push(imageObj.key);
-        const getUrlResult = await retrieveS3UrlForOthers(
-          imageObj.key,
-          albumObj.authorIdentityID,
-        );
-        return getUrlResult.url.href;
-      });
-      // save s3 images as an album object's attribute
-      albumObj.imageArray = await Promise.all(urlPromises);
+      // save image urls and s3key for each given s3key
+      albumObj.keyArray = s3response.items.map(item => item.key);
+      albumObj.imageArray = await Promise.all(
+        s3response.items.map(async imageObj => {
+          const getUrlResult = await retrieveS3UrlForOthers(
+            imageObj.key,
+            albumObj.authorIdentityID,
+          );
+          return getUrlResult.url.href;
+        }),
+      );
+      return albumObj;
     }),
   );
+  console.log('print downloaded images from S3', albumPromises[0]);
   return albumPromises;
 }
 
@@ -552,9 +555,15 @@ export async function queryMyPetsPagination(
         }),
       );
       petsData.pets = await Promise.all(fetchPetDetails);
+      console.log(
+        'print fetched my pets: ',
+        petsData.pets.length,
+        petsData.pets[0],
+      );
       return petsData;
     } catch (error) {
       console.log('error for fetching my pets from db: ', error);
+    } finally {
       setIsLoadingPets(false);
     }
   }
