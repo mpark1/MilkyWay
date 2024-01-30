@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   ImageBackground,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   View,
@@ -12,7 +13,7 @@ import PetCard from '../../../components/PetCard';
 // import {queryPetsPagination} from '../../../utils/amplifyUtil';
 // import {useSelector} from 'react-redux';
 import SearchBox from '../../../components/SearchBox';
-import {useFocusEffect} from '@react-navigation/core';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 // import {petByName} from '../../../graphql/queries';
 
 const Community = ({navigation}) => {
@@ -30,20 +31,40 @@ const Community = ({navigation}) => {
   //   myPets.length,
   //   readyForCommunityFetch,
   // );
-  const [isSearchActive, setIsSearchActive] = useState(false);
 
-  const [resetSearchBox, setResetSearchBox] = useState(false);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // This is executed when the screen gains focus
-      setResetSearchBox(false);
-
-      return () => {
-        setResetSearchBox(true);
-      };
-    }, []),
-  );
+  // useEffect(() => {
+  //   navigation.popToTop();
+  //   const firstFetch = async () => {
+  //     await fetchPets();
+  //     setIsFetchComplete(true);
+  //   };
+  //   if (readyForCommunityFetch) {
+  //     firstFetch();
+  //     console.log('community first fetched pets is done!');
+  //   }
+  // }, []);
+  //
+  // const fetchPets = async () => {
+  //  const inputVariables = {
+  //           accessLevel: 'Public',
+  //           limit: pageSize,
+  //           nextToken: petData.token,
+  //         }
+  //   queryPetsPagination(
+  //     userID,
+  //      petsByAccessLevel,
+  //      inputVariables,
+  //     isLoadingPets,
+  //     setIsLoadingPets,
+  //     myPets,
+  //   ).then(data => {
+  //     const {pets, nextToken: newNextToken} = data;
+  //     setPetData(prev => ({
+  //       pets: [...prev.pets, ...pets],
+  //       nextToken: newNextToken,
+  //     }));
+  //   });
+  // };
 
   const onEndReached = async () => {
     // if (petData.nextToken !== null) {
@@ -80,11 +101,13 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <SearchBox
-          fetchSearchedPets={null}
-          setIsSearchActive={setIsSearchActive}
-          resetSearch={resetSearchBox}
-        />
+        <View style={styles.searchIconContainer}>
+          <Pressable
+            style={styles.searchIcon}
+            onPress={() => navigation.navigate('SearchPet')}>
+            <Ionicons name={'search'} color={'#FFF'} size={30} />
+          </Pressable>
+        </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -107,6 +130,15 @@ export default Community;
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
+  },
+  searchIconContainer: {
+    width: '100%',
+    justifyContent: 'center',
+    paddingVertical: Dimensions.get('window').height * 0.015,
+    paddingRight: Dimensions.get('window').width * 0.027,
+  },
+  searchIcon: {
+    alignSelf: 'flex-end',
   },
   flatListContainer: {
     paddingTop: Dimensions.get('window').height * 0.02,

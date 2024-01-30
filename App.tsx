@@ -1,7 +1,4 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-
-import {NavigationContainer} from '@react-navigation/native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler'; // for bottom sheet
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
@@ -17,7 +14,5 @@ const App = () => {
     </GestureHandlerRootView>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default App;
