@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {scaleFontSize} from './scaling';
 
 const globalStyle = StyleSheet.create({
   backgroundWhite: {
@@ -13,13 +14,12 @@ const globalStyle = StyleSheet.create({
   alignItemsCenter: {
     alignItems: 'center',
   },
-  paddingHorizontal: {
-    paddingHorizontal: 30,
-  },
-  pinPaw: {
-    alignSelf: 'center',
-    position: 'absolute',
-    bottom: 25,
+  stackNavigator: {
+    headerShadowVisible: false,
+    headerBackTitleVisible: false,
+    headerTitleAlign: 'center',
+    headerTitleStyle: {fontSize: scaleFontSize(22)},
+    headerTintColor: '#374957',
   },
 });
 

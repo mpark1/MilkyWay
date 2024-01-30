@@ -1,5 +1,5 @@
 import React from 'react';
-
+import {createStackNavigator} from '@react-navigation/stack';
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
@@ -7,22 +7,14 @@ import ChooseMedia from '../screens/AuthUser/ChooseMedia';
 import WriteLetter from '../screens/AuthUser/WriteLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
-import {scaleFontSize} from '../assets/styles/scaling';
 import EditLetter from '../screens/AuthUser/EditLetter';
-import {createStackNavigator} from '@react-navigation/stack';
+import globalStyle from '../assets/styles/globalStyle';
 
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShadowVisible: false,
-        headerBackTitleVisible: false,
-        headerTitleAlign: 'center',
-        headerTitleStyle: {fontSize: scaleFontSize(22)},
-        headerTintColor: '#374957',
-      }}>
+    <Stack.Navigator screenOptions={globalStyle.stackNavigator}>
       <Stack.Screen
         name={'BottomTabs'}
         component={BottomTabs}

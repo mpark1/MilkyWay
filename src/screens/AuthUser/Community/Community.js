@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -7,12 +7,11 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import globalStyle from '../../../assets/styles/globalStyle';
-import PetCard from '../../../components/PetCard';
-import {queryPetsPagination} from '../../../utils/amplifyUtil';
 import {useSelector} from 'react-redux';
-import SearchBox from '../../../components/SearchBox';
-import {petByName, petsByAccessLevel} from '../../../graphql/queries';
+import {petsByAccessLevel} from '../../../graphql/queries';
+import {queryPetsPagination} from '../../../utils/amplifyUtil';
+import PetCard from '../../../components/PetCard';
+import globalStyle from '../../../assets/styles/globalStyle';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -22,13 +21,8 @@ const Community = ({navigation}) => {
     pets: [],
     nextToken: null,
   });
-  const [searchData, setSearchData] = useState({
-    pets: [],
-    nextToken: null,
-  });
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
-  const [isSearchActive, setIsSearchActive] = useState(false);
   console.log(
     'print my pets in community page: ',
     myPets.length,
@@ -48,6 +42,7 @@ const Community = ({navigation}) => {
   }, []);
 
   const fetchPets = async () => {
+    setIsFetchComplete(false);
     const inputVariables = {
       accessLevel: 'Public',
       limit: pageSize,
@@ -62,68 +57,19 @@ const Community = ({navigation}) => {
       myPets,
     ).then(data => {
       const {pets, nextToken: newNextToken} = data;
-      setSearchData(prev => ({
-        pets: [...prev.pets, ...pets],
-        nextToken: newNextToken,
-      }));
-    });
-  };
-
-  const onEndReached = async () => {
-    if (!isSearchActive) {
-      if (petData.nextToken !== null) {
-        await fetchPets();
-      }
-    } else {
-      if (searchData.nextToken !== null) {
-        await fetchSearchedPets();
-      }
-    }
-  };
-
-  const fetchSearchedPets = async petName => {
-    const inputVariables = {
-      name: petName,
-      filter: {accessLevel: {eq: 'Public'}},
-      limit: pageSize,
-      nextToken: petData.token,
-    };
-    queryPetsPagination(
-      userID,
-      petByName,
-      inputVariables,
-      isLoadingPets,
-      setIsLoadingPets,
-      myPets,
-    ).then(data => {
-      const {pets, nextToken: newNextToken} = data;
       setPetData(prev => ({
         pets: [...prev.pets, ...pets],
         nextToken: newNextToken,
       }));
+      setIsFetchComplete(true);
     });
   };
 
-  const renderFlatList = useCallback(() => {
-    // Determine if there's any data to display
-    const hasData = petData.pets.length > 0 || searchData.pets.length > 0;
-
-    if (!hasData) {
-      return null;
+  const onEndReached = async () => {
+    if (petData.nextToken !== null) {
+      await fetchPets();
     }
-    return (
-      <View style={styles.flatListContainer}>
-        <FlatList
-          data={isSearchActive ? searchData.pets : petData.pets}
-          onMomentumScrollBegin={() => setIsLoadingPets(false)}
-          onEndReachedThreshold={0.8}
-          onEndReached={onEndReached}
-          showsVerticalScrollIndicator={false}
-          renderItem={({item}) => <PetCard item={item} isFamily={false} />}
-        />
-      </View>
-    );
-  }, [petData.pets, searchData.pets, isSearchActive]);
+  };
 
   return (
     <SafeAreaView style={globalStyle.flex}>
@@ -131,11 +77,18 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <SearchBox
-          fetchSearchedPets={fetchSearchedPets}
-          setIsSearchActive={setIsSearchActive}
-        />
-        {isFetchComplete && renderFlatList()}
+        {isFetchComplete && petData.pets.length > 0 && (
+          <View style={styles.flatListContainer}>
+            <FlatList
+              onMomentumScrollBegin={() => setIsLoadingPets(false)}
+              onEndReachedThreshold={0.8}
+              onEndReached={onEndReached}
+              showsVerticalScrollIndicator={false}
+              data={petData.pets}
+              renderItem={({item}) => <PetCard item={item} isFamily={false} />}
+            />
+          </View>
+        )}
       </ImageBackground>
     </SafeAreaView>
   );
