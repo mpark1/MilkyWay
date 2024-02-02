@@ -529,7 +529,6 @@ export async function queryMyPetsPagination(
           familyMemberID: userID,
           limit: pageSize,
           nextToken: token,
-          filter: filter === null ? filter : {accessLevel: {eq: filter}},
         },
         authMode: 'userPool',
       });
@@ -545,7 +544,10 @@ export async function queryMyPetsPagination(
         petsData.petFamily.map(async petFamilyItem => {
           const petDetails = await client.graphql({
             query: getPet,
-            variables: {id: petFamilyItem.petID},
+            variables: {
+              id: petFamilyItem.petID,
+              filter: filter === null ? filter : {accessLevel: {eq: filter}},
+            },
             authMode: 'userPool',
           });
           const petObject = petDetails.data.getPet;
@@ -554,11 +556,6 @@ export async function queryMyPetsPagination(
         }),
       );
       petsData.pets = await Promise.all(fetchPetDetails);
-      console.log(
-        'print fetched my pets: ',
-        petsData.pets.length,
-        petsData.pets[0],
-      );
       return petsData;
     } catch (error) {
       console.log('error for fetching my pets from db: ', error);

@@ -34,8 +34,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
 
-  // whichTab === 'GuestBook'
-  // When author's name is clicked, present bottomSheet listing the author's pets
+  // For whichTab === 'GuestBook' - when author's name is clicked, present bottomSheet listing the author's pets
   const snapPoints = useMemo(() => [isSmall ? '35%' : '30%'], []);
   const userPetsBottomSheetModalRef = useRef(null);
   const [isLoadingClickedUserPets, setIsLoadingClickedUserPets] =
@@ -45,7 +44,6 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     nextToken: null,
   });
 
-  // console.log('print profilepic url in letters: ', profilePic);
   useEffect(() => {
     console.log('MoreLessTruncated component - Mounted');
     return () => {
@@ -229,6 +227,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         pressBehavior={'close'}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
+        onPress={() => {
+          setBottomSheetPetData({pets: [], nextToken: null});
+        }}
       />
     ),
     [],
