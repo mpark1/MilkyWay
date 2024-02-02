@@ -27,7 +27,8 @@ const MyMilkyWay = () => {
           fontWeight: 'bold',
         },
         headerShadowVisible: false,
-      }}>
+      }}
+      initialRouteName={'Pets'}>
       <Stack.Screen
         options={{headerShown: false}}
         name={'Pets'}
