@@ -15,7 +15,6 @@ import globalStyle from '../../../assets/styles/globalStyle';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
-  const userID = useSelector(state => state.user.cognitoUsername);
   const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
   const [petData, setPetData] = useState({
     pets: [],
@@ -49,8 +48,8 @@ const Community = ({navigation}) => {
       nextToken: petData.token,
     };
     queryPetsPagination(
-      userID,
       petsByAccessLevel,
+      'petsByAccessLevel',
       inputVariables,
       isLoadingPets,
       setIsLoadingPets,

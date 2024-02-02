@@ -445,8 +445,8 @@ export async function queryAlbumsByCategory(pageSize, petID, token, category) {
 }
 
 export async function queryPetsPagination(
-  userID,
   queryName,
+  queryNameString,
   variables,
   isLoadingPets,
   setIsLoadingPets,
@@ -463,11 +463,15 @@ export async function queryPetsPagination(
         authMode: 'userPool',
       });
       const petsData = {pets: [], nextToken: null};
-      const {items, nextToken} = response.data.queryName; // includes items (array format), nextToken
+      console.log(
+        'print for community page: ',
+        response.data[queryNameString].items[0],
+      );
+      const {items, nextToken} = response.data[queryNameString];
       petsData.pets = items;
       petsData.nextToken = nextToken;
       // if none is found, return
-      if (items.length === 0) {
+      if (petsData.pets.length === 0) {
         return petsData;
       }
       // remove pets that are in my pets list (in petFamilies)
