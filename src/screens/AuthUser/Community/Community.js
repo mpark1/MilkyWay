@@ -82,7 +82,7 @@ const Community = ({navigation}) => {
           <Pressable
             style={styles.searchIcon}
             onPress={() => navigation.navigate('SearchPets')}>
-            <Ionicons name={'search'} color={'#FFF'} size={30} />
+            <Ionicons name={'search'} color={'#FFF'} size={22} />
           </Pressable>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
@@ -111,8 +111,8 @@ const styles = StyleSheet.create({
   searchIconContainer: {
     width: '100%',
     justifyContent: 'center',
-    paddingVertical: Dimensions.get('window').height * 0.015,
-    paddingRight: Dimensions.get('window').width * 0.027,
+    paddingTop: Dimensions.get('window').height * 0.01,
+    paddingRight: Dimensions.get('window').width * 0.03,
   },
   searchIcon: {
     alignSelf: 'flex-end',

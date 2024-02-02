@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Text,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 
@@ -25,43 +26,51 @@ const SearchPets = () => {
     pets: [],
     nextToken: null,
   });
+  const [petName, setPetName] = useState('');
   const [isLoadingPets, setIsLoadingPets] = useState(false);
-  const [isFetchComplete, setIsFetchComplete] = useState(true);
+  // 0: before fetch, 1: while fetching, 2: after fetching
+  const [isFetchComplete, setIsFetchComplete] = useState(0);
 
-  const fetchSearchedPets = async petName => {
-    setIsFetchComplete(false);
-
+  const fetchSearchedPets = async (petName, firstFetch) => {
+    setIsFetchComplete(1);
+    console.log('print new petname: ', petName);
+    firstFetch && setPetName(petName);
     const inputVariables = {
       name: petName,
       filter: {accessLevel: {eq: 'Public'}},
       limit: 5,
-      nextToken: petData.token,
+      nextToken: firstFetch ? null : petData.token,
     };
     queryPetsPagination(
-      userID,
       petByName,
+      'petByName',
       inputVariables,
       isLoadingPets,
       setIsLoadingPets,
       myPets,
     ).then(data => {
+      console.log('print fetched data inside SearchPets.js: ', data);
       const {pets, nextToken: newNextToken} = data;
-      setPetData(prev => ({
-        pets: [...prev.pets, ...pets],
-        nextToken: newNextToken,
-      }));
-      setIsFetchComplete(true);
+      firstFetch
+        ? setPetData({
+            pets: [...pets],
+            nextToken: newNextToken,
+          })
+        : setPetData(prev => ({
+            pets: [...prev.pets, ...pets],
+            nextToken: newNextToken,
+          }));
+      setIsFetchComplete(2);
     });
   };
 
   const onEndReached = async () => {
     if (petData.nextToken !== null) {
-      await fetchSearchedPets();
+      await fetchSearchedPets(petName, false);
     }
   };
 
   const renderFlatList = useCallback(() => {
-    // TODO: 검색 결과 없을 때 보여줄 문구, 로직 추가해야 함
     return (
       <View style={styles.flatListContainer}>
         {petData.pets.length > 0 ? (
@@ -73,25 +82,25 @@ const SearchPets = () => {
             data={petData.pets}
             renderItem={({item}) => <PetCard item={item} isFamily={false} />}
           />
-        ) : null}
+        ) : (
+          <Text>찾는 별이 존재하지 않습니다.</Text>
+        )}
       </View>
     );
-  }, [petData.pets]);
+  }, [isFetchComplete, petData.pets]);
 
   return (
-    <SafeAreaView
-      style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
+    <SafeAreaView style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.searchBoxAndButtonContainer}>
         <SearchBox
           fetchSearchedPets={fetchSearchedPets}
           isFetchComplete={isFetchComplete}
         />
       </View>
-      {!isFetchComplete ? (
+      {isFetchComplete === 1 && (
         <ActivityIndicator style={styles.activityIndicator} />
-      ) : (
-        renderFlatList()
       )}
+      {isFetchComplete === 2 && renderFlatList()}
     </SafeAreaView>
   );
 };
@@ -101,10 +110,10 @@ export default SearchPets;
 const styles = StyleSheet.create({
   spacer: {
     paddingHorizontal: Dimensions.get('window').width * 0.07,
-    alignItems: 'center',
   },
   searchBoxAndButtonContainer: {
     flexDirection: 'row',
+    alignSelf: 'center',
   },
   activityIndicator: {
     alignSelf: 'center',

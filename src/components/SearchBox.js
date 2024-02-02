@@ -6,7 +6,7 @@ import {scaleFontSize} from '../assets/styles/scaling';
 
 const SearchBox = ({fetchSearchedPets, isFetchComplete}) => {
   const [petName, setPetName] = useState('');
-  const canGoNext = petName.length > 0 && isFetchComplete;
+  const canGoNext = petName.length > 0 && isFetchComplete !== 1;
 
   return (
     <View style={styles.searchBox}>
@@ -33,7 +33,7 @@ const SearchBox = ({fetchSearchedPets, isFetchComplete}) => {
         buttonStyle={styles.buttonBackgroundColor}
         containerStyle={styles.buttonContainer}
         onPress={() => {
-          fetchSearchedPets(petName);
+          fetchSearchedPets(petName, true);
         }}
       />
     </View>

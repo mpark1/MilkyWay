@@ -463,10 +463,6 @@ export async function queryPetsPagination(
         authMode: 'userPool',
       });
       const petsData = {pets: [], nextToken: null};
-      console.log(
-        'print for community page: ',
-        response.data[queryNameString].items[0],
-      );
       const {items, nextToken} = response.data[queryNameString];
       petsData.pets = items;
       petsData.nextToken = nextToken;
@@ -488,6 +484,7 @@ export async function queryPetsPagination(
       return petsData;
     } catch (error) {
       console.log('error for fetching pets for community: ', error);
+    } finally {
       setIsLoadingPets(false);
     }
   }
