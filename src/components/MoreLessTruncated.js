@@ -89,13 +89,16 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         bottomSheetPetData.nextToken,
         'Public',
       ).then(data => {
+        console.log("print fetched clicked user's data: ", data);
         const {pets, nextToken: newNextToken} = data;
         setBottomSheetPetData(prev => ({
           pets: [...prev.pets, ...pets],
           nextToken: newNextToken,
         }));
+        setIsFetchComplete(true);
+        console.log('fetch complete for bottomsheet');
+        userPetsBottomSheetModalRef.current?.present();
       });
-      setIsFetchComplete(true);
     } catch (error) {
       console.log('Error in fetchClickedUserPets', error);
     } finally {
@@ -161,10 +164,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     return (
       <View style={styles.nameRelationshipDateContainer}>
         <Pressable
-          disabled={whichTab === 'Letters'}
-          onPress={async () => {
-            await fetchClickedUserPets(item.guestBookAuthorId);
-            isFetchComplete && userPetsBottomSheetModalRef.current?.present();
+          disabled={whichTab === 'Letters' || item.owner === userID}
+          onPress={() => {
+            fetchClickedUserPets(item.guestBookAuthorId);
           }}>
           <Text style={styles.name}>
             {item.userName}
@@ -259,9 +261,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             onEndReached={onBottomSheetFlatListEndReached}
             style={styles.bottomSheet.flatList}
             data={bottomSheetPetData.pets}
-            renderItem={({petObj}) => (
+            renderItem={({item}) => (
               <OtherUserPet
-                item={petObj}
+                item={item}
                 bottomSheetRef={userPetsBottomSheetModalRef}
                 navigation={navigation}
               />
@@ -274,7 +276,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         )}
       </View>
     );
-  }, [isFetchComplete, item.guestBookAuthorId]);
+  }, [bottomSheetPetData.pets, isFetchComplete, item.guestBookAuthorId]);
 
   return (
     <>

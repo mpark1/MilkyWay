@@ -20,6 +20,7 @@ import {getPetpageBackgroundImage} from '../graphql/queries';
 const OtherUserPet = ({item, bottomSheetRef, navigation}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
+  console.log('print passed items inside OtherUserPet: ', item);
 
   const onClickPet = async () => {
     // update pet redux
@@ -64,7 +65,6 @@ const OtherUserPet = ({item, bottomSheetRef, navigation}) => {
     );
 
     bottomSheetRef.current?.close();
-    navigation.pop();
     navigation.navigate('PetPage', {isFamily: false});
   };
 

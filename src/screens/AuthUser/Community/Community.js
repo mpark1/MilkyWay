@@ -24,11 +24,6 @@ const Community = ({navigation}) => {
   });
   const [isLoadingPets, setIsLoadingPets] = useState(false);
   const [isFetchComplete, setIsFetchComplete] = useState(false);
-  console.log(
-    'print my pets in community page: ',
-    myPets.length,
-    readyForCommunityFetch,
-  );
 
   useEffect(() => {
     navigation.popToTop();

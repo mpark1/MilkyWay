@@ -25,13 +25,8 @@ const User = createSlice({
       state.email = action.payload.email;
       state.name = action.payload.name;
     },
-    signoutUser: state => {
-      return {
-        profilePic: '',
-        email: '',
-        name: '',
-        cognitoUsername: null,
-      };
+    signoutUser: (state, action) => {
+      return initialState;
     },
     setUserName: (state, action) => {
       state.name = action.payload;

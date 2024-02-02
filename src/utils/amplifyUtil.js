@@ -546,16 +546,19 @@ export async function queryMyPetsPagination(
             query: getPet,
             variables: {
               id: petFamilyItem.petID,
-              filter: filter === null ? filter : {accessLevel: {eq: filter}},
             },
             authMode: 'userPool',
           });
           const petObject = petDetails.data.getPet;
-          // update profilepic's url and expiration time
-          return await getUrlForProfilePic(petObject);
+          if (petObject.accessLevel == 'Private') {
+            return null;
+          } else {
+            // update profilepic's url and expiration time
+            return await getUrlForProfilePic(petObject);
+          }
         }),
       );
-      petsData.pets = await Promise.all(fetchPetDetails);
+      petsData.pets = fetchPetDetails.filter(item => item !== null);
       return petsData;
     } catch (error) {
       console.log('error for fetching my pets from db: ', error);

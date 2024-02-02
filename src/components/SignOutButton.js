@@ -2,7 +2,7 @@ import React from 'react';
 import {Pressable, Text, StyleSheet} from 'react-native';
 import {signOut} from 'aws-amplify/auth';
 import {useDispatch} from 'react-redux';
-import {setCognitoUserToNull} from '../redux/slices/User';
+import {setCognitoUserToNull, signoutUser} from '../redux/slices/User';
 
 import {scaleFontSize} from '../assets/styles/scaling';
 
@@ -11,6 +11,7 @@ const SignOutButton = () => {
   async function handleSignOut() {
     try {
       await signOut();
+      dispatch(signoutUser());
       dispatch(setCognitoUserToNull());
     } catch (error) {
       console.log('error signing out: ', error);
