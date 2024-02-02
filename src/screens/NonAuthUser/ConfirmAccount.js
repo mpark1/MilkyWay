@@ -6,15 +6,11 @@ import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  checkAsyncStorageUserProfile,
-  checkUser,
-  retrieveS3Url,
-} from '../../utils/amplifyUtil';
+import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
 import {
   setCognitoUsername,
   setOwnerDetails,
-  setUserProfilePic,
+  setUserProfilePicS3Key,
 } from '../../redux/slices/User';
 
 const ConfirmAccount = ({navigation, route}) => {
@@ -56,21 +52,11 @@ const ConfirmAccount = ({navigation, route}) => {
             name: name,
             state: 'ACTIVE',
           };
-          const s3Key = await checkAsyncStorageUserProfile(
+          await checkAsyncStorageUserProfile(
             isCallingUpdateAPI,
             setIsCallingUpdateAPI,
             updateUserInput,
           );
-          if (s3Key !== null) {
-            await retrieveS3Url(s3Key).then(res => {
-              dispatch(
-                setUserProfilePic({
-                  profilePic: res.url.href,
-                  s3UrlExpiredAt: res.expiresAt.toString(),
-                }),
-              );
-            });
-          }
         } else {
           navigation.navigate('SignIn');
         }

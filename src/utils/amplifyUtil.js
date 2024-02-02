@@ -667,10 +667,8 @@ export async function checkAsyncStorageUserProfile(
           response,
         );
       }
-      return s3Key;
     } catch (error) {
       console.log('Inside checkAsyncStorageUserProfile: ', error);
-      return null;
     } finally {
       setIsCallingAPI(false);
     }

@@ -17,11 +17,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import PetCard from '../../components/PetCard';
 import {
+  fetchUserFromDB,
   getUrlForProfilePic,
   queryMyPetsPagination,
+  retrieveS3Url,
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {setMyPets, setMyPetsFetchComplete} from '../../redux/slices/User';
+import {
+  setMyPets,
+  setMyPetsFetchComplete,
+  setOwnerDetails,
+  setUserProfilePic,
+  setUserProfilePicS3Key,
+} from '../../redux/slices/User';
 import {
   petPageTabsSubscription,
   sucriptionForMyPets,
@@ -31,6 +39,8 @@ import {onCreatePet} from '../../graphql/subscriptions';
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
+  const email = useSelector(state => state.user.email);
+  const userProfilePicS3Key = useSelector(state => state.user.profilePicS3Key);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],
@@ -51,7 +61,22 @@ const Pets = ({navigation}) => {
       setIsFetchPetsComplete(true);
       console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
+    // if user info does not exist in redux, fetch user info again and save it in redux
+    const fetchUser = async () => {
+      console.log('does email exist? ', email);
+      if (email.length === 0) {
+        const response = await fetchUserFromDB(userID);
+        dispatch(
+          setOwnerDetails({
+            name: response.name,
+            email: response.email,
+          }),
+        );
+        dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
+      }
+    };
     firstFetchPet();
+    fetchUser();
   }, []);
 
   useEffect(() => {
@@ -115,6 +140,19 @@ const Pets = ({navigation}) => {
     );
   }, []);
 
+  const onNavigateToUserSettings = async () => {
+    userProfilePicS3Key.length > 0 &&
+      (await retrieveS3Url(userProfilePicS3Key).then(res => {
+        dispatch(
+          setUserProfilePic({
+            profilePic: res.url.href,
+            s3UrlExpiredAt: res.expiresAt.toString(),
+          }),
+        );
+      }));
+    navigation.navigate('UserSettings');
+  };
+
   return (
     <SafeAreaView style={globalStyle.flex}>
       <ImageBackground
@@ -124,7 +162,7 @@ const Pets = ({navigation}) => {
         <View style={styles.icons}>
           <Pressable
             style={styles.settingsContainer}
-            onPress={() => navigation.navigate('UserSettings')}>
+            onPress={onNavigateToUserSettings}>
             <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
             <Text style={styles.settings}>나의 계정 관리</Text>
           </Pressable>

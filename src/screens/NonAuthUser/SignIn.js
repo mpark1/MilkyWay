@@ -66,9 +66,7 @@ const SignIn = ({navigation}) => {
             email: response.email,
           }),
         );
-        let s3Key = '';
         if (response.profilePic.length !== 0) {
-          s3Key = response.profilePic;
           dispatch(setUserProfilePicS3Key(response.profilePic));
         } else {
           const updateUserInput = {
@@ -77,21 +75,12 @@ const SignIn = ({navigation}) => {
             name: response.name,
             state: 'ACTIVE',
           };
-          s3Key = await checkAsyncStorageUserProfile(
+          const s3Key = await checkAsyncStorageUserProfile(
             isCallingUpdateAPI,
             setIsCallingUpdateAPI,
             updateUserInput,
           );
-        }
-        if (s3Key !== null) {
-          await retrieveS3Url(s3Key).then(res => {
-            dispatch(
-              setUserProfilePic({
-                profilePic: res.url.href,
-                s3UrlExpiredAt: res.expiresAt.toString(),
-              }),
-            );
-          });
+          s3Key !== null && dispatch(setUserProfilePicS3Key(s3Key));
         }
       }
 
