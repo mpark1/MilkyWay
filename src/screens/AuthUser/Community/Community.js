@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   ImageBackground,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   View,
@@ -12,6 +13,7 @@ import {petsByAccessLevel} from '../../../graphql/queries';
 import {queryPetsPagination} from '../../../utils/amplifyUtil';
 import PetCard from '../../../components/PetCard';
 import globalStyle from '../../../assets/styles/globalStyle';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -76,6 +78,13 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
+        <View style={styles.searchIconContainer}>
+          <Pressable
+            style={styles.searchIcon}
+            onPress={() => navigation.navigate('SearchPets')}>
+            <Ionicons name={'search'} color={'#FFF'} size={30} />
+          </Pressable>
+        </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -98,6 +107,15 @@ export default Community;
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
+  },
+  searchIconContainer: {
+    width: '100%',
+    justifyContent: 'center',
+    paddingVertical: Dimensions.get('window').height * 0.015,
+    paddingRight: Dimensions.get('window').width * 0.027,
+  },
+  searchIcon: {
+    alignSelf: 'flex-end',
   },
   flatListContainer: {
     paddingTop: Dimensions.get('window').height * 0.02,

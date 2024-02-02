@@ -22,7 +22,7 @@ const CommunityNavigation = ({navigation}) => {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name={'SearchPet'}
+        name={'SearchPets'}
         component={SearchPets}
         options={{
           headerShown: true,
