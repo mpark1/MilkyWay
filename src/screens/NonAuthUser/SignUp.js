@@ -204,7 +204,7 @@ const SignUp = ({navigation}) => {
             setOwnerDetails({
               name: name,
               email: email,
-              profilePic: profilePic,
+              profilePic: profilePic, // local path
             }),
           );
           console.log('2. user dispatch is complete.');

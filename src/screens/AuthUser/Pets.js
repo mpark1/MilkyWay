@@ -11,43 +11,26 @@ import {
 } from 'react-native';
 import {generateClient} from 'aws-amplify/api';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {getPet, getUser, petsByUser} from '../../graphql/queries';
 import {useDispatch, useSelector} from 'react-redux';
 import globalStyle from '../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import PetCard from '../../components/PetCard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  fetchUser,
-  fetchUserFromDB,
-  getIdentityID,
   getUrlForProfilePic,
-  mutationItemNoAlertBox,
-  queryLettersByPetIDPagination,
   queryMyPetsPagination,
-  querySingleItem,
-  retrieveS3Url,
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {
-  setMyPets,
-  setMyPetsFetchComplete,
-  setOwnerDetails,
-  setProfilePic,
-  setUserProfilePic,
-} from '../../redux/slices/User';
-import * as RNFS from 'react-native-fs';
+import {setMyPets, setMyPetsFetchComplete} from '../../redux/slices/User';
 import {
   petPageTabsSubscription,
   sucriptionForMyPets,
 } from '../../utils/amplifyUtilSubscription';
-import {onCreateAlbum, onCreatePet} from '../../graphql/subscriptions';
+import {onCreatePet} from '../../graphql/subscriptions';
 
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
-  const email = useSelector(state => state.user.email);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],
@@ -68,23 +51,7 @@ const Pets = ({navigation}) => {
       setIsFetchPetsComplete(true);
       console.log('is fetch pets complete? ', isFetchPetsComplete);
     };
-    // if user info does not exist in redux, fetch user info again and save it in redux
-    const fetchUser = async () => {
-      console.log('does email exist? ', email);
-      if (email.length === 0) {
-        const response = await fetchUserFromDB(userID);
-        dispatch(
-          setOwnerDetails({
-            name: response.name,
-            email: response.email,
-          }),
-        );
-        dispatch(setUserProfilePic(response.profilePic)); // update s3 key
-        await retrieveS3Url(response.profilePic);
-      }
-    };
     firstFetchPet();
-    fetchUser();
   }, []);
 
   useEffect(() => {
@@ -136,7 +103,6 @@ const Pets = ({navigation}) => {
 
   const renderAddNewPetButton = useCallback(() => {
     return (
-      // isFetchPetsComplete && (
       <View style={styles.addNewPetButtonContainer}>
         <DashedBorderButton
           type={'regular'}
@@ -147,7 +113,6 @@ const Pets = ({navigation}) => {
         />
       </View>
     );
-    // );
   }, []);
 
   return (

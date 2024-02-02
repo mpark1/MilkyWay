@@ -6,8 +6,16 @@ import AlertBox from '../../components/AlertBox';
 import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {useDispatch, useSelector} from 'react-redux';
-import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
-import {setCognitoUsername} from '../../redux/slices/User';
+import {
+  checkAsyncStorageUserProfile,
+  checkUser,
+  retrieveS3Url,
+} from '../../utils/amplifyUtil';
+import {
+  setCognitoUsername,
+  setOwnerDetails,
+  setUserProfilePic,
+} from '../../redux/slices/User';
 
 const ConfirmAccount = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -36,18 +44,33 @@ const ConfirmAccount = ({navigation, route}) => {
           response = await checkUser();
           console.log('in confirm account page, response: ', response);
           dispatch(setCognitoUsername(response));
-
+          dispatch(
+            setOwnerDetails({
+              name: response.name,
+              email: response.email,
+            }),
+          );
           const updateUserInput = {
             id: response,
             email: email,
             name: name,
             state: 'ACTIVE',
           };
-          await checkAsyncStorageUserProfile(
+          const s3Key = await checkAsyncStorageUserProfile(
             isCallingUpdateAPI,
             setIsCallingUpdateAPI,
             updateUserInput,
           );
+          if (s3Key !== null) {
+            await retrieveS3Url(s3Key).then(res => {
+              dispatch(
+                setUserProfilePic({
+                  profilePic: res.url.href,
+                  s3UrlExpiredAt: res.expiresAt.toString(),
+                }),
+              );
+            });
+          }
         } else {
           navigation.navigate('SignIn');
         }

@@ -550,7 +550,7 @@ export async function queryMyPetsPagination(
             authMode: 'userPool',
           });
           const petObject = petDetails.data.getPet;
-          if (petObject.accessLevel == 'Private') {
+          if (filter !== null && petObject.accessLevel === 'Private') {
             return null;
           } else {
             // update profilepic's url and expiration time
@@ -617,66 +617,63 @@ export async function uploadProfilePic(newPicPath, type) {
     console.log('Error updating profile pic in S3: ', error);
   }
 }
+
 export async function checkAsyncStorageUserProfile(
   isCallingAPI,
   setIsCallingAPI,
   updateInputObject,
 ) {
-  try {
-    // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
-    const fileSystemPath = await AsyncStorage.getItem('userProfile100');
-    console.log(
-      'print filesystempath from async storage before getting file from the file system.',
-      fileSystemPath,
+  // 1. File System 에서 프로필 사진 가져와서 S3에 업로드
+  const fileSystemPath = await AsyncStorage.getItem('userProfile100');
+  console.log(
+    'print filesystempath from async storage before getting file from the file system.',
+    fileSystemPath,
+  );
+  if (fileSystemPath && fileSystemPath.length > 0) {
+    const base64 = await RNFS.readFile(fileSystemPath, 'base64');
+    console.log('fileOnDevice: ', base64);
+
+    const buffer = Buffer.from(base64, 'base64');
+    const photoBlob = new Blob([buffer], {type: 'image/jpeg'});
+    console.log('Blob to be sent to S3: ', photoBlob);
+
+    const s3Key = 'userProfile/' + uuid.v4() + '.jpeg';
+    const responseFromS3 = await uploadImageToS3(
+      s3Key,
+      photoBlob,
+      'image/jpeg',
     );
-    if (fileSystemPath && fileSystemPath.length > 0) {
-      const base64 = await RNFS.readFile(fileSystemPath, 'base64');
-      console.log('fileOnDevice: ', base64);
+    console.log(
+      'Did profilePic in AsyncStorage get uploaded to S3? ',
+      responseFromS3,
+    );
 
-      const buffer = Buffer.from(base64, 'base64');
-      const photoBlob = new Blob([buffer], {type: 'image/jpeg'});
-      console.log('Blob to be sent to S3: ', photoBlob);
+    // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
+    await removeUserProfilePicOnDevice(fileSystemPath);
 
-      const s3key = 'userProfile/' + uuid.v4() + '.jpeg';
-      const responseFromS3 = await uploadImageToS3(
-        s3key,
-        photoBlob,
-        'image/jpeg',
-      );
-      console.log(
-        'Did profilePic in AsyncStorage get uploaded to S3? ',
-        responseFromS3,
-      );
-
-      // 2. S3 성공하면 remove profilePic from File System and AsyncStorage
-      await removeUserProfilePicOnDevice(fileSystemPath);
-
-      // 3. Update User in DB: Set User profilePic attribute to s3key from above
-      updateInputObject.profilePic = s3key;
-      console.log('updateUserInput: ', updateInputObject);
-      try {
-        if (!isCallingAPI) {
-          setIsCallingAPI(true);
-          const client = generateClient();
-          const response = await client.graphql({
-            query: updateUser,
-            variables: {input: updateInputObject},
-            authMode: 'userPool',
-          });
-          console.log(
-            'DynamoDB response from User profilePic update: ',
-            response,
-          );
-          return response;
-        }
-      } catch (error) {
-        console.log('error during query: ', error);
-      } finally {
-        setIsCallingAPI(false);
+    // 3. Update User in DB: Set User profilePic attribute to s3key from above
+    updateInputObject.profilePic = s3Key;
+    try {
+      if (!isCallingAPI) {
+        setIsCallingAPI(true);
+        const client = generateClient();
+        const response = await client.graphql({
+          query: updateUser,
+          variables: {input: updateInputObject},
+          authMode: 'userPool',
+        });
+        console.log(
+          'DynamoDB response from user profilePic update: ',
+          response,
+        );
       }
+      return s3Key;
+    } catch (error) {
+      console.log('Inside checkAsyncStorageUserProfile: ', error);
+      return null;
+    } finally {
+      setIsCallingAPI(false);
     }
-  } catch (error) {
-    console.log('Inside checkAsyncStorageUserProfile: ', error);
   }
 }
 

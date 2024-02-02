@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,11 +16,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
 import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
-import {
-  deleteLetter,
-  deletePetFamily,
-  updatePet,
-} from '../../graphql/mutations';
+import {deletePetFamily, updatePet} from '../../graphql/mutations';
 import {
   checkS3Url,
   mutationItem,
@@ -40,7 +36,6 @@ import AlertBox from '../../components/AlertBox';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
-  const [isCallingDeleteAPI, setIsCallingDeleteAPI] = useState(false);
 
   const {
     id,
@@ -93,7 +88,7 @@ const Settings = ({navigation, route}) => {
   const noUpdateInPetProfilePic = profilePic === newProfilePic;
 
   useEffect(() => {
-    //check user's profile picture url expiration once when the page is loaded.
+    //check pet's profile picture url expiration once when the page is loaded.
     profilePic.length !== 0 && checkS3urlFunc();
   }, []);
 

@@ -11,18 +11,17 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
-import {deleteUser, signOut} from 'aws-amplify/auth';
+import {deleteUser} from 'aws-amplify/auth';
 import {updateUser} from '../../graphql/mutations';
 import {
   setCognitoUserToNull,
   setUserName,
   setUserProfilePic,
-  updateUserNameOrPic,
-  updateUserProfilePicUrl,
+  setUserProfilePicS3Key,
+  signoutUser,
 } from '../../redux/slices/User';
 import {
   checkS3Url,
-  getIdentityID,
   mutationItem,
   mutationItemNoAlertBox,
   retrieveS3Url,
@@ -45,30 +44,20 @@ const UserSettings = ({navigation}) => {
     s3UrlExpiredAt,
   } = useSelector(state => state.user);
 
-  // 프로필 사진
   const [newProfilePicPath, setNewProfilePicPath] = useState(''); // local path from camera/gallery
-  const [newProfilePic, setNewProfilePicUrl] = useState(profilePic); // url
+  const [newProfilePicUrl, setNewProfilePicUrl] = useState(profilePic); // url - could be empty string
+  const [userName, setName] = useState(name);
+  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
-  const [userName, setName] = useState(name);
-
-  const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
-
   useEffect(() => {
-    // get user's profile picture from S3 if a user profile pic exists
-    profilePicS3Key.length !== 0 &&
-      retrieveS3Url(profilePicS3Key)
-        .then(res => {
-          setNewProfilePicUrl(res.url.href);
-          dispatch(setUserProfilePic(res.url.href));
-        })
-        .then(checkS3urlFunc);
-  }, []);
+    profilePic.length !== 0 && checkS3urlFunc();
+  }, [profilePic]);
 
   const checkS3urlFunc = async () => {
     const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
     if (newProfileUrl.profilePic !== null) {
-      dispatch(updateUserProfilePicUrl(newProfileUrl));
+      dispatch(setUserProfilePic(newProfileUrl));
     }
   };
 
@@ -92,7 +81,15 @@ const UserSettings = ({navigation}) => {
         (profilePic.length !== 0 && newProfilePicPath !== profilePic)
       ) {
         s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
-        dispatch(setUserProfilePic('userProfile/' + s3key));
+        dispatch(setUserProfilePicS3Key('userProfile/' + s3key));
+        await retrieveS3Url('userProfile/' + s3key).then(res => {
+          dispatch(
+            setUserProfilePic({
+              profilePic: res.url.href,
+              s3UrlExpiredAt: res.expiresAt.toString(),
+            }),
+          );
+        });
       }
       // 2. update username in redux if it has been changed
       name !== userName && dispatch(setUserName(name));
@@ -123,10 +120,10 @@ const UserSettings = ({navigation}) => {
     return (
       <View style={styles.profilePicAndButtonWrapper}>
         <View style={styles.profilePicPlaceholder}>
-          {newProfilePic.length !== 0 ? (
+          {newProfilePicUrl.length !== 0 ? (
             <Image
               style={styles.profilePic}
-              source={{uri: newProfilePic}}
+              source={{uri: newProfilePicUrl}}
               resizeMode={'cover'}
             />
           ) : (
@@ -227,6 +224,7 @@ const UserSettings = ({navigation}) => {
         await deleteUser();
       }
       console.log('2. Deleted user in cognito');
+      dispatch(signoutUser());
       dispatch(setCognitoUserToNull());
       console.log('3. updated redux to make user null');
     } catch (error) {

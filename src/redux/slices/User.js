@@ -32,17 +32,17 @@ const User = createSlice({
       state.name = action.payload;
     },
     setUserProfilePic: (state, action) => {
-      state.profilePic = action.payload;
+      state.profilePic = action.payload.profilePic;
+      state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
+    },
+    setUserProfilePicS3Key: (state, action) => {
+      state.profilePicS3Key = action.payload.profilePicS3Key;
     },
     setMyPets: (state, action) => {
       state.myPets.push(action.payload);
     },
     setMyPetsFetchComplete: (state, action) => {
       state.readyForCommunityFetch = action.payload;
-    },
-    updateUserProfilePicUrl: (state, action) => {
-      state.profilePic = action.payload.profilePic;
-      state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
   },
 });
@@ -52,11 +52,10 @@ export const {
   setOwnerDetails,
   setCognitoUserToNull,
   signoutUser,
-  setCurrentPetID,
   setUserName,
   setUserProfilePic,
+  setUserProfilePicS3Key,
   setMyPets,
   setMyPetsFetchComplete,
-  updateUserProfilePicUrl,
 } = User.actions;
 export default User.reducer;

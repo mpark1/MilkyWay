@@ -18,10 +18,15 @@ import {useDispatch} from 'react-redux';
 import {
   checkAsyncStorageUserProfile,
   checkUser,
-  querySingleItem,
+  fetchUserFromDB,
+  retrieveS3Url,
 } from '../../utils/amplifyUtil';
-import {setCognitoUsername, setOwnerDetails} from '../../redux/slices/User';
-import {getUser} from '../../graphql/queries';
+import {
+  setCognitoUsername,
+  setOwnerDetails,
+  setUserProfilePic,
+  setUserProfilePicS3Key,
+} from '../../redux/slices/User';
 
 const SignIn = ({navigation}) => {
   const dispatch = useDispatch();
@@ -54,30 +59,40 @@ const SignIn = ({navigation}) => {
       if (isSignedIn) {
         const userId = await checkUser();
         dispatch(setCognitoUsername(userId));
-
-        let name = '';
-        await querySingleItem(getUser, {id: userId}).then(response => {
-          console.log("print fetched user's info: ", response.getUser);
-          dispatch(
-            setOwnerDetails({
-              name: response.getUser.name,
-              email: response.getUser.email,
-            }),
-          );
-          name = response.getUser.name;
-        });
-
-        const updateUserInput = {
-          id: userId,
-          email: email,
-          name: name,
-          state: 'ACTIVE',
-        };
-        await checkAsyncStorageUserProfile(
-          isCallingUpdateAPI,
-          setIsCallingUpdateAPI,
-          updateUserInput,
+        const response = await fetchUserFromDB(userId);
+        dispatch(
+          setOwnerDetails({
+            name: response.name,
+            email: response.email,
+          }),
         );
+        let s3Key = '';
+        if (response.profilePic.length !== 0) {
+          s3Key = response.profilePic;
+          dispatch(setUserProfilePicS3Key(response.profilePic));
+        } else {
+          const updateUserInput = {
+            id: userId,
+            email: email,
+            name: response.name,
+            state: 'ACTIVE',
+          };
+          s3Key = await checkAsyncStorageUserProfile(
+            isCallingUpdateAPI,
+            setIsCallingUpdateAPI,
+            updateUserInput,
+          );
+        }
+        if (s3Key !== null) {
+          await retrieveS3Url(s3Key).then(res => {
+            dispatch(
+              setUserProfilePic({
+                profilePic: res.url.href,
+                s3UrlExpiredAt: res.expiresAt.toString(),
+              }),
+            );
+          });
+        }
       }
 
       // 미인증 계정 인증화면으로 보내기
