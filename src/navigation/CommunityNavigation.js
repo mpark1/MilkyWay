@@ -10,7 +10,9 @@ const Stack = createStackNavigator();
 
 const CommunityNavigation = ({navigation}) => {
   return (
-    <Stack.Navigator screenOptions={globalStyle.stackNavigator}>
+    <Stack.Navigator
+      screenOptions={globalStyle.stackNavigator}
+      initialRouteName="추모공간 홈">
       <Stack.Screen
         name={'추모공간 홈'}
         component={Community}
