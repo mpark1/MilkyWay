@@ -763,68 +763,65 @@ export async function deletePetPage(
   createInputVariables,
   alertBoxFunc,
 ) {
-  try {
-    if (!isCallingUpdateAPI) {
-      setIsCallingUpdateAPI(true);
-      const client = generateClient();
-      // 1. get family members object array
-      const response1 = await client.graphql({
-        query: petPageFamilyMembers,
-        variables: {
-          petID: petID,
-          nextToken: null,
-          limit: 50,
-        },
-        authMode: 'userPool',
-      });
-      console.log(
-        'print getting pet family members: ',
-        response1.data.petPageFamilyMembers.items,
-      );
-      const petFamilyObjArray = response1.data.petPageFamilyMembers.items;
-      // 2. delete family members from the petFamily table
-      if (petFamilyObjArray.length > 0) {
-        petFamilyObjArray.forEach(async obj => {
-          try {
-            await client.graphql({
-              query: deletePetFamily,
-              variables: {
+  if (!isCallingUpdateAPI) {
+    setIsCallingUpdateAPI(true);
+    const client = generateClient();
+    // 1. get family members object array
+    const response1 = await client.graphql({
+      query: petPageFamilyMembers,
+      variables: {
+        petID: petID,
+        nextToken: null,
+        limit: 50,
+      },
+      authMode: 'userPool',
+    });
+    console.log(
+      'print getting pet family members: ',
+      response1.data.petPageFamilyMembers.items,
+    );
+    const petFamilyObjArray = response1.data.petPageFamilyMembers.items;
+    // 2. delete family members from the petFamily table
+    if (petFamilyObjArray.length > 0) {
+      petFamilyObjArray.forEach(async obj => {
+        try {
+          await client.graphql({
+            query: deletePetFamily,
+            variables: {
+              input: {
                 petID: obj.petID,
                 familyMemberID: obj.familyMemberID,
               },
-              authMode: 'userPool',
-            });
-          } catch (error) {
-            console.error('Error deleting pet family member:', error);
-          }
-        });
-      }
-      // 3. move pet item from Pet table to InactivePet
-      // 3-1 create a new item in InactivePet table
-      // 3-2. delete the item from Pet table.
-      try {
-        await client.graphql({
-          query: migrateToInactivePet,
-          variables: createInputVariables,
-          authMode: 'userPool',
-        });
-      } catch (e) {
-        console.error('Error creating migrateToInactivePet :', e);
-      }
-      try {
-        await client.graphql({
-          query: deletePet,
-          variables: {id: petID},
-          authMode: 'userPool',
-        });
-      } catch (e) {
-        console.error('Error deleting pet from PetTable :', e);
-      }
-      alertBox('추모공간이 삭제되었습니다.', '', '확인', alertBoxFunc);
+            },
+            authMode: 'userPool',
+          });
+        } catch (error) {
+          console.error('Error deleting pet family member:', error);
+        }
+      });
     }
-  } catch (error) {
-    console.log('error during deleting a petpage: ', error);
-  } finally {
-    setIsCallingUpdateAPI(false);
+    // 3. move pet item from Pet table to InactivePet
+    // 3-1 create a new item in InactivePet table
+    // 3-2. delete the item from Pet table.
+    try {
+      await client.graphql({
+        query: migrateToInactivePet,
+        variables: {input: createInputVariables},
+        authMode: 'userPool',
+      });
+    } catch (e) {
+      console.error('Error creating migrateToInactivePet :', e);
+    }
+    try {
+      await client.graphql({
+        query: deletePet,
+        variables: {input: {id: petID}},
+        authMode: 'userPool',
+      });
+    } catch (e) {
+      console.error('Error deleting pet from PetTable :', e);
+    }
+    alertBox('추모공간이 삭제되었습니다.', '', '확인', alertBoxFunc);
   }
+  setIsCallingUpdateAPI(false);
 }
