@@ -29,6 +29,7 @@ const Pet = createSlice({
       state.name = action.payload.name;
       state.birthday = action.payload.birthday;
       state.deathday = action.payload.deathday;
+      state.petType = action.payload.petType;
       state.profilePic = action.payload.profilePic;
       state.lastWord = action.payload.lastWord;
       state.accessLevel = action.payload.accessLevel;

@@ -34,13 +34,12 @@ import {
   petPageTabsSubscription,
   sucriptionForMyPets,
 } from '../../utils/amplifyUtilSubscription';
-import {onCreatePet} from '../../graphql/subscriptions';
+import {onCreatePet, onUpdatePet} from '../../graphql/subscriptions';
 
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
   const email = useSelector(state => state.user.email);
-  const userProfilePicS3Key = useSelector(state => state.user.profilePicS3Key);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],
@@ -51,11 +50,6 @@ const Pets = ({navigation}) => {
 
   /* 로그인한 사용자의 모든 반려동물(PetPage objects) 가져오기 */
   useEffect(() => {
-    try {
-      navigation.popToTop();
-    } catch (error) {
-      console.log('this is an error message for popToTop in Pets: ', error);
-    }
     const firstFetchPet = async () => {
       await fetchPets();
       setIsFetchPetsComplete(true);
@@ -73,6 +67,15 @@ const Pets = ({navigation}) => {
           }),
         );
         dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
+        await retrieveS3Url(response.profilePic).then(res => {
+          console.log('print user profile pic url', res.url.href);
+          dispatch(
+            setUserProfilePic({
+              profilePic: res.url.href,
+              s3UrlExpiredAt: res.expiresAt.toString(),
+            }),
+          );
+        });
       }
     };
     firstFetchPet();
@@ -81,29 +84,71 @@ const Pets = ({navigation}) => {
 
   useEffect(() => {
     const client = generateClient();
-    try {
-      return client
-        .graphql({
-          query: onCreatePet,
-          variables: {filter: {managerID: {eq: userID}}},
-          authMode: 'userPool',
-        })
-        .subscribe({
-          next: ({data}) => processSubscriptionData(data.onCreatePet),
-          error: error => console.warn(error),
-        });
-    } catch (error) {
-      console.log('print error for subscription in Pets', error);
-    }
+    const createPetSub = client
+      .graphql({
+        query: onCreatePet,
+        variables: {filter: {managerID: {eq: userID}}},
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) => createSubscriptionData(data.onCreatePet),
+        error: error => console.warn(error),
+      });
+
+    const updatePetSub = client
+      .graphql({
+        query: onUpdatePet,
+        variables: {filter: {managerID: {eq: userID}}},
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) => updateSubscriptionData(data.onUpdatePet),
+        error: error => console.warn(error),
+      });
+
+    console.log('create, update my pets subscriptions are on for Pets.js');
+
+    return () => {
+      console.log('My pets subscriptions are turned off!');
+      createPetSub.unsubscribe();
+      updatePetSub.unsubscribe();
+    };
   }, []);
 
-  const processSubscriptionData = async petObject => {
+  const createSubscriptionData = async petObject => {
     const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
-    console.log('print newly added pet data with profile pic url');
+    console.log(
+      'print newly added pet data with profile pic url',
+      newObjWithProfileUrl,
+    );
     setPetData(prev => ({
       ...prev,
-      pets: [petObject, ...prev.pets],
+      pets: [newObjWithProfileUrl, ...prev.pets],
     }));
+  };
+
+  const updateSubscriptionData = async petObject => {
+    // 1. check whether 'state' attribute has changed to become 'INACTIVE'
+    // if the status changed to 'INACTIVE' -> remove from the pet list
+    if (petObject.state === 'INACTIVE') {
+      setPetData(prev => ({
+        ...prev,
+        pets: prev.pets.filter(pet => pet.id !== petObject.id),
+      }));
+    } else {
+      // 2. if pet information changed, update the petcard
+      const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
+      const updatedPets = petData.pets.map(pet => {
+        if (pet.id === petObject.id) {
+          return newObjWithProfileUrl;
+        }
+        return pet;
+      });
+      setPetData(prev => ({
+        ...prev,
+        pets: updatedPets,
+      }));
+    }
   };
 
   const fetchPets = async () => {
@@ -140,19 +185,6 @@ const Pets = ({navigation}) => {
     );
   }, []);
 
-  const onNavigateToUserSettings = async () => {
-    userProfilePicS3Key.length > 0 &&
-      (await retrieveS3Url(userProfilePicS3Key).then(res => {
-        dispatch(
-          setUserProfilePic({
-            profilePic: res.url.href,
-            s3UrlExpiredAt: res.expiresAt.toString(),
-          }),
-        );
-      }));
-    navigation.navigate('UserSettings');
-  };
-
   return (
     <SafeAreaView style={globalStyle.flex}>
       <ImageBackground
@@ -162,7 +194,7 @@ const Pets = ({navigation}) => {
         <View style={styles.icons}>
           <Pressable
             style={styles.settingsContainer}
-            onPress={onNavigateToUserSettings}>
+            onPress={() => navigation.navigate('UserSettings')}>
             <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
             <Text style={styles.settings}>나의 계정 관리</Text>
           </Pressable>

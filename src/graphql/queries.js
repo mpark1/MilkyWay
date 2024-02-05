@@ -11,7 +11,6 @@ export const getPet = /* GraphQL */ `
       deathDay
       lastWord
       accessLevel
-      state
       deathCause
       identityId
       petType
@@ -46,7 +45,6 @@ export const listPets = /* GraphQL */ `
         deathDay
         lastWord
         accessLevel
-        state
         deathCause
         identityId
         petType
@@ -86,7 +84,6 @@ export const petByName = /* GraphQL */ `
         deathDay
         lastWord
         accessLevel
-        state
         deathCause
         identityId
         petType
@@ -124,7 +121,62 @@ export const petsByAccessLevel = /* GraphQL */ `
         deathDay
         lastWord
         accessLevel
-        state
+        deathCause
+        identityId
+        petType
+        managerID
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getInactivePet = /* GraphQL */ `
+  query GetInactivePet($id: ID!) {
+    getInactivePet(id: $id) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const listInactivePets = /* GraphQL */ `
+  query ListInactivePets(
+    $id: ID
+    $filter: ModelInactivePetFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listInactivePets(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        profilePic
+        name
+        birthday
+        deathDay
+        lastWord
         deathCause
         identityId
         petType
@@ -179,6 +231,34 @@ export const listPetFamilies = /* GraphQL */ `
       limit: $limit
       nextToken: $nextToken
       sortDirection: $sortDirection
+    ) {
+      items {
+        petID
+        familyMemberID
+        createdAt
+        updatedAt
+        owner
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const petPageFamilyMembers = /* GraphQL */ `
+  query PetPageFamilyMembers(
+    $petID: ID!
+    $sortDirection: ModelSortDirection
+    $filter: ModelPetFamilyFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    petPageFamilyMembers(
+      petID: $petID
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
     ) {
       items {
         petID

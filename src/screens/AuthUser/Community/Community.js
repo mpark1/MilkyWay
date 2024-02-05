@@ -26,7 +26,6 @@ const Community = ({navigation}) => {
   const [isFetchComplete, setIsFetchComplete] = useState(false);
 
   useEffect(() => {
-    navigation.popToTop();
     const firstFetch = async () => {
       await fetchPets();
       setIsFetchComplete(true);

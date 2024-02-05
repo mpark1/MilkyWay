@@ -14,7 +14,6 @@ export const onCreatePet = /* GraphQL */ `
       deathDay
       lastWord
       accessLevel
-      state
       deathCause
       identityId
       petType
@@ -39,7 +38,76 @@ export const onUpdatePet = /* GraphQL */ `
       deathDay
       lastWord
       accessLevel
-      state
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeletePet = /* GraphQL */ `
+  subscription OnDeletePet(
+    $filter: ModelSubscriptionPetFilterInput
+    $owner: String
+  ) {
+    onDeletePet(filter: $filter, owner: $owner) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
+      accessLevel
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onCreateInactivePet = /* GraphQL */ `
+  subscription OnCreateInactivePet(
+    $filter: ModelSubscriptionInactivePetFilterInput
+    $owner: String
+  ) {
+    onCreateInactivePet(filter: $filter, owner: $owner) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const onDeleteInactivePet = /* GraphQL */ `
+  subscription OnDeleteInactivePet(
+    $filter: ModelSubscriptionInactivePetFilterInput
+    $owner: String
+  ) {
+    onDeleteInactivePet(filter: $filter, owner: $owner) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
       deathCause
       identityId
       petType

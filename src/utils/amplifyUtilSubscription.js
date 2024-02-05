@@ -1,7 +1,5 @@
 // Helper function to setup subscription
-import {queryUser, retrieveS3Url, retrieveS3UrlForOthers} from './amplifyUtil';
-import {generateClient} from 'aws-amplify/api';
-import {getUser} from '../graphql/queries';
+import {retrieveS3UrlForOthers} from './amplifyUtil';
 import {list} from 'aws-amplify/storage';
 
 export async function petPageTabsSubscription(

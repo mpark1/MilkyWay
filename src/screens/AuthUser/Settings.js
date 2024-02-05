@@ -16,23 +16,21 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
 import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
-import {deletePetFamily, updatePet} from '../../graphql/mutations';
+import {updatePet} from '../../graphql/mutations';
 import {
   checkS3Url,
+  deletePetPage,
   mutationItem,
-  mutationItemNoAlertBox,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {
   setPetGeneralInfo,
   setUpdateProfilePicUrl,
 } from '../../redux/slices/Pet';
-
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getCurrentDate} from '../../utils/utils';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
-import AlertBox from '../../components/AlertBox';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
@@ -47,6 +45,7 @@ const Settings = ({navigation, route}) => {
     accessLevel,
     profilePicS3Key,
     s3UrlExpiredAt,
+    petType,
     identityId,
   } = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -347,20 +346,24 @@ const Settings = ({navigation, route}) => {
   };
 
   const deletePetApi = async () => {
-    // delete item from PetFamily table
-    await mutationItemNoAlertBox(
+    // 1. delete items from petFamily table
+    // 2. move pet item from Pet table to InactivePet table
+    const createInputVariables = {
+      id: id,
+      name: name,
+      profilePic: profilePic,
+      lastWord: lastWord,
+      birthday: birthday,
+      deathDay: deathday,
+      petType: petType,
+      managerID: userID,
+      identityId: identityId,
+    };
+    await deletePetPage(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
-      {petID: id, familyMemberID: userID},
-      deletePetFamily,
-    );
-    // update item in Pet table (state: ACTIVE => INACTIVE)
-    await mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      {id: id, state: 'INACTIVE'},
-      updatePet,
-      '추모공간이 삭제되었습니다.',
+      id,
+      createInputVariables,
       navigateToPets,
     );
   };
@@ -403,7 +406,6 @@ const Settings = ({navigation, route}) => {
         birthday: birthdayString,
         deathDay: deathDayString,
         lastWord: newLastWord,
-        state: 'ACTIVE',
         accessLevel: checkPrivate ? 'Private' : 'Public',
         profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
       };

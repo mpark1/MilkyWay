@@ -18,7 +18,7 @@ import {
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {setCurrentPetID} from '../../redux/slices/User';
+import {setCurrentPetID, setMyPets} from '../../redux/slices/User';
 import {
   getIdentityID,
   mutationItem,
@@ -72,7 +72,6 @@ const SetAccessLevel = ({navigation}) => {
           lastWord: lastWord,
           accessLevel: checkAll ? 'Public' : 'Private',
           managerID: userID,
-          state: 'ACTIVE',
           identityId: identityId,
         };
         const newPetResponse = await client.graphql({
@@ -85,6 +84,7 @@ const SetAccessLevel = ({navigation}) => {
           newPetResponse.data.createPet,
         );
         const newPetID = newPetResponse.data.createPet.id;
+        dispatch(setMyPets(newPetID));
         // 2. create a new item in PetFamily table
         const newPetFamilyResponse = await client.graphql({
           query: createPetFamily,

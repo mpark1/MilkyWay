@@ -10,6 +10,7 @@ import {
   listGuestBooks,
   listLetters,
   listPetFamilies,
+  petPageFamilyMembers,
   petsByAccessLevel,
 } from '../graphql/queries';
 import {getUrl, list, uploadData, remove} from 'aws-amplify/storage';
@@ -17,7 +18,12 @@ import ImageResizer from '@bam.tech/react-native-image-resizer';
 import uuid from 'react-native-uuid';
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {updateUser} from '../graphql/mutations';
+import {
+  deletePet,
+  deletePetFamily,
+  migrateToInactivePet,
+  updateUser,
+} from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
 import {Buffer} from '@craftzdog/react-native-buffer';
 import config from '../amplifyconfiguration.json';
@@ -747,5 +753,64 @@ export async function retrieveS3UrlForOthers(key, identityId) {
     });
   } catch (error) {
     console.log('print error message for getting url from s3', error);
+  }
+}
+
+export async function deletePetPage(
+  isCallingUpdateAPI,
+  setIsCallingUpdateAPI,
+  petID,
+  createInputVariables,
+  alertBoxFunc,
+) {
+  try {
+    if (!isCallingUpdateAPI) {
+      setIsCallingUpdateAPI(true);
+      const client = generateClient();
+      // 1. get family members object array
+      const response1 = await client.graphql({
+        query: petPageFamilyMembers,
+        variables: {
+          petID: petID,
+        },
+        authMode: 'userPool',
+      });
+      console.log(
+        'print getting pet family members: ',
+        response1.petPageFamilyMembers,
+      );
+      const petFamilyObjArray = response1.petPageFamilyMembers.items;
+      // 2. delete family members from the petFamily table
+      petFamilyObjArray.map(
+        async obj =>
+          await client.graphql({
+            query: deletePetFamily,
+            variables: {
+              petID: petID,
+              familyMemberID: obj.familyMemberID,
+            },
+            authMode: 'userPool',
+          }),
+      );
+      // 3. move pet item from Pet table to InactivePet
+      // 3-1 create a new item in InactivePet table
+      // 3-2. delete the item from Pet table.
+      const response2 = await client.graphql({
+        query: migrateToInactivePet,
+        variables: createInputVariables,
+        authMode: 'userPool',
+      });
+      const response3 = await client.graphql({
+        query: deletePet,
+        variables: {id: petID},
+        authMode: 'userPool',
+      });
+      console.log('deleting a pet page success? :', response2, response3);
+      alertBox('추모공간이 삭제되었습니다.', '', '확인', alertBoxFunc);
+    }
+  } catch (error) {
+    console.log('error during deleting a petpage: ', error);
+  } finally {
+    setIsCallingUpdateAPI(false);
   }
 }

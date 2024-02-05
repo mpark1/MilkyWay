@@ -41,6 +41,7 @@ const PetCard = ({item, isFamily}) => {
         accessLevel: item.accessLevel,
         profilePicS3Key: item.profilePicS3Key,
         s3UrlExpiredAt: item.s3UrlExpiredAt,
+        petType: item.petType,
         identityId: item.identityId,
       }),
     );

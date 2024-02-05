@@ -81,12 +81,10 @@ const Home = ({navigation}) => {
       processSubscriptionData,
       petID,
     );
-    console.log(
-      'create, update, delete subscriptions are on for Letters table.',
-    );
+    console.log('create, update, delete subscriptions are on for Home.');
 
     return () => {
-      console.log('letter subscriptions are turned off!');
+      console.log('Home subscriptions are turned off!');
       createHomeSub.unsubscribe();
       updateHomeSub.unsubscribe();
       deleteHomeSub.unsubscribe();

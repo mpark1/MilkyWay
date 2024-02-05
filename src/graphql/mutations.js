@@ -14,7 +14,6 @@ export const createPet = /* GraphQL */ `
       deathDay
       lastWord
       accessLevel
-      state
       deathCause
       identityId
       petType
@@ -39,7 +38,76 @@ export const updatePet = /* GraphQL */ `
       deathDay
       lastWord
       accessLevel
-      state
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deletePet = /* GraphQL */ `
+  mutation DeletePet(
+    $input: DeletePetInput!
+    $condition: ModelPetConditionInput
+  ) {
+    deletePet(input: $input, condition: $condition) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
+      accessLevel
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const migrateToInactivePet = /* GraphQL */ `
+  mutation MigrateToInactivePet(
+    $input: CreateInactivePetInput!
+    $condition: ModelInactivePetConditionInput
+  ) {
+    migrateToInactivePet(input: $input, condition: $condition) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
+      deathCause
+      identityId
+      petType
+      managerID
+      createdAt
+      updatedAt
+      owner
+      __typename
+    }
+  }
+`;
+export const deleteInactivePet = /* GraphQL */ `
+  mutation DeleteInactivePet(
+    $input: DeleteInactivePetInput!
+    $condition: ModelInactivePetConditionInput
+  ) {
+    deleteInactivePet(input: $input, condition: $condition) {
+      id
+      profilePic
+      name
+      birthday
+      deathDay
+      lastWord
       deathCause
       identityId
       petType
