@@ -43,6 +43,7 @@ const PetCard = ({item, isFamily}) => {
         s3UrlExpiredAt: item.s3UrlExpiredAt,
         petType: item.petType,
         identityId: item.identityId,
+        deathCause: item.deathCause,
       }),
     );
     dispatch(setIsManager(item.owner === userID));

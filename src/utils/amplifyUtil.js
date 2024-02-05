@@ -772,26 +772,29 @@ export async function deletePetPage(
         query: petPageFamilyMembers,
         variables: {
           petID: petID,
+          nextToken: null,
+          limit: 50,
         },
         authMode: 'userPool',
       });
       console.log(
         'print getting pet family members: ',
-        response1.petPageFamilyMembers,
+        response1.data.petPageFamilyMembers.items,
       );
-      const petFamilyObjArray = response1.petPageFamilyMembers.items;
+      const petFamilyObjArray = response1.data.petPageFamilyMembers.items;
       // 2. delete family members from the petFamily table
-      petFamilyObjArray.map(
-        async obj =>
-          await client.graphql({
-            query: deletePetFamily,
-            variables: {
-              petID: petID,
-              familyMemberID: obj.familyMemberID,
-            },
-            authMode: 'userPool',
-          }),
-      );
+      petFamilyObjArray.length > 0 &&
+        petFamilyObjArray.map(
+          async obj =>
+            await client.graphql({
+              query: deletePetFamily,
+              variables: {
+                petID: obj.petID,
+                familyMemberID: obj.familyMemberID,
+              },
+              authMode: 'userPool',
+            }),
+        );
       // 3. move pet item from Pet table to InactivePet
       // 3-1 create a new item in InactivePet table
       // 3-2. delete the item from Pet table.

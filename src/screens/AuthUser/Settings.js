@@ -47,6 +47,7 @@ const Settings = ({navigation, route}) => {
     s3UrlExpiredAt,
     petType,
     identityId,
+    deathCause,
   } = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
@@ -351,14 +352,16 @@ const Settings = ({navigation, route}) => {
     const createInputVariables = {
       id: id,
       name: name,
-      profilePic: profilePic,
+      profilePic: profilePicS3Key,
       lastWord: lastWord,
       birthday: birthday,
       deathDay: deathday,
       petType: petType,
       managerID: userID,
       identityId: identityId,
+      deathCause: deathCause,
     };
+    console.log('print input variable: ', createInputVariables);
     await deletePetPage(
       isCallingUpdateAPI,
       setIsCallingUpdateAPI,
