@@ -783,9 +783,9 @@ export async function deletePetPage(
       );
       const petFamilyObjArray = response1.data.petPageFamilyMembers.items;
       // 2. delete family members from the petFamily table
-      petFamilyObjArray.length > 0 &&
-        petFamilyObjArray.map(
-          async obj =>
+      if (petFamilyObjArray.length > 0) {
+        petFamilyObjArray.forEach(async obj => {
+          try {
             await client.graphql({
               query: deletePetFamily,
               variables: {
@@ -793,22 +793,33 @@ export async function deletePetPage(
                 familyMemberID: obj.familyMemberID,
               },
               authMode: 'userPool',
-            }),
-        );
+            });
+          } catch (error) {
+            console.error('Error deleting pet family member:', error);
+          }
+        });
+      }
       // 3. move pet item from Pet table to InactivePet
       // 3-1 create a new item in InactivePet table
       // 3-2. delete the item from Pet table.
-      const response2 = await client.graphql({
-        query: migrateToInactivePet,
-        variables: createInputVariables,
-        authMode: 'userPool',
-      });
-      const response3 = await client.graphql({
-        query: deletePet,
-        variables: {id: petID},
-        authMode: 'userPool',
-      });
-      console.log('deleting a pet page success? :', response2, response3);
+      try {
+        await client.graphql({
+          query: migrateToInactivePet,
+          variables: createInputVariables,
+          authMode: 'userPool',
+        });
+      } catch (e) {
+        console.error('Error creating migrateToInactivePet :', e);
+      }
+      try {
+        await client.graphql({
+          query: deletePet,
+          variables: {id: petID},
+          authMode: 'userPool',
+        });
+      } catch (e) {
+        console.error('Error deleting pet from PetTable :', e);
+      }
       alertBox('추모공간이 삭제되었습니다.', '', '확인', alertBoxFunc);
     }
   } catch (error) {

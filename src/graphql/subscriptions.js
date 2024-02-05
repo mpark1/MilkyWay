@@ -479,3 +479,51 @@ export const onDeleteAlbum = /* GraphQL */ `
     }
   }
 `;
+export const onCreateManager = /* GraphQL */ `
+  subscription OnCreateManager($filter: ModelSubscriptionManagerFilterInput) {
+    onCreateManager(filter: $filter) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onUpdateManager = /* GraphQL */ `
+  subscription OnUpdateManager($filter: ModelSubscriptionManagerFilterInput) {
+    onUpdateManager(filter: $filter) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const onDeleteManager = /* GraphQL */ `
+  subscription OnDeleteManager($filter: ModelSubscriptionManagerFilterInput) {
+    onDeleteManager(filter: $filter) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

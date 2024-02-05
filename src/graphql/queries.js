@@ -509,3 +509,43 @@ export const albumByCategory = /* GraphQL */ `
     }
   }
 `;
+export const getManager = /* GraphQL */ `
+  query GetManager($id: ID!) {
+    getManager(id: $id) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listManagers = /* GraphQL */ `
+  query ListManagers(
+    $filter: ModelManagerFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listManagers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        petID
+        requesterID
+        category
+        clientMessage
+        status
+        adminComment
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;

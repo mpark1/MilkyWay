@@ -513,3 +513,60 @@ export const deleteAlbum = /* GraphQL */ `
     }
   }
 `;
+export const createManager = /* GraphQL */ `
+  mutation CreateManager(
+    $input: CreateManagerInput!
+    $condition: ModelManagerConditionInput
+  ) {
+    createManager(input: $input, condition: $condition) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateManager = /* GraphQL */ `
+  mutation UpdateManager(
+    $input: UpdateManagerInput!
+    $condition: ModelManagerConditionInput
+  ) {
+    updateManager(input: $input, condition: $condition) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteManager = /* GraphQL */ `
+  mutation DeleteManager(
+    $input: DeleteManagerInput!
+    $condition: ModelManagerConditionInput
+  ) {
+    deleteManager(input: $input, condition: $condition) {
+      id
+      petID
+      requesterID
+      category
+      clientMessage
+      status
+      adminComment
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;

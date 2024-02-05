@@ -161,3 +161,18 @@ type Album @model
     widthHeight: String
     s3Folder: String!
 }
+
+type Manager @model
+@auth(
+    rules: [
+        {allow: groups, groups: ["admin"]}
+    ])
+{
+    id: ID!
+    petID: ID
+    requesterID: ID!
+    category: Int!
+    clientMessage: String!
+    status: Int!
+    adminComment: String
+}
