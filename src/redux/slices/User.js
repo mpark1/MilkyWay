@@ -9,6 +9,7 @@ const initialState = {
   readyForCommunityFetch: false,
   profilePicS3Key: '',
   s3UrlExpiredAt: '',
+  isAdmin: false,
 };
 
 const User = createSlice({
@@ -44,6 +45,9 @@ const User = createSlice({
     setMyPetsFetchComplete: (state, action) => {
       state.readyForCommunityFetch = action.payload;
     },
+    setIsAdmin: (state, action) => {
+      state.isAdmin = action.payload;
+    },
   },
 });
 
@@ -57,5 +61,6 @@ export const {
   setUserProfilePicS3Key,
   setMyPets,
   setMyPetsFetchComplete,
+  setIsAdmin,
 } = User.actions;
 export default User.reducer;

@@ -16,6 +16,7 @@ import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
 import {
+  checkAdmin,
   checkAsyncStorageUserProfile,
   checkUser,
   fetchUserFromDB,
@@ -23,6 +24,7 @@ import {
 } from '../../utils/amplifyUtil';
 import {
   setCognitoUsername,
+  setIsAdmin,
   setOwnerDetails,
   setUserProfilePic,
   setUserProfilePicS3Key,
@@ -82,6 +84,7 @@ const SignIn = ({navigation}) => {
           );
           s3Key !== null && dispatch(setUserProfilePicS3Key(s3Key));
         }
+        await checkAdmin().then(res => dispatch(setIsAdmin(res)));
       }
 
       // 미인증 계정 인증화면으로 보내기

@@ -11,6 +11,7 @@ import UserSettings from '../screens/AuthUser/UserSettings';
 import ChangePassword from '../screens/AuthUser/ChangePassword';
 import SignOutButton from '../components/SignOutButton';
 import {createStackNavigator} from '@react-navigation/stack';
+import AdminPage from '../screens/AdminPage';
 
 const Stack = createStackNavigator();
 
@@ -41,6 +42,13 @@ const MyMilkyWay = () => {
         options={{
           headerTitle: '나의 계정',
           headerRight: () => <SignOutButton />,
+        }}
+      />
+      <Stack.Screen
+        name={'AdminPage'}
+        component={AdminPage}
+        options={{
+          headerTitle: '관리자 계정',
         }}
       />
       <Stack.Screen

@@ -3,7 +3,6 @@ import {Pressable, Text, StyleSheet} from 'react-native';
 import {signOut} from 'aws-amplify/auth';
 import {useDispatch} from 'react-redux';
 import {setCognitoUserToNull, signoutUser} from '../redux/slices/User';
-
 import {scaleFontSize} from '../assets/styles/scaling';
 
 const SignOutButton = () => {

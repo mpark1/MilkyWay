@@ -45,6 +45,7 @@ const Pets = ({navigation}) => {
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
   const email = useSelector(state => state.user.email);
+  const isAdmin = useSelector(state => state.user.isAdmin);
   const [isFetchPetsComplete, setIsFetchPetsComplete] = useState(false);
   const [petData, setPetData] = useState({
     pets: [],
@@ -221,6 +222,14 @@ const Pets = ({navigation}) => {
             <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
             <Text style={styles.settings}>나의 계정 관리</Text>
           </Pressable>
+          {isAdmin && (
+            <Pressable
+              style={styles.settingsContainer}
+              onPress={() => navigation.navigate('AdminPage')}>
+              <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
+              <Text style={styles.settings}>관리자 페이지</Text>
+            </Pressable>
+          )}
           <Pressable onPress={() => navigation.navigate('Notifications')}>
             <MaterialCommunityIcons
               name="bell-outline"
