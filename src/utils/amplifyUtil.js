@@ -26,8 +26,6 @@ import {
 } from '../graphql/mutations';
 import {removeUserProfilePicOnDevice} from './utils';
 import {Buffer} from '@craftzdog/react-native-buffer';
-import config from '../amplifyconfiguration.json';
-import album from '../screens/AuthUser/CenterTabs/Album';
 
 export async function checkUser() {
   try {
