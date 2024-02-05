@@ -27,6 +27,7 @@ import globalStyle from '../assets/styles/globalStyle';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
+  const isManager = useSelector(state => state.pet.manager);
   const [isTruncated, setIsTruncated] = useState(false);
   const [clippedText, setClippedText] = useState('');
   const text = item.content.trim();
@@ -214,9 +215,9 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             </Pressable>
           </View>
         )}
-        {whichTab === 'GuestBook' && !isTruncated && item.owner === userID && (
-          <DeleteIcon item={item} />
-        )}
+        {whichTab === 'GuestBook' &&
+          !isTruncated &&
+          (item.owner === userID || isManager) && <DeleteIcon item={item} />}
       </View>
     );
   };

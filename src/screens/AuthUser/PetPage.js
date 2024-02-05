@@ -31,7 +31,7 @@ import {
   setNewBackgroundPicUrl,
   setPetGeneralInfo,
 } from '../../redux/slices/Pet';
-import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+
 import {updatePet, updatePetPageBackgroundImage} from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import {petPageTabsSubscription} from '../../utils/amplifyUtilSubscription';
@@ -41,6 +41,9 @@ import {
   onUpdatePet,
   onUpdatePetIntroduction,
 } from '../../graphql/subscriptions';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import ReportBottomSheet from '../../components/ReportBottomSheet';
 
 const centerTab = createMaterialTopTabNavigator();
 
@@ -65,8 +68,9 @@ const PetPage = ({navigation, route}) => {
   const dispatch = useDispatch();
 
   const [newBackgroundPic, setNewBackgroundPic] = useState(backgroundPic);
-  const bottomSheetModalRef = useRef(null);
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
+  const bottomSheetModalRef = useRef(null);
+  const reportBottomSheetRef = useRef(null);
 
   // subscription to be added
 
@@ -188,7 +192,7 @@ const PetPage = ({navigation, route}) => {
 
   const renderManagerActionButtons = () => {
     return (
-      <View style={styles.iconsWrapper}>
+      <View style={styles.managerActionButtonsContainer}>
         <Pressable onPress={() => bottomSheetModalRef.current?.present()}>
           <Ionicons name={'image-outline'} color={'#FFF'} size={24} />
         </Pressable>
@@ -199,6 +203,22 @@ const PetPage = ({navigation, route}) => {
           <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
         </Pressable>
       </View>
+    );
+  };
+
+  const renderReportButton = () => {
+    return (
+      <Pressable
+        style={styles.reportButtonContainer}
+        onPress={() => {
+          reportBottomSheetRef.current?.present();
+        }}>
+        <MaterialCommunityIcons
+          name="dots-horizontal"
+          size={26}
+          color={'#FFF'}
+        />
+      </Pressable>
     );
   };
 
@@ -252,7 +272,7 @@ const PetPage = ({navigation, route}) => {
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.backgroundImageContainer}>
         {renderBackgroundImage()}
-        {manager && renderManagerActionButtons()}
+        {manager ? renderManagerActionButtons() : renderReportButton()}
       </View>
       <View style={styles.profileContainer}>
         <PetProfile name={name} birthday={birthday} deathday={deathday} />
@@ -297,6 +317,7 @@ const PetPage = ({navigation, route}) => {
         setPictureUrl={''}
         type={'updatePetPageBackground'}
       />
+      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
     </View>
   );
 };
@@ -312,7 +333,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  iconsWrapper: {
+  managerActionButtonsContainer: {
     position: 'absolute',
     bottom: 7,
     right: 10,
@@ -320,6 +341,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 80,
     justifyContent: 'space-between',
+  },
+  reportButtonContainer: {
+    position: 'absolute',
+    bottom: 7,
+    right: 10,
+    alignItems: 'center',
   },
   profileContainer: {
     width: '100%',
