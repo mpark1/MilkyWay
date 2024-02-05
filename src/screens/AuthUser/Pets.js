@@ -34,7 +34,12 @@ import {
   petPageTabsSubscription,
   sucriptionForMyPets,
 } from '../../utils/amplifyUtilSubscription';
-import {onCreatePet, onUpdatePet} from '../../graphql/subscriptions';
+import {
+  onCreatePet,
+  onDeletePet,
+  onDeletePetFamily,
+  onUpdatePet,
+} from '../../graphql/subscriptions';
 
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
@@ -91,7 +96,7 @@ const Pets = ({navigation}) => {
         authMode: 'userPool',
       })
       .subscribe({
-        next: ({data}) => createSubscriptionData(data.onCreatePet),
+        next: ({data}) => processSubscriptionData('create', data.onCreatePet),
         error: error => console.warn(error),
       });
 
@@ -102,52 +107,70 @@ const Pets = ({navigation}) => {
         authMode: 'userPool',
       })
       .subscribe({
-        next: ({data}) => updateSubscriptionData(data.onUpdatePet),
+        next: ({data}) => processSubscriptionData('update', data.onUpdatePet),
         error: error => console.warn(error),
       });
 
-    console.log('create, update my pets subscriptions are on for Pets.js');
+    const deletePetSub = client
+      .graphql({
+        query: onDeletePetFamily,
+        variables: {filter: {familyMemberID: {eq: userID}}},
+        authMode: 'userPool',
+      })
+      .subscribe({
+        next: ({data}) =>
+          processSubscriptionData('delete', data.onDeletePetFamily),
+        error: error => console.warn(error),
+      });
+
+    console.log(
+      'create, update, delete my pets subscriptions are on for Pets.js',
+    );
 
     return () => {
       console.log('My pets subscriptions are turned off!');
       createPetSub.unsubscribe();
       updatePetSub.unsubscribe();
+      deletePetSub.unsubscribe();
     };
   }, []);
 
-  const createSubscriptionData = async petObject => {
-    const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
-    console.log(
-      'print newly added pet data with profile pic url',
-      newObjWithProfileUrl,
-    );
-    setPetData(prev => ({
-      ...prev,
-      pets: [newObjWithProfileUrl, ...prev.pets],
-    }));
-  };
+  const processSubscriptionData = async (type, petObject) => {
+    switch (type) {
+      case 'create':
+        const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
+        console.log(
+          'print newly added pet data with profile pic url',
+          newObjWithProfileUrl,
+        );
+        setPetData(prev => ({
+          ...prev,
+          pets: [newObjWithProfileUrl, ...prev.pets],
+        }));
+        break;
 
-  const updateSubscriptionData = async petObject => {
-    // 1. check whether 'state' attribute has changed to become 'INACTIVE'
-    // if the status changed to 'INACTIVE' -> remove from the pet list
-    if (petObject.state === 'INACTIVE') {
-      setPetData(prev => ({
-        ...prev,
-        pets: prev.pets.filter(pet => pet.id !== petObject.id),
-      }));
-    } else {
-      // 2. if pet information changed, update the petcard
-      const newObjWithProfileUrl = await getUrlForProfilePic(petObject);
-      const updatedPets = petData.pets.map(pet => {
-        if (pet.id === petObject.id) {
-          return newObjWithProfileUrl;
-        }
-        return pet;
-      });
-      setPetData(prev => ({
-        ...prev,
-        pets: updatedPets,
-      }));
+      case 'update':
+        const updatedPetObjWithProfileUrl = await getUrlForProfilePic(
+          petObject,
+        );
+        const updatedPets = petData.pets.map(pet => {
+          if (pet.id === petObject.id) {
+            return updatedPetObjWithProfileUrl;
+          }
+          return pet;
+        });
+        setPetData(prev => ({
+          ...prev,
+          pets: updatedPets,
+        }));
+        break;
+
+      case 'delete':
+        setPetData(prev => ({
+          ...prev,
+          pets: prev.pets.filter(pet => pet.id !== petObject.petID),
+        }));
+        break;
     }
   };
 
