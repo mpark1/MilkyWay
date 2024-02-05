@@ -12,7 +12,8 @@ import {scaleFontSize} from '../assets/styles/scaling';
 
 import reportReasons from '../data/reportReasons.json';
 import {useSelector} from 'react-redux';
-import uuid from 'react-native-uuid';
+import {mutationItem} from '../utils/amplifyUtil';
+import {createManager} from '../graphql/mutations';
 const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -21,6 +22,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const snapTall = useMemo(() => ['72%'], []);
   const [showReasons, setShowReasons] = useState(false); // true - 신고 이유 리스트, false - 신고하기 버튼
   const reportBottomSheetDetailRef = useRef(null);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   const renderBackdrop = useCallback(
     props => (
@@ -34,29 +36,23 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     [],
   );
 
-  const onSubmitReport = reason => {
-    // Backend
-    // Option 1. Send email to admin with current pet id, reporter's info, and report reason
-
-    const reportID = uuid.v4();
-    const emailContent =
-      'ReportID' +
-      reportID +
-      '\nReporterID: ' +
-      userID +
-      '\npetID: ' +
-      petID +
-      '\nReport reason: ' +
-      reason;
-
-    return Alert.alert(
-      '추모공간 신고 접수가 완료되었습니다.',
-      '관리자의 신고 내역 확인 후 추후에 처리됩니다.',
-      [
-        {
-          text: '확인',
-        },
-      ],
+  const onSubmitReport = async index => {
+    reportBottomSheetDetailRef.current?.close();
+    const newReportInput = {
+      petID: petID,
+      requesterID: userID,
+      category: index, // Int (신고 이유 리스트에서 인덱스)
+      clientMessage: '',
+      status: '0', // 처리전
+      adminComment: '',
+    };
+    await mutationItem(
+      isCallingAPI,
+      setIsCallingAPI,
+      newReportInput,
+      createManager,
+      '신고가 성공적으로 접수되었습니다. 관리자가 신고 내역 확인 후 처리됩니다.',
+      'none',
     );
   };
 
@@ -77,11 +73,11 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  const renderReportReason = ({item}) => {
+  const renderReportReason = ({item, index}) => {
     return (
       <Pressable
         style={styles.textContainer}
-        onPress={() => onSubmitReport(item.content)}>
+        onPress={() => onSubmitReport(index)}>
         <Text style={styles.text}>{item.content}</Text>
       </Pressable>
     );
