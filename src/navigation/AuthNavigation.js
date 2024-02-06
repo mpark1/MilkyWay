@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
+import {useDispatch, useSelector} from 'react-redux';
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
@@ -13,6 +14,31 @@ import globalStyle from '../assets/styles/globalStyle';
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
+  const dispatch = useDispatch();
+  const userId = useSelector(state => state.user.cognitoUsername);
+
+  useEffect(() => {
+    // const user = await fetchUserFromDB(userId);
+    // dispatch(
+    //   setOwnerDetails({
+    //     name: user.name,
+    //     email: user.email,
+    //   }),
+    // );
+    // user.profilePic.length > 0 &&
+    //   dispatch(setUserProfilePicS3Key(user.profilePic)); // s3 key
+    // await retrieveS3Url(user.profilePic).then(res => {
+    //   // console.log('print user profile pic url', res.url.href);
+    //   dispatch(
+    //     setUserProfilePic({
+    //       profilePic: res.url.href,
+    //       s3UrlExpiredAt: res.expiresAt.toString(),
+    //     }),
+    //   );
+    // });
+    // await checkAdmin().then(res => dispatch(setIsAdmin(res)));
+  }, []);
+
   return (
     <Stack.Navigator screenOptions={globalStyle.stackNavigator}>
       <Stack.Screen

@@ -81,7 +81,6 @@ const UserSettings = ({navigation}) => {
         (profilePic.length !== 0 && newProfilePicPath !== profilePic)
       ) {
         s3key = await updateProfilePic(newProfilePicPath, 'user', profilePic);
-        dispatch(setUserProfilePicS3Key('userProfile/' + s3key));
         await retrieveS3Url('userProfile/' + s3key).then(res => {
           dispatch(
             setUserProfilePic({

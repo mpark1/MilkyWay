@@ -7,11 +7,7 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {Button} from '@rneui/base';
 import {useDispatch, useSelector} from 'react-redux';
 import {checkAsyncStorageUserProfile, checkUser} from '../../utils/amplifyUtil';
-import {
-  setCognitoUsername,
-  setOwnerDetails,
-  setUserProfilePicS3Key,
-} from '../../redux/slices/User';
+import {setCognitoUsername, setOwnerDetails} from '../../redux/slices/User';
 
 const ConfirmAccount = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -34,7 +30,6 @@ const ConfirmAccount = ({navigation, route}) => {
     if (purpose === 'initialSignUp') {
       try {
         const {isSignedIn} = await autoSignIn();
-        console.log('isSignIn boolean result', isSignedIn);
         // 자동 로그인 성공
         if (isSignedIn) {
           response = await checkUser();

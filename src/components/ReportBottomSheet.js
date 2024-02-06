@@ -20,8 +20,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
 
   const snapShort = useMemo(() => ['20%'], []);
   const snapTall = useMemo(() => ['72%'], []);
-  const [showReasons, setShowReasons] = useState(false); // true - 신고 이유 리스트, false - 신고하기 버튼
-  const reportBottomSheetDetailRef = useRef(null);
+  const [showReportCategories, setShowReportCategories] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
   const renderBackdrop = useCallback(
@@ -37,7 +36,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
   );
 
   const onSubmitReport = async index => {
-    reportBottomSheetDetailRef.current?.close();
+    reportBottomSheetRef.current?.close();
     const newReportInput = {
       petID: petID,
       requesterID: userID,
@@ -56,13 +55,13 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  const renderBottomSheetMenu = () => {
+  const renderReportButton = () => {
     return (
       <View style={styles.inner}>
         <Pressable
           style={styles.button}
           onPress={() => {
-            setShowReasons(true);
+            setShowReportCategories(true);
           }}>
           <View style={styles.report}>
             <Text style={styles.title}>신고하기 </Text>
@@ -83,7 +82,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  const renderBottomSheetDetail = () => {
+  const renderReportReasonsFlatList = () => {
     return (
       <View style={globalStyle.flex}>
         <View style={styles.headerContainer}>
@@ -109,7 +108,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  return !showReasons ? (
+  return !showReportCategories ? (
     <BottomSheetModal
       ref={reportBottomSheetRef}
       index={0}
@@ -118,19 +117,19 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
       backgroundStyle={{borderRadius: 20}}
       enablePanDownToClose={true}
       backdropComponent={renderBackdrop}>
-      {renderBottomSheetMenu()}
+      {renderReportButton()}
     </BottomSheetModal>
   ) : (
     <BottomSheetModal
-      ref={reportBottomSheetDetailRef}
+      ref={reportBottomSheetRef}
       index={0}
       snapPoints={snapTall}
       handleIndicatorStyle={{backgroundColor: '#939393'}}
       backgroundStyle={{borderRadius: 20}}
       enablePanDownToClose={true}
       backdropComponent={renderBackdrop}
-      onDismiss={() => setShowReasons(false)}>
-      {renderBottomSheetDetail()}
+      onDismiss={() => setShowReportCategories(false)}>
+      {renderReportReasonsFlatList()}
     </BottomSheetModal>
   );
 };

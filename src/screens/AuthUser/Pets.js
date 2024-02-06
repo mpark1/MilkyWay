@@ -17,6 +17,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
 import PetCard from '../../components/PetCard';
 import {
+  checkAdmin,
   fetchUserFromDB,
   getUrlForProfilePic,
   queryMyPetsPagination,
@@ -24,6 +25,7 @@ import {
 } from '../../utils/amplifyUtil';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
+  setIsAdmin,
   setMyPets,
   setMyPetsFetchComplete,
   setOwnerDetails,
@@ -36,7 +38,6 @@ import {
 } from '../../utils/amplifyUtilSubscription';
 import {
   onCreatePet,
-  onDeletePet,
   onDeletePetFamily,
   onUpdatePet,
 } from '../../graphql/subscriptions';
@@ -84,8 +85,12 @@ const Pets = ({navigation}) => {
         });
       }
     };
+    const checkIfAdmin = async () => {
+      await checkAdmin().then(res => dispatch(setIsAdmin(res)));
+    };
     firstFetchPet();
     fetchUser();
+    checkIfAdmin();
   }, []);
 
   useEffect(() => {

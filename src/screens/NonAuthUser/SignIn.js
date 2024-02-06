@@ -16,19 +16,11 @@ import {signIn, resendSignUpCode} from 'aws-amplify/auth';
 import AlertBox from '../../components/AlertBox';
 import {useDispatch} from 'react-redux';
 import {
-  checkAdmin,
   checkAsyncStorageUserProfile,
   checkUser,
   fetchUserFromDB,
-  retrieveS3Url,
 } from '../../utils/amplifyUtil';
-import {
-  setCognitoUsername,
-  setIsAdmin,
-  setOwnerDetails,
-  setUserProfilePic,
-  setUserProfilePicS3Key,
-} from '../../redux/slices/User';
+import {setCognitoUsername, setOwnerDetails} from '../../redux/slices/User';
 
 const SignIn = ({navigation}) => {
   const dispatch = useDispatch();
@@ -57,7 +49,6 @@ const SignIn = ({navigation}) => {
         username: email,
         password: password,
       });
-      console.log('sign-in result: ', isSignedIn, nextStep);
       if (isSignedIn) {
         const userId = await checkUser();
         dispatch(setCognitoUsername(userId));
@@ -68,23 +59,17 @@ const SignIn = ({navigation}) => {
             email: response.email,
           }),
         );
-        if (response.profilePic.length !== 0) {
-          dispatch(setUserProfilePicS3Key(response.profilePic));
-        } else {
-          const updateUserInput = {
-            id: userId,
-            email: email,
-            name: response.name,
-            state: 'ACTIVE',
-          };
-          const s3Key = await checkAsyncStorageUserProfile(
-            isCallingUpdateAPI,
-            setIsCallingUpdateAPI,
-            updateUserInput,
-          );
-          s3Key !== null && dispatch(setUserProfilePicS3Key(s3Key));
-        }
-        await checkAdmin().then(res => dispatch(setIsAdmin(res)));
+        const updateUserInput = {
+          id: userId,
+          email: email,
+          name: response.name,
+          state: 'ACTIVE',
+        };
+        await checkAsyncStorageUserProfile(
+          isCallingUpdateAPI,
+          setIsCallingUpdateAPI,
+          updateUserInput,
+        );
       }
 
       // 미인증 계정 인증화면으로 보내기
