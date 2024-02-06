@@ -22,6 +22,7 @@ import {
 } from '../../redux/slices/User';
 import {
   checkS3Url,
+  movePetToInactiveTable,
   mutationItem,
   mutationItemNoAlertBox,
   retrieveS3Url,
@@ -43,6 +44,7 @@ const UserSettings = ({navigation}) => {
     profilePicS3Key,
     s3UrlExpiredAt,
   } = useSelector(state => state.user);
+  const pet = useSelector(state => state.pet);
 
   const [newProfilePicPath, setNewProfilePicPath] = useState(''); // local path from camera/gallery
   const [newProfilePicUrl, setNewProfilePicUrl] = useState(profilePic); // url - could be empty string
@@ -224,7 +226,26 @@ const UserSettings = ({navigation}) => {
         userInput,
         updateUser,
       );
-      // 2. delete user from cognito userpool
+
+      // 가족에게 매니저 위임하도록 연락
+
+      // 2. move current pet over to inactive pet table if the user is the manager
+      const createInactivePetInputVariables = {
+        id: pet.id,
+        name: pet.name,
+        profilePic: pet.profilePicS3Key,
+        lastWord: pet.lastWord,
+        birthday: pet.birthday,
+        deathDay: pet.deathday,
+        petType: pet.petType,
+        managerID: pet.userID,
+        identityId: pet.identityId,
+        deathCause: pet.deathCause,
+      };
+      // 가족 1명뿐이면 &&
+      //   (await movePetToInactiveTable(createInactivePetInputVariables, pet.id));
+
+      // 3. delete user from cognito userpool
       if (res) {
         await deleteUser();
       }
