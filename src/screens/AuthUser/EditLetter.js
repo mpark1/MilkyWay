@@ -7,9 +7,8 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {updateLetter} from '../../graphql/mutations';
-import {useSelector} from 'react-redux';
 import {mutationItem} from '../../utils/amplifyUtil';
-import EditOrDeleteButtons from '../../components/EditOrDeleteButtons';
+import {trueToPrivate} from '../../constants/privateAccessMapping';
 
 const EditLetter = ({navigation, route}) => {
   const {
@@ -19,7 +18,6 @@ const EditLetter = ({navigation, route}) => {
     content,
     createdAt,
     letterAuthorId,
-    owner,
     relationship,
     title,
     identityId,
@@ -31,6 +29,13 @@ const EditLetter = ({navigation, route}) => {
   // check box
   const [checked, setChecked] = useState(accessLevel === 'PRIVATE');
   const toggleCheckbox = () => setChecked(!checked);
+  const emptyRequiredFields =
+    newTitle === '' && newRelationship === '' && newMessage === '';
+  const noChange =
+    newTitle === title &&
+    newRelationship !== relationship &&
+    newMessage !== content &&
+    accessLevel === trueToPrivate[checked];
 
   useEffect(() => {
     console.log('EditLetter component - Mounted');
@@ -173,7 +178,11 @@ const EditLetter = ({navigation, route}) => {
         {renderAccessLevelField()}
         {renderMessageField()}
         <View style={styles.blueButton}>
-          <BlueButton title={'수정하기'} onPress={() => onSubmit()} />
+          <BlueButton
+            disabled={emptyRequiredFields || noChange || isCallingAPI}
+            title={'수정하기'}
+            onPress={() => onSubmit()}
+          />
         </View>
       </View>
     </KeyboardAwareScrollView>

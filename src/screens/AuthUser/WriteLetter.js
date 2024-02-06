@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
 import {StyleSheet, TextInput, View, Text, Dimensions} from 'react-native';
+import {useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {CheckBox} from '@rneui/themed';
-
+import {createLetter} from '../../graphql/mutations';
+import {getIdentityID, mutationItem} from '../../utils/amplifyUtil';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
-import {createLetter} from '../../graphql/mutations';
-import {useSelector} from 'react-redux';
-import {getIdentityID, mutationItem} from '../../utils/amplifyUtil';
 
 const WriteLetter = ({navigation}) => {
   const petID = useSelector(state => state.pet.id);
@@ -20,6 +19,8 @@ const WriteLetter = ({navigation}) => {
   // check box
   const [checked, setChecked] = useState(false);
   const toggleCheckbox = () => setChecked(!checked);
+  const emptyRequiredFields =
+    newTitle === '' && newRelationship === '' && newMessage === '';
 
   const renderTitleField = () => {
     return (
@@ -157,7 +158,11 @@ const WriteLetter = ({navigation}) => {
         {renderAccessLevelField()}
         {renderMessageField()}
         <View style={styles.blueButton}>
-          <BlueButton title={'등록하기'} onPress={() => onSubmit()} />
+          <BlueButton
+            title={'등록하기'}
+            onPress={() => onSubmit()}
+            disabled={emptyRequiredFields || isCallingAPI}
+          />
         </View>
       </View>
     </KeyboardAwareScrollView>

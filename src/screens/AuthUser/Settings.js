@@ -87,6 +87,9 @@ const Settings = ({navigation, route}) => {
 
   const noUpdateInPetProfilePic = profilePic === newProfilePic;
 
+  const canGoNext =
+    !(noUpdateInPetInfo && noUpdateInPetProfilePic) && !isCallingUpdateAPI;
+
   useEffect(() => {
     //check pet's profile picture url expiration once when the page is loaded.
     profilePic.length !== 0 && checkS3urlFunc();
@@ -431,7 +434,7 @@ const Settings = ({navigation, route}) => {
       <View style={{alignSelf: 'center'}}>
         <Button
           title={'완료'}
-          disabled={noUpdateInPetInfo && noUpdateInPetProfilePic}
+          disabled={!canGoNext}
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}

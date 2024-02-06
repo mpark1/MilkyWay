@@ -6,13 +6,9 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  Pressable,
 } from 'react-native';
 import {useSelector} from 'react-redux';
-import {
-  queryGuestBooksByPetIDPagination,
-  queryUser,
-} from '../../../utils/amplifyUtil';
+import {queryGuestBooksByPetIDPagination} from '../../../utils/amplifyUtil';
 
 import DashedBorderButton from '../../../components/Buttons/DashedBorderButton';
 import MoreLessTruncated from '../../../components/MoreLessTruncated';
@@ -22,19 +18,12 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import {
   onCreateGuestBook,
-  onCreateLetter,
   onDeleteGuestBook,
-  onDeleteLetter,
-  onUpdateGuestBook,
-  onUpdateLetter,
 } from '../../../graphql/subscriptions';
 import {
   addUserDetailsToNewObj,
   petPageTabsSubscription,
-  processUpdateSubscription,
-  sucriptionForAllMutation,
 } from '../../../utils/amplifyUtilSubscription';
-import BlueButton from '../../../components/Buttons/BlueButton';
 import {Button} from '@rneui/base';
 import {generateClient} from 'aws-amplify/api';
 

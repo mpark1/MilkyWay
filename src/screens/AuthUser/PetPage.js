@@ -317,7 +317,11 @@ const PetPage = ({navigation, route}) => {
         setPictureUrl={''}
         type={'updatePetPageBackground'}
       />
-      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
+      <ReportBottomSheet
+        reportBottomSheetRef={reportBottomSheetRef}
+        whichTab={null}
+        itemID={null}
+      />
     </View>
   );
 };

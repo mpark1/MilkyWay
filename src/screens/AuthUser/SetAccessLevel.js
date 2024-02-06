@@ -7,24 +7,14 @@ import {scaleFontSize} from '../../assets/styles/scaling';
 import BlueButton from '../../components/Buttons/BlueButton';
 import {useDispatch, useSelector} from 'react-redux';
 import {
-  setNewPetAccessLevel,
-  setNewPetComplete,
-} from '../../redux/slices/NewPet';
-import {
   createPet,
   createPetFamily,
   createPetPageBackgroundImage,
 } from '../../graphql/mutations';
 import {generateClient} from 'aws-amplify/api';
 import AlertBox from '../../components/AlertBox';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {setCurrentPetID, setMyPets} from '../../redux/slices/User';
-import {
-  getIdentityID,
-  mutationItem,
-  uploadProfilePic,
-} from '../../utils/amplifyUtil';
-import {setPetID} from '../../redux/slices/Pet';
+import {setMyPets} from '../../redux/slices/User';
+import {getIdentityID, uploadProfilePic} from '../../utils/amplifyUtil';
 
 const SetAccessLevel = ({navigation}) => {
   const dispatch = useDispatch();

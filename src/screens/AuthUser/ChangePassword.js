@@ -15,7 +15,8 @@ const ChangePassword = ({navigation}) => {
 
   const [isUpdatingPW, setIsUpdatingPW] = useState(false);
 
-  const canGoNext = oldPW && newPW && confirmNewPW;
+  const canGoNext =
+    oldPW !== '' && newPW !== '' && confirmNewPW !== '' && !isUpdatingPW;
 
   const newPwRef = useRef(null);
   const confirmNewPwRef = useRef(null);
