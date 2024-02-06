@@ -1,11 +1,17 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {Alert, Pressable, StyleSheet, Text, View} from 'react-native';
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
   BottomSheetModal,
 } from '@gorhom/bottom-sheet';
-import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 
 import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
@@ -14,14 +20,15 @@ import reportReasons from '../data/reportReasons.json';
 import {useSelector} from 'react-redux';
 import {mutationItem} from '../utils/amplifyUtil';
 import {createManager} from '../graphql/mutations';
+import {request} from 'react-native-permissions';
 const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
 
-  const snapShort = useMemo(() => ['20%'], []);
-  const snapTall = useMemo(() => ['72%'], []);
-  const [showReportCategories, setShowReportCategories] = useState(false);
+  const snapPoint = useMemo(() => ['72%'], []);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+
+  const [requesterComment, setRequesterComment] = useState('');
 
   const renderBackdrop = useCallback(
     props => (
@@ -41,7 +48,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
       petID: petID,
       requesterID: userID,
       category: index, // Int (신고 이유 리스트에서 인덱스)
-      clientMessage: '',
+      clientMessage: requesterComment,
       status: '0', // 처리전
       adminComment: '',
     };
@@ -55,26 +62,10 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  const renderReportButton = () => {
-    return (
-      <View style={styles.inner}>
-        <Pressable
-          style={styles.button}
-          onPress={() => {
-            setShowReportCategories(true);
-          }}>
-          <View style={styles.report}>
-            <Text style={styles.title}>신고하기 </Text>
-            <SimpleLineIcons name={'exclamation'} size={20} color={'#FA3B3B'} />
-          </View>
-        </Pressable>
-      </View>
-    );
-  };
-
   const renderReportReason = ({item, index}) => {
     return (
       <Pressable
+        disabled={index === 8}
         style={styles.textContainer}
         onPress={() => onSubmitReport(index)}>
         <Text style={styles.text}>{item.content}</Text>
@@ -82,11 +73,36 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     );
   };
 
-  const renderReportReasonsFlatList = () => {
+  const renderTextInput = () => {
+    return (
+      <View style={styles.textInputContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholderTextColor={'#939393'}
+          placeholder={'신고 이유를 입력해주세요. (100자 이내)'}
+          maxLength={100}
+          value={requesterComment}
+          onChangeText={text => setRequesterComment(text)}
+          autoCorrect={false}
+          autoCapitalize={'none'}
+          blurOnSubmit={true}
+          clearButtonMode={'while-editing'}
+        />
+        <Pressable
+          disabled={requesterComment.length === 0}
+          style={styles.submitButton}
+          onPress={() => onSubmitReport(8)}>
+          <Text style={styles.submitButtonText}>확인</Text>
+        </Pressable>
+      </View>
+    );
+  };
+
+  const renderFlatList = () => {
     return (
       <View style={globalStyle.flex}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerContainerText}>신고</Text>
+          <Text style={styles.headerContainerText}>신고하기</Text>
         </View>
         <View style={styles.flatListContainer}>
           <Text style={styles.header}>
@@ -103,33 +119,22 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
             renderItem={renderReportReason}
             showsVerticalScrollIndicator={true}
           />
+          {renderTextInput()}
         </View>
       </View>
     );
   };
 
-  return !showReportCategories ? (
+  return (
     <BottomSheetModal
       ref={reportBottomSheetRef}
       index={0}
-      snapPoints={snapShort}
+      snapPoints={snapPoint}
       handleIndicatorStyle={{backgroundColor: '#939393'}}
       backgroundStyle={{borderRadius: 20}}
       enablePanDownToClose={true}
       backdropComponent={renderBackdrop}>
-      {renderReportButton()}
-    </BottomSheetModal>
-  ) : (
-    <BottomSheetModal
-      ref={reportBottomSheetRef}
-      index={0}
-      snapPoints={snapTall}
-      handleIndicatorStyle={{backgroundColor: '#939393'}}
-      backgroundStyle={{borderRadius: 20}}
-      enablePanDownToClose={true}
-      backdropComponent={renderBackdrop}
-      onDismiss={() => setShowReportCategories(false)}>
-      {renderReportReasonsFlatList()}
+      {renderFlatList()}
     </BottomSheetModal>
   );
 };
@@ -197,5 +202,23 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: scaleFontSize(18),
     fontWeight: '500',
+  },
+  textInputContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  textInput: {
+    width: '100%',
+    height: 100,
+    padding: 10,
+  },
+  submitButton: {
+    backgroundColor: '#E5E5E5',
+  },
+  submitButtonText: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    color: '#000000',
+    fontSize: scaleFontSize(18),
   },
 });

@@ -36,6 +36,8 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import DeleteAlertBox from '../../../components/DeleteAlertBox';
 import {deleteAlbum, deleteGuestBook} from '../../../graphql/mutations';
 import {remove} from 'aws-amplify/storage';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import ReportBottomSheet from '../../../components/ReportBottomSheet';
 
 const Album = ({navigation, route}) => {
   const {isFamily} = route.params;
@@ -49,6 +51,7 @@ const Album = ({navigation, route}) => {
   const [isCallingAPI, setIsCallingAPI] = useState(false);
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
   // const [isTagSelected, setIsTagSelected] = useState(false);
+  const reportBottomSheetRef = useRef(null);
 
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
@@ -225,11 +228,23 @@ const Album = ({navigation, route}) => {
               <Text style={styles.caption}>
                 {item.category !== 0 ? item.caption : item.caption}
               </Text>
-              {userId === item.owner && (
+              {userId === item.owner ? (
                 <Pressable
                   style={styles.trashCan}
                   onPress={async () => deleteAlbumApi({item})}>
                   <EvilIcons name={'trash'} color={'#373737'} size={26} />
+                </Pressable>
+              ) : (
+                <Pressable
+                  style={styles.trashCan}
+                  onPress={() => {
+                    reportBottomSheetRef.current?.present();
+                  }}>
+                  <MaterialCommunityIcons
+                    name="dots-horizontal"
+                    size={26}
+                    color={'#373737'}
+                  />
                 </Pressable>
               )}
             </View>
@@ -269,6 +284,7 @@ const Album = ({navigation, route}) => {
           {isFamily && renderAddNewAlbumButton()}
         </View>
       )}
+      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
     </View>
   );
 };
