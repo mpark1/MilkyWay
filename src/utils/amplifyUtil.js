@@ -801,27 +801,32 @@ export async function deletePetPage(
     // 3. move pet item from Pet table to InactivePet
     // 3-1 create a new item in InactivePet table
     // 3-2. delete the item from Pet table.
-    try {
-      await client.graphql({
-        query: migrateToInactivePet,
-        variables: {input: createInputVariables},
-        authMode: 'userPool',
-      });
-    } catch (e) {
-      console.error('Error creating migrateToInactivePet :', e);
-    }
-    try {
-      await client.graphql({
-        query: deletePet,
-        variables: {input: {id: petID}},
-        authMode: 'userPool',
-      });
-    } catch (e) {
-      console.error('Error deleting pet from PetTable :', e);
-    }
+    await movePetToInactiveTable(createInputVariables, petID);
     alertBox('추모공간이 삭제되었습니다.', '', '확인', alertBoxFunc);
   }
   setIsCallingUpdateAPI(false);
+}
+
+export async function movePetToInactiveTable(createInputVariables, petID) {
+  const client = generateClient();
+  try {
+    await client.graphql({
+      query: migrateToInactivePet,
+      variables: {input: createInputVariables},
+      authMode: 'userPool',
+    });
+  } catch (e) {
+    console.error('Error creating migrateToInactivePet :', e);
+  }
+  try {
+    await client.graphql({
+      query: deletePet,
+      variables: {input: {id: petID}},
+      authMode: 'userPool',
+    });
+  } catch (e) {
+    console.error('Error deleting pet from PetTable :', e);
+  }
 }
 
 export async function checkAdmin() {
