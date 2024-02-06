@@ -208,26 +208,28 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const renderAuthorActionButtons = () => {
     return (
       <View style={styles.editAndDeleteContainer}>
-        {whichTab === 'Letters' && !isTruncated && (
-          <View style={styles.editAndDeleteContainerInner}>
-            (item.owner === userID ? (
-            <Pressable onPress={() => updateLetterOnSubmit()}>
-              <EvilIcons name={'pencil'} color={'#373737'} size={26} />
-            </Pressable>
-            <Pressable onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
-              <EvilIcons name={'trash'} color={'#373737'} size={26} />
-            </Pressable>
-            ):(
-            <Pressable onPress={() => reportBottomSheetRef.current?.present()}>
+        {whichTab === 'Letters' &&
+          !isTruncated &&
+          (item.owner === userID ? (
+            <View style={styles.editAndDeleteContainerInner}>
+              <Pressable onPress={() => updateLetterOnSubmit()}>
+                <EvilIcons name={'pencil'} color={'#373737'} size={26} />
+              </Pressable>
+              <Pressable onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
+                <EvilIcons name={'trash'} color={'#373737'} size={26} />
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              style={styles.editAndDeleteContainerInner}
+              onPress={() => reportBottomSheetRef.current?.present()}>
               <MaterialCommunityIcons
                 name="dots-horizontal"
                 size={26}
                 color={'#FFF'}
               />
             </Pressable>
-            )
-          </View>
-        )}
+          ))}
         {whichTab === 'GuestBook' &&
           !isTruncated &&
           (item.owner === userID || isManager) && <DeleteIcon item={item} />}
