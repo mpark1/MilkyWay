@@ -27,6 +27,7 @@ const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
+  console.log('print profile pic for a pet: ', item.profilePic);
 
   const onSubmit = async () => {
     // update pet redux
@@ -47,10 +48,6 @@ const PetCard = ({item, isFamily}) => {
       }),
     );
     dispatch(setIsManager(item.owner === userID));
-    console.log(
-      'is user an owner of the selected pet? ',
-      item.owner === userID,
-    );
 
     await querySingleItem(getPetpageBackgroundImage, {petID: item.id}).then(
       async resFromDB => {

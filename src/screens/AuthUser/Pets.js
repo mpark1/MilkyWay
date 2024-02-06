@@ -75,7 +75,7 @@ const Pets = ({navigation}) => {
         );
         dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
         await retrieveS3Url(response.profilePic).then(res => {
-          console.log('print user profile pic url', res.url.href);
+          // console.log('print user profile pic url', res.url.href);
           dispatch(
             setUserProfilePic({
               profilePic: res.url.href,
