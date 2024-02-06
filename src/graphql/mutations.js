@@ -522,8 +522,10 @@ export const createManager = /* GraphQL */ `
       id
       createdAt
       petID
+      itemCategory
+      itemID
       requesterID
-      category
+      reportCategory
       clientMessage
       status
       adminComment
@@ -541,8 +543,10 @@ export const updateManager = /* GraphQL */ `
       id
       createdAt
       petID
+      itemCategory
+      itemID
       requesterID
-      category
+      reportCategory
       clientMessage
       status
       adminComment
@@ -560,8 +564,10 @@ export const deleteManager = /* GraphQL */ `
       id
       createdAt
       petID
+      itemCategory
+      itemID
       requesterID
-      category
+      reportCategory
       clientMessage
       status
       adminComment

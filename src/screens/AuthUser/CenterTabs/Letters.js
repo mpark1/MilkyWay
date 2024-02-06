@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
   flatListContainer: {
     flex: 1,
     backgroundColor: '#FFF',
-    paddingTop: 15,
   },
   letter: {
     container: {

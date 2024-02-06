@@ -20,7 +20,7 @@ const WriteLetter = ({navigation}) => {
   const [checked, setChecked] = useState(false);
   const toggleCheckbox = () => setChecked(!checked);
   const emptyRequiredFields =
-    newTitle === '' && newRelationship === '' && newMessage === '';
+    newTitle === '' || newRelationship === '' || newMessage === '';
 
   const renderTitleField = () => {
     return (

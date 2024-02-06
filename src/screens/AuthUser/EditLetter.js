@@ -30,7 +30,7 @@ const EditLetter = ({navigation, route}) => {
   const [checked, setChecked] = useState(accessLevel === 'PRIVATE');
   const toggleCheckbox = () => setChecked(!checked);
   const emptyRequiredFields =
-    newTitle === '' && newRelationship === '' && newMessage === '';
+    newTitle === '' || newRelationship === '' || newMessage === '';
   const noChange =
     newTitle === title &&
     newRelationship !== relationship &&
