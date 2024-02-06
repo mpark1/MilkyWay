@@ -275,19 +275,22 @@ const Album = ({navigation, route}) => {
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {isFamily && renderDottedBorderButton()}
-      {isAlbumFetchComplete && albumData.albums.length > 0 && (
-        <View style={styles.flatListContainer}>
-          <FlatList
-            onMomentumScrollBegin={() => setIsCallingAPI(false)}
-            onEndReachedThreshold={0.8}
-            onEndReached={onEndReached}
-            showsVerticalScrollIndicator={false}
-            data={albumData.albums}
-            renderItem={({item}) => renderFlatListItem({item})}
-          />
-          {isFamily && renderAddNewAlbumButton()}
-        </View>
-      )}
+      {isAlbumFetchComplete &&
+        (albumData.albums.length > 0 ? (
+          <View style={styles.flatListContainer}>
+            <FlatList
+              onMomentumScrollBegin={() => setIsCallingAPI(false)}
+              onEndReachedThreshold={0.8}
+              onEndReached={onEndReached}
+              showsVerticalScrollIndicator={false}
+              data={albumData.albums}
+              renderItem={({item}) => renderFlatListItem({item})}
+            />
+            {isFamily && renderAddNewAlbumButton()}
+          </View>
+        ) : (
+          <Text style={styles.emptyAlbums}>등록된 앨범이 없습니다.</Text>
+        ))}
       <ReportBottomSheet
         reportBottomSheetRef={reportBottomSheetRef}
         whichTab={'Album'}
@@ -337,5 +340,11 @@ const styles = StyleSheet.create({
   },
   trashCan: {
     paddingLeft: 5,
+  },
+  emptyAlbums: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
+    lineHeight: scaleFontSize(24),
+    padding: 15,
   },
 });

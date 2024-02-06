@@ -26,13 +26,8 @@ import {
   processUpdateSubscription,
 } from '../../../utils/amplifyUtilSubscription';
 import {
-  onCreateGuestBook,
-  onCreateLetter,
   onCreatePetIntroduction,
-  onDeleteGuestBook,
-  onDeleteLetter,
   onDeletePetIntroduction,
-  onUpdateLetter,
   onUpdatePetIntroduction,
 } from '../../../graphql/subscriptions';
 
@@ -112,7 +107,11 @@ const Home = ({navigation}) => {
     return (
       <View style={styles.lastWordCard}>
         <Text style={styles.lastWordTitle}>마지막 인사</Text>
-        <Text style={styles.lastWord}>{lastWord}</Text>
+        {lastWord.length > 0 ? (
+          <Text style={styles.lastWord}>{lastWord}</Text>
+        ) : (
+          <Text style={styles.lastWord}>등록된 마지막 인사가 없습니다.</Text>
+        )}
       </View>
     );
   };
@@ -167,7 +166,13 @@ const Home = ({navigation}) => {
             </View>
           )}
         </View>
-        <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
+        {introductionMsg.length > 0 ? (
+          <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
+        ) : (
+          <Text style={styles.introductionMsg.text}>
+            등록된 추모 메세지가 없습니다.
+          </Text>
+        )}
       </View>
     );
   };
