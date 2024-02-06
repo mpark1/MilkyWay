@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View, FlatList, StyleSheet, Dimensions} from 'react-native';
+import {View, FlatList, StyleSheet, Dimensions, Text} from 'react-native';
 import {useSelector} from 'react-redux';
 
 import {
@@ -188,18 +188,23 @@ const Letters = ({navigation, route}) => {
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       {isFamily && renderWriteLetterButton()}
-      {isLetterFetchComplete && lettersData.letters.length > 0 && (
-        <View style={styles.flatListContainer}>
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-            onEndReachedThreshold={0.8}
-            onEndReached={onEndReached}
-            data={lettersData.letters}
-            renderItem={renderFlatListItem}
-          />
-        </View>
-      )}
+      {isLetterFetchComplete &&
+        (lettersData.letters.length > 0 ? (
+          <View style={styles.flatListContainer}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+              onEndReachedThreshold={0.8}
+              onEndReached={onEndReached}
+              data={lettersData.letters}
+              renderItem={renderFlatListItem}
+            />
+          </View>
+        ) : (
+          <Text style={styles.emptyLetters}>
+            등록된 가족의 편지가 없습니다.
+          </Text>
+        ))}
     </View>
   );
 };
@@ -282,5 +287,11 @@ const styles = StyleSheet.create({
   plusButtonContainer: {
     marginLeft: Dimensions.get('window').width * 0.03,
     marginRight: Dimensions.get('window').width * 0.07,
+  },
+  emptyLetters: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
+    lineHeight: scaleFontSize(24),
+    padding: 15,
   },
 });
