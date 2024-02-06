@@ -520,13 +520,13 @@ export const createManager = /* GraphQL */ `
   ) {
     createManager(input: $input, condition: $condition) {
       id
+      createdAt
       petID
       requesterID
       category
       clientMessage
       status
       adminComment
-      createdAt
       updatedAt
       __typename
     }
@@ -539,13 +539,13 @@ export const updateManager = /* GraphQL */ `
   ) {
     updateManager(input: $input, condition: $condition) {
       id
+      createdAt
       petID
       requesterID
       category
       clientMessage
       status
       adminComment
-      createdAt
       updatedAt
       __typename
     }
@@ -558,13 +558,13 @@ export const deleteManager = /* GraphQL */ `
   ) {
     deleteManager(input: $input, condition: $condition) {
       id
+      createdAt
       petID
       requesterID
       category
       clientMessage
       status
       adminComment
-      createdAt
       updatedAt
       __typename
     }

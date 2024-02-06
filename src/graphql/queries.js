@@ -510,16 +510,16 @@ export const albumByCategory = /* GraphQL */ `
   }
 `;
 export const getManager = /* GraphQL */ `
-  query GetManager($id: ID!) {
-    getManager(id: $id) {
+  query GetManager($id: ID!, $createdAt: String!) {
+    getManager(id: $id, createdAt: $createdAt) {
       id
+      createdAt
       petID
       requesterID
       category
       clientMessage
       status
       adminComment
-      createdAt
       updatedAt
       __typename
     }
@@ -527,20 +527,30 @@ export const getManager = /* GraphQL */ `
 `;
 export const listManagers = /* GraphQL */ `
   query ListManagers(
+    $id: ID
+    $createdAt: ModelStringKeyConditionInput
     $filter: ModelManagerFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
-    listManagers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    listManagers(
+      id: $id
+      createdAt: $createdAt
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
       items {
         id
+        createdAt
         petID
         requesterID
         category
         clientMessage
         status
         adminComment
-        createdAt
         updatedAt
         __typename
       }

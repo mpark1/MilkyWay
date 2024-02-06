@@ -168,7 +168,8 @@ type Manager @model
         {allow: groups, groups: ["admin"]}
     ])
 {
-    id: ID!
+    id: ID! @primaryKey(sortKeyFields: ["createdAt"])
+    createdAt: String!
     petID: ID
     requesterID: ID!
     category: Int!
