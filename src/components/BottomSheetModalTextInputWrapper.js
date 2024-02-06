@@ -38,6 +38,8 @@ const BottomSheetModalTextInputWrapper = ({
 
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
+  const canGoNext = newMessage !== '' && !isCallingAPI;
+
   const renderBackdrop = useCallback(
     props => (
       <BottomSheetBackdrop
@@ -147,6 +149,7 @@ const BottomSheetModalTextInputWrapper = ({
   const renderSubmitButton = () => {
     return (
       <Button
+        disabled={!canGoNext}
         title={'완료'}
         titleStyle={styles.submit}
         containerStyle={styles.submitButton}

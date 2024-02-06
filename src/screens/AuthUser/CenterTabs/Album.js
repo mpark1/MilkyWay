@@ -52,6 +52,7 @@ const Album = ({navigation, route}) => {
   const [isAlbumFetchComplete, setIsAlbumFetchComplete] = useState(false);
   // const [isTagSelected, setIsTagSelected] = useState(false);
   const reportBottomSheetRef = useRef(null);
+  const [reportItemID, setReportItemID] = useState('');
 
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
@@ -235,17 +236,20 @@ const Album = ({navigation, route}) => {
                   <EvilIcons name={'trash'} color={'#373737'} size={26} />
                 </Pressable>
               ) : (
-                <Pressable
-                  style={styles.trashCan}
-                  onPress={() => {
-                    reportBottomSheetRef.current?.present();
-                  }}>
-                  <MaterialCommunityIcons
-                    name="dots-horizontal"
-                    size={26}
-                    color={'#373737'}
-                  />
-                </Pressable>
+                !isFamily && (
+                  <Pressable
+                    style={styles.trashCan}
+                    onPress={() => {
+                      setReportItemID(item.id);
+                      reportBottomSheetRef.current?.present();
+                    }}>
+                    <MaterialCommunityIcons
+                      name="dots-horizontal"
+                      size={26}
+                      color={'#373737'}
+                    />
+                  </Pressable>
+                )
               )}
             </View>
           </View>
@@ -284,7 +288,11 @@ const Album = ({navigation, route}) => {
           {isFamily && renderAddNewAlbumButton()}
         </View>
       )}
-      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
+      <ReportBottomSheet
+        reportBottomSheetRef={reportBottomSheetRef}
+        whichTab={'Album'}
+        itemID={reportItemID}
+      />
     </View>
   );
 };

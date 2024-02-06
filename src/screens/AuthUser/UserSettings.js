@@ -50,6 +50,11 @@ const UserSettings = ({navigation}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const bottomSheetModalRef = useRef(null);
 
+  const noUpdateInUserInfo = userName === name;
+  const noUpdateInUserProfilePic = newProfilePicUrl === profilePic;
+  const canGoNext =
+    !(noUpdateInUserInfo && noUpdateInUserProfilePic) && !isCallingUpdateAPI;
+
   useEffect(() => {
     profilePic.length !== 0 && checkS3urlFunc();
   }, [profilePic]);
@@ -182,7 +187,8 @@ const UserSettings = ({navigation}) => {
     return (
       <View style={styles.blueButton}>
         <Button
-          title={'확인'}
+          title={'완료'}
+          disabled={!canGoNext}
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}

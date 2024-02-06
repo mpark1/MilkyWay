@@ -317,7 +317,13 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         backdropComponent={renderBottomSheetBackdrop}
         children={renderClickedUserPets}
       />
-      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
+      {whichTab === 'Letters' && (
+        <ReportBottomSheet
+          reportBottomSheetRef={reportBottomSheetRef}
+          whichTab={whichTab}
+          itemID={item.id}
+        />
+      )}
     </>
   );
 };

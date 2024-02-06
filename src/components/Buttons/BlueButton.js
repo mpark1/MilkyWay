@@ -3,9 +3,10 @@ import {StyleSheet} from 'react-native';
 import {Button} from '@rneui/base';
 import {scaleFontSize} from '../../assets/styles/scaling';
 
-const BlueButton = ({containerStyle, title, titleStyle, onPress}) => {
+const BlueButton = ({title, onPress, disabled}) => {
   return (
     <Button
+      disabled={disabled}
       title={title}
       titleStyle={styles.defaultTitleStyle}
       containerStyle={styles.defaultContainerStyle}
@@ -27,7 +28,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingVertical: 10,
     paddingHorizontal: 25,
-    // width: 116,
   },
   defaultContainerStyle: {
     borderRadius: 10,

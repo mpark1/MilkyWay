@@ -16,7 +16,7 @@ import reportReasons from '../data/reportReasons.json';
 import {generateClient} from 'aws-amplify/api';
 import alertBox from './AlertBox';
 
-const ReportBottomSheet = ({reportBottomSheetRef}) => {
+const ReportBottomSheet = ({reportBottomSheetRef, whichTab, itemID}) => {
   const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
 
@@ -42,10 +42,12 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     const newReportInput = {
       petID: petID,
       requesterID: userID,
-      category: index, // 0 to 7 - refer to reportMapping.json
+      reportCategory: index, // 0 to 7 - refer to reportMapping.json
       clientMessage: requesterComment,
-      status: '0', // 처리전
+      status: 0, // 처리전
       adminComment: '',
+      itemCategory: whichTab, // String - whichTab (PetPage 신고면 itemCategory, itemID를 null로 보내주기)
+      itemID: itemID, // itemCategory 가 'Letter'/'Album' 이면 LetterID/AlbumID
     };
 
     try {
@@ -75,7 +77,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const renderReportReason = ({item, index}) => {
     return (
       <Pressable
-        disabled={index === 7}
+        disabled={index === 7 || isCallingAPI}
         style={styles.textContainer}
         onPress={() => onSubmitReport(index)}>
         <Text style={styles.text}>{item.content}</Text>
