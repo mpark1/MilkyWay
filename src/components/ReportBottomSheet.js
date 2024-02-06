@@ -1,5 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
@@ -30,8 +30,8 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
       <BottomSheetBackdrop
         {...props}
         pressBehavior={'close'}
-        disappearsOnIndex={-1} //-1: Snap point index when backdrop will disappears on.
-        appearsOnIndex={0} //0: Snap point index when backdrop will appears on.
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
       />
     ),
     [],
@@ -42,7 +42,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
     const newReportInput = {
       petID: petID,
       requesterID: userID,
-      category: index, // Int (신고 이유 리스트에서 인덱스)
+      category: index, // 0 to 7 - refer to reportMapping.json
       clientMessage: requesterComment,
       status: '0', // 처리전
       adminComment: '',
@@ -95,12 +95,10 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
           onChangeText={text => setRequesterComment(text)}
           autoCorrect={false}
           autoCapitalize={'none'}
-          blurOnSubmit={true}
           clearButtonMode={'while-editing'}
           textAlign={'left'}
           textAlignVertical={'top'}
-          multiline={true}
-          scrollEnabled={true}
+          // multiline={true}
         />
         <Pressable
           disabled={requesterComment.length === 0}
@@ -223,7 +221,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: '100%',
-    height: 100,
+    height: 90,
     borderWidth: 1,
     borderRadius: 5,
     borderColor: '#939393',
@@ -232,6 +230,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: '#E5E5E5',
+    marginVertical: 10,
   },
   submitButtonText: {
     paddingHorizontal: 10,

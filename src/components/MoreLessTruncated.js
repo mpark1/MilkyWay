@@ -220,13 +220,11 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
               </Pressable>
             </View>
           ) : (
-            <Pressable
-              style={styles.editAndDeleteContainerInner}
-              onPress={() => reportBottomSheetRef.current?.present()}>
+            <Pressable onPress={() => reportBottomSheetRef.current?.present()}>
               <MaterialCommunityIcons
                 name="dots-horizontal"
                 size={26}
-                color={'#373737'}
+                color={'#939393'}
               />
             </Pressable>
           ))}
