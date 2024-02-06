@@ -13,6 +13,8 @@ import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
 
 import reportReasons from '../data/reportReasons.json';
+import {generateClient} from 'aws-amplify/api';
+import alertBox from './AlertBox';
 
 const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const petID = useSelector(state => state.pet.id);
@@ -45,20 +47,35 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
       status: '0', // 처리전
       adminComment: '',
     };
-    await mutationItem(
-      isCallingAPI,
-      setIsCallingAPI,
-      newReportInput,
-      createManager,
-      '신고가 성공적으로 접수되었습니다. 관리자가 신고 내역 확인 후 처리됩니다.',
-      'none',
-    );
+
+    try {
+      if (!isCallingAPI) {
+        setIsCallingAPI(true);
+        const client = generateClient();
+        const response = await client.graphql({
+          query: createManager,
+          variables: {input: newReportInput},
+          authMode: 'userPool',
+        });
+        alertBox(
+          '신고가 성공적으로 접수되었습니다.',
+          '관리자가 신고 내역 확인 후 처리됩니다.',
+          '확인',
+          'none',
+        );
+        return response;
+      }
+    } catch (error) {
+      console.log('error during query: ', error);
+    } finally {
+      setIsCallingAPI(false);
+    }
   };
 
   const renderReportReason = ({item, index}) => {
     return (
       <Pressable
-        disabled={index === 8}
+        disabled={index === 7}
         style={styles.textContainer}
         onPress={() => onSubmitReport(index)}>
         <Text style={styles.text}>{item.content}</Text>
@@ -84,7 +101,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
         <Pressable
           disabled={requesterComment.length === 0}
           style={styles.submitButton}
-          onPress={() => onSubmitReport(8)}>
+          onPress={() => onSubmitReport(7)}>
           <Text style={styles.submitButtonText}>확인</Text>
         </Pressable>
       </View>
@@ -111,8 +128,8 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
             keyExtractor={item => item.id}
             renderItem={renderReportReason}
             showsVerticalScrollIndicator={true}
+            ListFooterComponent={renderTextInput}
           />
-          {renderTextInput()}
         </View>
       </View>
     );
