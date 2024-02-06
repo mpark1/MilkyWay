@@ -1,12 +1,12 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
   BottomSheetModal,
+  BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import {useSelector} from 'react-redux';
-import {mutationItem} from '../utils/amplifyUtil';
 import {createManager} from '../graphql/mutations';
 
 import globalStyle from '../assets/styles/globalStyle';
@@ -86,7 +86,7 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const renderTextInput = () => {
     return (
       <View style={styles.textInputContainer}>
-        <TextInput
+        <BottomSheetTextInput
           style={styles.textInput}
           placeholderTextColor={'#939393'}
           placeholder={'신고 이유를 입력해주세요. (100자 이내)'}
@@ -97,6 +97,10 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
           autoCapitalize={'none'}
           blurOnSubmit={true}
           clearButtonMode={'while-editing'}
+          textAlign={'left'}
+          textAlignVertical={'top'}
+          multiline={true}
+          scrollEnabled={true}
         />
         <Pressable
           disabled={requesterComment.length === 0}
@@ -143,9 +147,9 @@ const ReportBottomSheet = ({reportBottomSheetRef}) => {
       handleIndicatorStyle={{backgroundColor: '#939393'}}
       backgroundStyle={{borderRadius: 20}}
       enablePanDownToClose={true}
-      backdropComponent={renderBackdrop}>
-      {renderFlatList()}
-    </BottomSheetModal>
+      backdropComponent={renderBackdrop}
+      children={renderFlatList}
+    />
   );
 };
 
@@ -220,7 +224,11 @@ const styles = StyleSheet.create({
   textInput: {
     width: '100%',
     height: 100,
-    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#939393',
+    fontSize: scaleFontSize(18),
+    paddingHorizontal: 10,
   },
   submitButton: {
     backgroundColor: '#E5E5E5',

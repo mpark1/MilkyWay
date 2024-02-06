@@ -205,7 +205,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     );
   };
 
-  const renderAuthorActionButtons = () => {
+  const renderActionButtons = () => {
     return (
       <View style={styles.editAndDeleteContainer}>
         {whichTab === 'Letters' &&
@@ -226,7 +226,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
               <MaterialCommunityIcons
                 name="dots-horizontal"
                 size={26}
-                color={'#FFF'}
+                color={'#373737'}
               />
             </Pressable>
           ))}
@@ -306,7 +306,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
             {renderTruncatedTextForIOS()}
             {renderNameRelationshipDate()}
             {renderText()}
-            {renderAuthorActionButtons()}
+            {renderActionButtons()}
           </View>
         </View>
       </View>
