@@ -24,6 +24,8 @@ import DeleteIcon from './DeleteIcon';
 import DeleteAlertBox from './DeleteAlertBox';
 import OtherUserPet from './OtherUserPet';
 import globalStyle from '../assets/styles/globalStyle';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import ReportBottomSheet from './ReportBottomSheet';
 
 const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const userID = useSelector(state => state.user.cognitoUsername);
@@ -44,6 +46,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
     pets: [],
     nextToken: null,
   });
+  const reportBottomSheetRef = useRef(null);
 
   useEffect(() => {
     console.log('MoreLessTruncated component - Mounted');
@@ -205,14 +208,24 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
   const renderAuthorActionButtons = () => {
     return (
       <View style={styles.editAndDeleteContainer}>
-        {whichTab === 'Letters' && !isTruncated && item.owner === userID && (
+        {whichTab === 'Letters' && !isTruncated && (
           <View style={styles.editAndDeleteContainerInner}>
+            (item.owner === userID ? (
             <Pressable onPress={() => updateLetterOnSubmit()}>
               <EvilIcons name={'pencil'} color={'#373737'} size={26} />
             </Pressable>
             <Pressable onPress={() => DeleteAlertBox(deleteLetterOnSubmit)}>
               <EvilIcons name={'trash'} color={'#373737'} size={26} />
             </Pressable>
+            ):(
+            <Pressable onPress={() => reportBottomSheetRef.current?.present()}>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={26}
+                color={'#FFF'}
+              />
+            </Pressable>
+            )
           </View>
         )}
         {whichTab === 'GuestBook' &&
@@ -304,6 +317,7 @@ const MoreLessTruncated = ({item, linesToTruncate, whichTab}) => {
         backdropComponent={renderBottomSheetBackdrop}
         children={renderClickedUserPets}
       />
+      <ReportBottomSheet reportBottomSheetRef={reportBottomSheetRef} />
     </>
   );
 };

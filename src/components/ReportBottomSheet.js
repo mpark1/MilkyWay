@@ -1,26 +1,19 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import React, {useCallback, useMemo, useState} from 'react';
+import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
   BottomSheetModal,
 } from '@gorhom/bottom-sheet';
+import {useSelector} from 'react-redux';
+import {mutationItem} from '../utils/amplifyUtil';
+import {createManager} from '../graphql/mutations';
 
 import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
 
 import reportReasons from '../data/reportReasons.json';
-import {useSelector} from 'react-redux';
-import {mutationItem} from '../utils/amplifyUtil';
-import {createManager} from '../graphql/mutations';
-import {request} from 'react-native-permissions';
+
 const ReportBottomSheet = ({reportBottomSheetRef}) => {
   const petID = useSelector(state => state.pet.id);
   const userID = useSelector(state => state.user.cognitoUsername);
