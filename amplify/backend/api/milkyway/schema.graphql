@@ -13,14 +13,14 @@ type Pet @model
 {
     id: ID! @primaryKey
     profilePic: String
-    name: String @index(name: "byName", queryField: "petByName", sortKeyFields: ["id"])
-    birthday: String
-    deathDay: String
+    name: String! @index(name: "byName", queryField: "petByName", sortKeyFields: ["id"])
+    birthday: String!
+    deathDay: String!
     lastWord: String
-    accessLevel: String @index (name: "byAccessLevel", queryField: "petsByAccessLevel")
-    deathCause: String
+    accessLevel: String! @index (name: "byAccessLevel", queryField: "petsByAccessLevel")
+    deathCause: String!
     identityId: String!
-    petType: String
+    petType: String!
     managerID: ID!
 }
 
@@ -35,13 +35,13 @@ type InactivePet @model (mutations: {create: "migrateToInactivePet", delete: "de
 {
     id: ID! @primaryKey
     profilePic: String
-    name: String
-    birthday: String
-    deathDay: String
+    name: String!
+    birthday: String!
+    deathDay: String!
     lastWord: String
-    deathCause: String
+    deathCause: String!
     identityId: String!
-    petType: String
+    petType: String!
     managerID: ID!
 }
 
@@ -153,7 +153,7 @@ type Album @model
 {
     id: ID!
     petID: ID! @primaryKey(sortKeyFields:["createdAt", "id"])
-    category: Int @index(name: "albumCategory", queryField: "albumByCategory")
+    category: Int! @index(name: "albumCategory", queryField: "albumByCategory")
     caption: String
     createdAt: String!
     authorIdentityID: String!
@@ -168,12 +168,14 @@ type Manager @model
         {allow: groups, groups: ["admin"]}
     ])
 {
-    id: ID! @primaryKey(sortKeyFields: ["createdAt"])
+    id: ID!
     createdAt: String!
-    petID: ID
+    petID: ID! @primaryKey(sortKeyFields: ["createdAt", "id"])
+    itemCategory: String
+    itemID: ID
     requesterID: ID!
-    category: Int!
-    clientMessage: String!
+    reportCategory: Int!
+    clientMessage: String
     status: Int!
     adminComment: String
 }
