@@ -52,39 +52,39 @@ const Home = ({navigation}) => {
     console.log('Home tab is rendered');
   }, []);
 
-  useEffect(() => {
-    const client = generateClient();
-    // create mutation
-    const createHomeSub = petPageTabsSubscription(
-      client,
-      onCreatePetIntroduction,
-      'Create',
-      processSubscriptionData,
-      petID,
-    );
-    const updateHomeSub = petPageTabsSubscription(
-      client,
-      onUpdatePetIntroduction,
-      'Update',
-      processSubscriptionData,
-      petID,
-    );
-    const deleteHomeSub = petPageTabsSubscription(
-      client,
-      onDeletePetIntroduction,
-      'Delete',
-      processSubscriptionData,
-      petID,
-    );
-    console.log('create, update, delete subscriptions are on for Home.');
-
-    return () => {
-      console.log('Home subscriptions are turned off!');
-      createHomeSub.unsubscribe();
-      updateHomeSub.unsubscribe();
-      deleteHomeSub.unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   //   const client = generateClient();
+  //   //   // create mutation
+  //   //   const createHomeSub = petPageTabsSubscription(
+  //   //     client,
+  //   //     onCreatePetIntroduction,
+  //   //     'Create',
+  //   //     processSubscriptionData,
+  //   //     petID,
+  //   //   );
+  //   //   const updateHomeSub = petPageTabsSubscription(
+  //   //     client,
+  //   //     onUpdatePetIntroduction,
+  //   //     'Update',
+  //   //     processSubscriptionData,
+  //   //     petID,
+  //   //   );
+  //   //   const deleteHomeSub = petPageTabsSubscription(
+  //   //     client,
+  //   //     onDeletePetIntroduction,
+  //   //     'Delete',
+  //   //     processSubscriptionData,
+  //   //     petID,
+  //   //   );
+  //   //   console.log('create, update, delete subscriptions are on for Home.');
+  //   //
+  //   //   return () => {
+  //   //     console.log('Home subscriptions are turned off!');
+  //   //     createHomeSub.unsubscribe();
+  //   //     updateHomeSub.unsubscribe();
+  //   //     deleteHomeSub.unsubscribe();
+  //   //   };
+  //   // }, []);
 
   async function processSubscriptionData(mutationType, data) {
     console.log('print modified intro message: ', data);
@@ -196,10 +196,10 @@ const Home = ({navigation}) => {
       showsVerticalScrollIndicator={false}>
       <View style={styles.spacer}>
         {renderLastWord()}
-        {!fetchedData ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
+        {fetchedData ? (
           checkIntroductionMessage()
+        ) : (
+          <ActivityIndicator size="large" color="#0000ff" />
         )}
       </View>
       {!introductionMsg ? (

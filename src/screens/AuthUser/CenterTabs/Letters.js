@@ -1,5 +1,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View, FlatList, StyleSheet, Dimensions, Text} from 'react-native';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 
 import {
@@ -48,55 +55,52 @@ const Letters = ({navigation, route}) => {
         console.log('Letter tab is rendered');
       } catch (e) {
         console.log('Letter tab: error occurred during fetching');
-      } finally {
-        setIsLetterFetchComplete(true);
       }
     };
-    firstFetch();
-    return () => {
-      console.log('letter page - Unmounted!');
-    };
+    firstFetch().then(data => {
+      setIsLetterFetchComplete(true);
+    });
   }, [petID]);
 
   useEffect(() => {
     lettersDataRef.current = lettersData.letters;
   }, [lettersData.letters]);
 
-  useEffect(() => {
-    const client = generateClient();
-    // create mutation
-    const createLetterSub = petPageTabsSubscription(
-      client,
-      onCreateLetter,
-      'Create',
-      processSubscriptionData,
-      petID,
-    );
-    const updateLetterSub = petPageTabsSubscription(
-      client,
-      onUpdateLetter,
-      'Update',
-      processSubscriptionData,
-      petID,
-    );
-    const deleteLetterSub = petPageTabsSubscription(
-      client,
-      onDeleteLetter,
-      'Delete',
-      processSubscriptionData,
-      petID,
-    );
-    console.log(
-      'create, update, delete subscriptions are on for Letters table.',
-    );
-
-    return () => {
-      console.log('letter subscriptions are turned off!');
-      createLetterSub.unsubscribe();
-      updateLetterSub.unsubscribe();
-      deleteLetterSub.unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const client = generateClient();
+  //   // create mutation
+  //   const createLetterSub = petPageTabsSubscription(
+  //     client,
+  //     onCreateLetter,
+  //     'Create',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   const updateLetterSub = petPageTabsSubscription(
+  //     client,
+  //     onUpdateLetter,
+  //     'Update',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   const deleteLetterSub = petPageTabsSubscription(
+  //     client,
+  //     onDeleteLetter,
+  //     'Delete',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   console.log(
+  //     'create, update, delete subscriptions are on for Letters table.',
+  //   );
+  //
+  //   return () => {
+  //     console.log('letter subscriptions are turned off!');
+  //     createLetterSub.unsubscribe();
+  //     updateLetterSub.unsubscribe();
+  //     deleteLetterSub.unsubscribe();
+  //   };
+  // }, []);
 
   async function processSubscriptionData(mutationType, data) {
     // setIsLetterFetchComplete(false);
@@ -189,26 +193,27 @@ const Letters = ({navigation, route}) => {
     }
   };
 
+  const renderLetters = () => {
+    return lettersData.letters.length > 0 ? (
+      <View style={styles.flatListContainer}>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollBegin={() => setIsLoadingLetters(false)}
+          onEndReachedThreshold={0.5}
+          onEndReached={onEndReached}
+          data={lettersData.letters}
+          renderItem={renderFlatListItem}
+        />
+      </View>
+    ) : (
+      <Text style={styles.emptyLetters}>등록된 가족의 편지가 없습니다.</Text>
+    );
+  };
+
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       {isFamily && renderWriteLetterButton()}
-      {isLetterFetchComplete &&
-        (lettersData.letters.length > 0 ? (
-          <View style={styles.flatListContainer}>
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-              onEndReachedThreshold={0.5}
-              onEndReached={onEndReached}
-              data={lettersData.letters}
-              renderItem={renderFlatListItem}
-            />
-          </View>
-        ) : (
-          <Text style={styles.emptyLetters}>
-            등록된 가족의 편지가 없습니다.
-          </Text>
-        ))}
+      {isLetterFetchComplete ? renderLetters() : <ActivityIndicator />}
     </View>
   );
 };

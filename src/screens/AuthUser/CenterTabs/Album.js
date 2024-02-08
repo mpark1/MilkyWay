@@ -1,5 +1,13 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View, Text, StyleSheet, FlatList, Pressable, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import {useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
@@ -69,33 +77,33 @@ const Album = ({navigation, route}) => {
     firstFetch();
   }, [petID]);
 
-  useEffect(() => {
-    const client = generateClient();
-    // create mutation
-    const createAlbumSub = petPageTabsSubscription(
-      client,
-      onCreateAlbum,
-      'Create',
-      processSubscriptionData,
-      petID,
-    );
-    const deleteAlbumSub = petPageTabsSubscription(
-      client,
-      onDeleteAlbum,
-      'Delete',
-      processSubscriptionData,
-      petID,
-    );
-    console.log(
-      'create, update, delete subscriptions are on for Albums table.',
-    );
-
-    return () => {
-      console.log('album subscriptions are turned off!');
-      createAlbumSub.unsubscribe();
-      deleteAlbumSub.unsubscribe();
-    };
-  }, []);
+  // useEffect(() => {
+  //   const client = generateClient();
+  //   // create mutation
+  //   const createAlbumSub = petPageTabsSubscription(
+  //     client,
+  //     onCreateAlbum,
+  //     'Create',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   const deleteAlbumSub = petPageTabsSubscription(
+  //     client,
+  //     onDeleteAlbum,
+  //     'Delete',
+  //     processSubscriptionData,
+  //     petID,
+  //   );
+  //   console.log(
+  //     'create, update, delete subscriptions are on for Albums table.',
+  //   );
+  //
+  //   return () => {
+  //     console.log('album subscriptions are turned off!');
+  //     createAlbumSub.unsubscribe();
+  //     deleteAlbumSub.unsubscribe();
+  //   };
+  // }, []);
 
   async function processSubscriptionData(mutationType, data) {
     // setIsLetterFetchComplete(false);
@@ -233,6 +241,7 @@ const Album = ({navigation, route}) => {
             <View style={styles.captionAndIconWrapper}>
               <Text style={styles.caption}>
                 {item.category !== 0 ? item.caption : item.caption}
+                {'   '}
               </Text>
               {userId === item.owner ? (
                 <Pressable
@@ -243,15 +252,14 @@ const Album = ({navigation, route}) => {
               ) : (
                 !isFamily && (
                   <Pressable
-                    style={styles.trashCan}
                     onPress={() => {
                       setReportItemID(item.id);
                       reportBottomSheetRef.current?.present();
                     }}>
                     <MaterialCommunityIcons
                       name="dots-horizontal"
-                      size={26}
-                      color={'#373737'}
+                      size={20}
+                      color={'#939393'}
                     />
                   </Pressable>
                 )
@@ -276,26 +284,29 @@ const Album = ({navigation, route}) => {
     );
   }, []);
 
+  const renderAlbum = () => {
+    return albumData.albums.length > 0 ? (
+      <View style={styles.flatListContainer}>
+        <FlatList
+          onMomentumScrollBegin={() => setIsCallingAPI(false)}
+          onEndReachedThreshold={0.5}
+          onEndReached={onEndReached}
+          showsVerticalScrollIndicator={false}
+          data={albumData.albums}
+          renderItem={({item}) => renderFlatListItem({item})}
+        />
+        {isFamily && renderAddNewAlbumButton()}
+      </View>
+    ) : (
+      <Text style={styles.emptyAlbums}>등록된 앨범이 없습니다.</Text>
+    );
+  };
+
   return (
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {isFamily && renderDottedBorderButton()}
-      {isAlbumFetchComplete &&
-        (albumData.albums.length > 0 ? (
-          <View style={styles.flatListContainer}>
-            <FlatList
-              onMomentumScrollBegin={() => setIsCallingAPI(false)}
-              onEndReachedThreshold={0.8}
-              onEndReached={onEndReached}
-              showsVerticalScrollIndicator={false}
-              data={albumData.albums}
-              renderItem={({item}) => renderFlatListItem({item})}
-            />
-            {isFamily && renderAddNewAlbumButton()}
-          </View>
-        ) : (
-          <Text style={styles.emptyAlbums}>등록된 앨범이 없습니다.</Text>
-        ))}
+      {isAlbumFetchComplete ? renderAlbum() : <ActivityIndicator />}
       <ReportBottomSheet
         reportBottomSheetRef={reportBottomSheetRef}
         whichTab={'Album'}
