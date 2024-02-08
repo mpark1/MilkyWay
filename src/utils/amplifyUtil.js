@@ -831,8 +831,12 @@ export async function movePetToInactiveTable(createInputVariables, petID) {
 
 export async function checkAdmin() {
   try {
-    const {accessToken} = (await fetchAuthSession()).tokens ?? {};
-    const groupsUserBelongTo = accessToken.payload['cognito:groups']; // the array of groups that the user belongs to
+    const {accessToken} = (await fetchAuthSession().tokens) ?? {};
+    console.log('accessToken from checkAdmin: ', accessToken);
+    if (Object.keys(accessToken).length === 0) {
+      return false;
+    }
+    const groupsUserBelongTo = accessToken.payload['cognito:groups'];
     return groupsUserBelongTo.includes('admin');
   } catch (err) {
     console.log(err);
