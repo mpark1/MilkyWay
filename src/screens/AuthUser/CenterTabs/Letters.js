@@ -42,13 +42,17 @@ const Letters = ({navigation, route}) => {
   const lettersDataRef = useRef(lettersData.letters);
 
   useEffect(() => {
-    console.log('this is Letter tab. print redux: ', petID, userID);
     const firstFetch = async () => {
-      await fetchLetters();
-      setIsLetterFetchComplete(true);
+      try {
+        await fetchLetters();
+        console.log('Letter tab is rendered');
+      } catch (e) {
+        console.log('Letter tab: error occurred during fetching');
+      } finally {
+        setIsLetterFetchComplete(true);
+      }
     };
     firstFetch();
-    console.log('Letters tab is rendered');
     return () => {
       console.log('letter page - Unmounted!');
     };

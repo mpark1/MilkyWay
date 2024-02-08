@@ -57,9 +57,14 @@ const Album = ({navigation, route}) => {
   useEffect(() => {
     console.log('this is Album tab. print redux: ', petID);
     const firstFetch = async () => {
-      await fetchAlbums();
-      console.log('Album tab is rendered');
-      setIsAlbumFetchComplete(true);
+      try {
+        await fetchAlbums();
+        console.log('Album tab is rendered');
+      } catch (e) {
+        console.log('Album tab: error occurred during fetching');
+      } finally {
+        setIsAlbumFetchComplete(true);
+      }
     };
     firstFetch();
   }, [petID]);

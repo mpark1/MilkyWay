@@ -27,7 +27,6 @@ const PetCard = ({item, isFamily}) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const userID = useSelector(state => state.user.cognitoUsername);
-  console.log('print profile pic for a pet: ', item.profilePic);
 
   const onSubmit = async () => {
     // update pet redux

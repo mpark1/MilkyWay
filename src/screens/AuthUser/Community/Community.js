@@ -27,8 +27,13 @@ const Community = ({navigation}) => {
 
   useEffect(() => {
     const firstFetch = async () => {
-      await fetchPets();
-      setIsFetchComplete(true);
+      try {
+        await fetchPets();
+      } catch (e) {
+        console.log('print fetch error in Community.js');
+      } finally {
+        setIsFetchComplete(true);
+      }
     };
     if (readyForCommunityFetch) {
       firstFetch();
@@ -37,7 +42,6 @@ const Community = ({navigation}) => {
   }, []);
 
   const fetchPets = async () => {
-    setIsFetchComplete(false);
     const inputVariables = {
       accessLevel: 'Public',
       limit: pageSize,
@@ -56,12 +60,12 @@ const Community = ({navigation}) => {
         pets: [...prev.pets, ...pets],
         nextToken: newNextToken,
       }));
-      setIsFetchComplete(true);
     });
   };
 
   const onEndReached = async () => {
     if (petData.nextToken !== null) {
+      console.log('print: onEndReached for Community.js. Inside if statement');
       await fetchPets();
     }
   };
@@ -83,7 +87,7 @@ const Community = ({navigation}) => {
           <View style={styles.flatListContainer}>
             <FlatList
               onMomentumScrollBegin={() => setIsLoadingPets(false)}
-              onEndReachedThreshold={0.8}
+              onEndReachedThreshold={0.2}
               onEndReached={onEndReached}
               showsVerticalScrollIndicator={false}
               data={petData.pets}

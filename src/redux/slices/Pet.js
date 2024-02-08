@@ -10,7 +10,7 @@ const initialState = {
   deathCause: '',
   lastWord: '',
   accessLevel: '', // 'Public' or 'Private'
-  introductionMsg: '',
+  introductionMsg: null,
   manager: false,
   profilePicS3Key: '',
   s3UrlExpiredAt: '',

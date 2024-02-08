@@ -166,21 +166,28 @@ const Home = ({navigation}) => {
             </View>
           )}
         </View>
-        {introductionMsg.length > 0 ? (
-          <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
-        ) : (
-          <Text style={styles.introductionMsg.text}>
-            등록된 추모 메세지가 없습니다.
-          </Text>
-        )}
+        <Text style={styles.introductionMsg.text}>{introductionMsg}</Text>
       </View>
     );
   };
 
   const checkIntroductionMessage = () => {
-    return introductionMsg.length === 0
-      ? isManager && renderDottedBorderButton()
-      : showIntroductionMessage();
+    if (introductionMsg === null) {
+      if (isManager) {
+        return renderDottedBorderButton();
+      } else {
+        return (
+          <View style={{paddingTop: 10}}>
+            <Text style={styles.introductionMsg.title}>추모의 메세지</Text>
+            <Text style={styles.introductionMsg.text}>
+              등록된 추모 메세지가 없습니다.
+            </Text>
+          </View>
+        );
+      }
+    } else {
+      return showIntroductionMessage();
+    }
   };
 
   return (
