@@ -198,7 +198,7 @@ const Letters = ({navigation, route}) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               onMomentumScrollBegin={() => setIsLoadingLetters(false)}
-              onEndReachedThreshold={0.8}
+              onEndReachedThreshold={0.5}
               onEndReached={onEndReached}
               data={lettersData.letters}
               renderItem={renderFlatListItem}

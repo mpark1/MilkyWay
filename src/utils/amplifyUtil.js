@@ -470,8 +470,9 @@ export async function queryPetsPagination(
       const {items, nextToken} = response.data[queryNameString];
       petsData.pets = items;
       petsData.nextToken = nextToken;
+      console.log('items and nextToken: ', petsData.pets, petsData.nextToken);
       // if none is found, return
-      if (petsData.pets.length === 0) {
+      if (items.length === 0) {
         return petsData;
       }
       // remove pets that are in my pets list (in petFamilies)

@@ -45,7 +45,7 @@ const Community = ({navigation}) => {
     const inputVariables = {
       accessLevel: 'Public',
       limit: pageSize,
-      nextToken: petData.token,
+      nextToken: petData.nextToken,
     };
     queryPetsPagination(
       petsByAccessLevel,
