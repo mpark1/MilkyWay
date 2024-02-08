@@ -12,7 +12,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
 import {deleteUser} from 'aws-amplify/auth';
-import {updateUser} from '../../graphql/mutations';
+import {deletePetFamily, updateUser} from '../../graphql/mutations';
 import {
   setCognitoUserToNull,
   setUserName,
@@ -24,6 +24,7 @@ import {
   hasOneFamilyMember,
   movePetToInactiveTable,
   mutationItem,
+  mutationItemNoAlertBox,
   retrieveS3Url,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
@@ -123,9 +124,14 @@ const UserSettings = ({navigation}) => {
     }
   };
 
+  const resetReduxUponDelete = () => {
+    dispatch(signoutUser());
+    dispatch(setCognitoUserToNull());
+    console.log('4. updated redux to make user null');
+  };
+
   const handleDeleteUser = async () => {
     setIsCallingUpdateAPI(true);
-
     let readyToDeleteUserFromCognito = false;
     try {
       // 1. update user's status to INACTIVE in User table in db.
@@ -136,7 +142,6 @@ const UserSettings = ({navigation}) => {
         name: name,
         state: 'INACTIVE',
       };
-
       const client = generateClient();
       await client.graphql({
         query: updateUser,
@@ -144,13 +149,23 @@ const UserSettings = ({navigation}) => {
         authMode: 'userPool',
       });
       console.log('1. Updated User state to inactive');
-      AlertBox('탈퇴가 완료되었습니다.', '', '확인', 'none');
+      AlertBox('탈퇴가 완료되었습니다.', '', '확인', resetReduxUponDelete);
 
-      // 2. For each pet is myPets array, check if there's exactly one family member associated with it
+      // 2-1. For each pet is myPets array, delete from petFamily table
+      // 2-2. check if there's exactly one family member associated with it
       // If so, move the pet to Inactive table
       await Promise.all(
         myPets.map(async petId => {
+          // check if the user's pet has only 1 family member (user)
           const hasOnlyOneFamilyMember = await hasOneFamilyMember(petId);
+          // delete pet and user's association from the petFamily table
+          await client.graphql({
+            query: deletePetFamily,
+            variables: {input: {familyMemberID: cognitoUsername, petID: petId}},
+            authMode: 'userPool',
+          });
+          // if the user is the only family member of the pet, delete pet from the Pet table
+          // move the pet item to InactivePet table (movePetToInactiveTable)
           if (hasOnlyOneFamilyMember) {
             const petDetails = await client.graphql({
               query: getPet,
@@ -180,14 +195,11 @@ const UserSettings = ({navigation}) => {
       readyToDeleteUserFromCognito = true;
       console.log('2. Created InactivePet(s) with only one family member');
 
-      // 3. delete user from cognito userpool
+      // 4. delete user from cognito userpool
       if (readyToDeleteUserFromCognito) {
         await deleteUser();
         console.log('3. Deleted user in cognito');
       }
-      dispatch(signoutUser());
-      dispatch(setCognitoUserToNull());
-      console.log('4. updated redux to make user null');
     } catch (error) {
       console.log('계정삭제에 에러가 발생했습니다.');
       AlertBox(
@@ -312,7 +324,7 @@ const UserSettings = ({navigation}) => {
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
-        {profilePic.length !== 0 && renderProfilePicField()}
+        {renderProfilePicField()}
         <View style={styles.fieldsContainer}>
           {renderNameField()}
           {renderEmailField()}
