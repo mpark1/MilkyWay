@@ -148,22 +148,24 @@ const UserSettings = ({navigation}) => {
 
       // 2. For each pet is myPets array, check if there's exactly one family member associated with it
       // If so, move the pet to Inactive table
-      myPets.map(async petId => {
-        const hasOnlyOneFamilyMember = await hasOneFamilyMember(petId);
-        if (hasOnlyOneFamilyMember) {
-          const petDetails = await client.graphql({
-            query: getPet,
-            variables: {
-              id: petId,
-            },
-            authMode: 'userPool',
-          });
-          delete petDetails.data.getPet.accessLevel; // accessLevel property 제거
-          const newInactivePet = petDetails.data.getPet;
-          await movePetToInactiveTable(newInactivePet, petId);
-        }
-        // 2명 이상의 가족이 있으면 가족에게 매니저 위임하도록 하는 장치 필요
-      });
+      await Promise.all(
+        myPets.map(async petId => {
+          const hasOnlyOneFamilyMember = await hasOneFamilyMember(petId);
+          if (hasOnlyOneFamilyMember) {
+            const petDetails = await client.graphql({
+              query: getPet,
+              variables: {
+                id: petId,
+              },
+              authMode: 'userPool',
+            });
+            const selectedPet = petDetails.data.getPet; // accessLevel property 제거
+            console.log('print to be deleted pet details: ', selectedPet);
+            await movePetToInactiveTable(selectedPet, petId);
+          }
+          // 2명 이상의 가족이 있으면 가족에게 매니저 위임하도록 하는 장치 필요
+        }),
+      );
       readyToDeleteUserFromCognito = true;
       console.log('2. Created InactivePet(s) with only one family member');
 

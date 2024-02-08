@@ -319,7 +319,9 @@ const Album = ({navigation, route}) => {
 export default Album;
 
 const styles = StyleSheet.create({
-  spacer: {paddingHorizontal: 15},
+  spacer: {
+    paddingHorizontal: 15,
+  },
   plusButtonContainer: {
     position: 'absolute',
     right: 5,
@@ -361,6 +363,6 @@ const styles = StyleSheet.create({
     color: '#374957',
     fontSize: scaleFontSize(18),
     lineHeight: scaleFontSize(24),
-    padding: 15,
+    paddingVertical: 15,
   },
 });

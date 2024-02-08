@@ -301,6 +301,6 @@ const styles = StyleSheet.create({
     color: '#374957',
     fontSize: scaleFontSize(18),
     lineHeight: scaleFontSize(24),
-    padding: 15,
+    paddingHorizontal: 15,
   },
 });
