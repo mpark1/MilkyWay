@@ -43,14 +43,17 @@ const GuestBook = ({navigation, route}) => {
   useEffect(() => {
     console.log('GuestBook tab is mounted. print redux: ', petID);
     const firstFetch = async () => {
-      await fetchMessages();
-      setIsFetchComplete(true);
-      console.log('Guestbook initial fetch complete!');
+      try {
+        await fetchMessages();
+        console.log('Album tab is rendered');
+      } catch (e) {
+        console.log('Album tab: error occurred during fetching');
+      } finally {
+        setIsFetchComplete(true);
+        console.log('Guestbook initial fetch complete!');
+      }
     };
     firstFetch();
-    return () => {
-      console.log('GuestBook tab is Unmounted!');
-    };
   }, [petID]);
 
   // useEffect(() => {

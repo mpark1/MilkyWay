@@ -55,11 +55,11 @@ const Letters = ({navigation, route}) => {
         console.log('Letter tab is rendered');
       } catch (e) {
         console.log('Letter tab: error occurred during fetching');
+      } finally {
+        setIsLetterFetchComplete(true);
       }
     };
-    firstFetch().then(data => {
-      setIsLetterFetchComplete(true);
-    });
+    firstFetch();
   }, [petID]);
 
   useEffect(() => {
