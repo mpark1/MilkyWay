@@ -593,7 +593,6 @@ export async function updateProfilePic(newPicPath, type, currPicS3key) {
 
 export async function uploadProfilePic(newPicPath, type) {
   const newPicId = uuid.v4() + '.jpeg';
-  // TODO: type === 'petBackground' 일때 resizer 가로,세로 비율 바꾸기
   try {
     await ImageResizer.createResizedImage(
       newPicPath, // path
@@ -837,4 +836,18 @@ export async function checkAdmin() {
   } catch (err) {
     console.log(err);
   }
+}
+
+export async function hasOneFamilyMember(petID) {
+  const client = generateClient();
+  const response = await client.graphql({
+    query: petPageFamilyMembers,
+    variables: {
+      petID: petID,
+      nextToken: null,
+      limit: 2, // 가족 중 아무나 2명 가져오기
+    },
+    authMode: 'userPool',
+  });
+  return response.data.petPageFamilyMembers.items.length === 1;
 }

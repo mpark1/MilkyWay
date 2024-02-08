@@ -461,6 +461,7 @@ const Settings = ({navigation, route}) => {
   const renderCloseMemorialSpace = () => {
     return (
       <Pressable
+        disabled={isCallingUpdateAPI}
         style={styles.closeMemorialSpace}
         onPress={() => onCloseMemorialSpace()}>
         <Text style={styles.closeMemorialSpace.text}>추모공간 삭제</Text>

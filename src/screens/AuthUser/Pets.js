@@ -9,13 +9,15 @@ import {
   Text,
   FlatList,
 } from 'react-native';
-import {generateClient} from 'aws-amplify/api';
-import {scaleFontSize} from '../../assets/styles/scaling';
-import {useDispatch, useSelector} from 'react-redux';
-import globalStyle from '../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
-import PetCard from '../../components/PetCard';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useDispatch, useSelector} from 'react-redux';
+import {generateClient} from 'aws-amplify/api';
+import {
+  onCreatePet,
+  onDeletePetFamily,
+  onUpdatePet,
+} from '../../graphql/subscriptions';
 import {
   checkAdmin,
   fetchUserFromDB,
@@ -23,7 +25,6 @@ import {
   queryMyPetsPagination,
   retrieveS3Url,
 } from '../../utils/amplifyUtil';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   setIsAdmin,
   setMyPets,
@@ -32,15 +33,15 @@ import {
   setUserProfilePic,
   setUserProfilePicS3Key,
 } from '../../redux/slices/User';
+import {resetPet} from '../../redux/slices/Pet';
+import globalStyle from '../../assets/styles/globalStyle';
+import {scaleFontSize} from '../../assets/styles/scaling';
+import DashedBorderButton from '../../components/Buttons/DashedBorderButton';
+import PetCard from '../../components/PetCard';
 import {
   petPageTabsSubscription,
   sucriptionForMyPets,
 } from '../../utils/amplifyUtilSubscription';
-import {
-  onCreatePet,
-  onDeletePetFamily,
-  onUpdatePet,
-} from '../../graphql/subscriptions';
 
 const Pets = ({navigation}) => {
   const dispatch = useDispatch();
@@ -223,7 +224,10 @@ const Pets = ({navigation}) => {
         <View style={styles.icons}>
           <Pressable
             style={styles.settingsContainer}
-            onPress={() => navigation.navigate('UserSettings')}>
+            onPress={() => {
+              dispatch(resetPet());
+              navigation.navigate('UserSettings');
+            }}>
             <Ionicons name={'settings-outline'} color={'#FFF'} size={20} />
             <Text style={styles.settings}>나의 계정 관리</Text>
           </Pressable>

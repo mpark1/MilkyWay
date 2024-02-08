@@ -72,8 +72,6 @@ const PetPage = ({navigation, route}) => {
   const bottomSheetModalRef = useRef(null);
   const reportBottomSheetRef = useRef(null);
 
-  // subscription to be added
-
   useEffect(() => {
     console.log('this is PetPAge. print redux: ', name, manager);
     //check pet's profile and background picture url expiration once when the page is loaded.
@@ -173,8 +171,6 @@ const PetPage = ({navigation, route}) => {
   };
 
   const renderBackgroundImage = () => {
-    // TODO: 배경사진 가로, 세로 비율 (aspectRatio)
-    console.log('print background image usestate: ', newBackgroundPic);
     return newBackgroundPic.length === 0 ? (
       <Image
         source={require('../../assets/images/milkyWayBackgroundImage.png')}

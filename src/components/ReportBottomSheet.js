@@ -1,20 +1,18 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Dimensions, Pressable, StyleSheet, Text, View} from 'react-native';
 import {
-  BottomSheetBackdrop,
   BottomSheetFlatList,
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
 import {useSelector} from 'react-redux';
+import {generateClient} from 'aws-amplify/api';
 import {createManager} from '../graphql/mutations';
-
 import globalStyle from '../assets/styles/globalStyle';
 import {scaleFontSize} from '../assets/styles/scaling';
-
-import reportReasons from '../data/reportReasons.json';
-import {generateClient} from 'aws-amplify/api';
 import alertBox from './AlertBox';
+import reportReasons from '../data/reportReasons.json';
 
 const ReportBottomSheet = ({reportBottomSheetRef, whichTab, itemID}) => {
   const petID = useSelector(state => state.pet.id);
@@ -44,7 +42,7 @@ const ReportBottomSheet = ({reportBottomSheetRef, whichTab, itemID}) => {
       requesterID: userID,
       reportCategory: index, // 0 to 7 - refer to reportMapping.json
       clientMessage: requesterComment,
-      status: 0, // 처리전
+      status: 0, // 신고접수
       adminComment: '',
       itemCategory: whichTab, // String - whichTab (PetPage 신고면 itemCategory, itemID를 null로 보내주기)
       itemID: itemID, // itemCategory 가 'Letter'/'Album' 이면 LetterID/AlbumID

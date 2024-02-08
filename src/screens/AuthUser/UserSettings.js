@@ -17,14 +17,13 @@ import {
   setCognitoUserToNull,
   setUserName,
   setUserProfilePic,
-  setUserProfilePicS3Key,
   signoutUser,
 } from '../../redux/slices/User';
 import {
   checkS3Url,
+  hasOneFamilyMember,
   movePetToInactiveTable,
   mutationItem,
-  mutationItemNoAlertBox,
   retrieveS3Url,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
@@ -33,6 +32,8 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import AlertBox from '../../components/AlertBox';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import {getPet} from '../../graphql/queries';
+import {generateClient} from 'aws-amplify/api';
 
 const UserSettings = ({navigation}) => {
   const dispatch = useDispatch();
@@ -43,8 +44,8 @@ const UserSettings = ({navigation}) => {
     profilePic, // url
     profilePicS3Key,
     s3UrlExpiredAt,
+    myPets,
   } = useSelector(state => state.user);
-  const pet = useSelector(state => state.pet);
 
   const [newProfilePicPath, setNewProfilePicPath] = useState(''); // local path from camera/gallery
   const [newProfilePicUrl, setNewProfilePicUrl] = useState(profilePic); // url - could be empty string
@@ -119,6 +120,71 @@ const UserSettings = ({navigation}) => {
       }
     } catch (error) {
       console.log('Error in onUpdateUserInfo: ', error);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    setIsCallingUpdateAPI(true);
+
+    let readyToDeleteUserFromCognito = false;
+    try {
+      // 1. update user's status to INACTIVE in User table in db.
+      const userInput = {
+        id: cognitoUsername,
+        email: email,
+        profilePic: profilePic,
+        name: name,
+        state: 'INACTIVE',
+      };
+
+      const client = generateClient();
+      await client.graphql({
+        query: updateUser,
+        variables: {input: userInput},
+        authMode: 'userPool',
+      });
+      console.log('1. Updated User state to inactive');
+      AlertBox('탈퇴가 완료되었습니다.', '', '확인', 'none');
+
+      // 2. For each pet is myPets array, check if there's exactly one family member associated with it
+      // If so, move the pet to Inactive table
+      myPets.map(async petId => {
+        const hasOnlyOneFamilyMember = await hasOneFamilyMember(petId);
+        if (hasOnlyOneFamilyMember) {
+          const petDetails = await client.graphql({
+            query: getPet,
+            variables: {
+              id: petId,
+            },
+            authMode: 'userPool',
+          });
+          delete petDetails.data.getPet.accessLevel; // accessLevel property 제거
+          const newInactivePet = petDetails.data.getPet;
+          await movePetToInactiveTable(newInactivePet, petId);
+        }
+        // 2명 이상의 가족이 있으면 가족에게 매니저 위임하도록 하는 장치 필요
+      });
+      readyToDeleteUserFromCognito = true;
+      console.log('2. Created InactivePet(s) with only one family member');
+
+      // 3. delete user from cognito userpool
+      if (readyToDeleteUserFromCognito) {
+        await deleteUser();
+        console.log('3. Deleted user in cognito');
+      }
+      dispatch(signoutUser());
+      dispatch(setCognitoUserToNull());
+      console.log('4. updated redux to make user null');
+    } catch (error) {
+      console.log('계정삭제에 에러가 발생했습니다.');
+      AlertBox(
+        '계정삭제 도중에 에러가 발생했습니다. 관리자에게 연락해주세요.',
+        '',
+        '확인',
+        'none',
+      );
+    } finally {
+      setIsCallingUpdateAPI(false);
     }
   };
 
@@ -210,63 +276,10 @@ const UserSettings = ({navigation}) => {
     );
   };
 
-  const handleDeleteUser = async () => {
-    try {
-      // 1. update user's status to INACTIVE in User table in db.
-      const userInput = {
-        id: cognitoUsername,
-        email: email,
-        profilePic: profilePic,
-        name: name,
-        state: 'INACTIVE',
-      };
-      const res = await mutationItemNoAlertBox(
-        isCallingUpdateAPI,
-        setIsCallingUpdateAPI,
-        userInput,
-        updateUser,
-      );
-
-      // 가족에게 매니저 위임하도록 연락
-
-      // 2. move current pet over to inactive pet table if the user is the manager
-      const createInactivePetInputVariables = {
-        id: pet.id,
-        name: pet.name,
-        profilePic: pet.profilePicS3Key,
-        lastWord: pet.lastWord,
-        birthday: pet.birthday,
-        deathDay: pet.deathday,
-        petType: pet.petType,
-        managerID: pet.userID,
-        identityId: pet.identityId,
-        deathCause: pet.deathCause,
-      };
-      // 가족 1명뿐이면 &&
-      //   (await movePetToInactiveTable(createInactivePetInputVariables, pet.id));
-
-      // 3. delete user from cognito userpool
-      if (res) {
-        await deleteUser();
-      }
-      console.log('2. Deleted user in cognito');
-      dispatch(signoutUser());
-      dispatch(setCognitoUserToNull());
-      console.log('3. updated redux to make user null');
-    } catch (error) {
-      console.log('계정삭제에 에러가 발생했습니다.');
-      AlertBox(
-        '계정삭제 도중에 에러가 발생했습니다. 관리자에게 연락해주세요.',
-        '',
-        '확인',
-        'none',
-      );
-    }
-  };
-
   const renderDeleteAccountButton = () => {
     return (
       <Pressable
+        disabled={isCallingUpdateAPI}
         style={styles.changePWButton.container}
         onPress={() =>
           AlertBox(
