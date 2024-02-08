@@ -306,7 +306,13 @@ const Album = ({navigation, route}) => {
     <View
       style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {isFamily && renderDottedBorderButton()}
-      {isAlbumFetchComplete ? renderAlbum() : <ActivityIndicator />}
+      {isAlbumFetchComplete ? (
+        renderAlbum()
+      ) : (
+        <View style={globalStyle.activityIndicatorContainer}>
+          <ActivityIndicator />
+        </View>
+      )}
       <ReportBottomSheet
         reportBottomSheetRef={reportBottomSheetRef}
         whichTab={'Album'}

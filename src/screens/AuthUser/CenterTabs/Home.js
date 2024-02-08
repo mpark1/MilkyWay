@@ -199,7 +199,9 @@ const Home = ({navigation}) => {
         {fetchedData ? (
           checkIntroductionMessage()
         ) : (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <View style={globalStyle.activityIndicatorContainer}>
+            <ActivityIndicator />
+          </View>
         )}
       </View>
       {!introductionMsg ? (

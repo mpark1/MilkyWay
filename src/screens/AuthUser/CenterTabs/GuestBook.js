@@ -201,7 +201,7 @@ const GuestBook = ({navigation, route}) => {
         {guestBookData.guestMessages.length > 0 && (
           <FlatList
             showsVerticalScrollIndicator={false}
-            onEndReachedThreshold={0.7}
+            onEndReachedThreshold={0.5}
             onEndReached={onEndReached}
             data={guestBookData.guestMessages}
             renderItem={renderFlatListItem}
@@ -217,7 +217,13 @@ const GuestBook = ({navigation, route}) => {
       {accessLevel === 'Public' ? (
         <View style={globalStyle.flex}>
           {!isFamily ? renderLeaveMessageButton() : renderFamilyComponent()}
-          {isFetchComplete ? renderGuestBooks() : <ActivityIndicator />}
+          {isFetchComplete ? (
+            renderGuestBooks()
+          ) : (
+            <View style={globalStyle.activityIndicatorContainer}>
+              <ActivityIndicator />
+            </View>
+          )}
         </View>
       ) : (
         renderIfPrivateSpace()

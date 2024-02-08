@@ -213,7 +213,13 @@ const Letters = ({navigation, route}) => {
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       {isFamily && renderWriteLetterButton()}
-      {isLetterFetchComplete ? renderLetters() : <ActivityIndicator />}
+      {isLetterFetchComplete ? (
+        renderLetters()
+      ) : (
+        <View style={globalStyle.activityIndicatorContainer}>
+          <ActivityIndicator />
+        </View>
+      )}
     </View>
   );
 };

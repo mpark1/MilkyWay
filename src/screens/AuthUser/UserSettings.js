@@ -159,9 +159,20 @@ const UserSettings = ({navigation}) => {
               },
               authMode: 'userPool',
             });
-            const selectedPet = petDetails.data.getPet; // accessLevel property 제거
-            console.log('print to be deleted pet details: ', selectedPet);
-            await movePetToInactiveTable(selectedPet, petId);
+            const selectedPet = petDetails.data.getPet;
+            const newInactivePet = {
+              id: selectedPet.id,
+              profilePic: selectedPet.profilePic,
+              name: selectedPet.name,
+              birthday: selectedPet.birthday,
+              deathDay: selectedPet.deathDay,
+              lastWord: selectedPet.lastWord,
+              deathCause: selectedPet.deathCause,
+              identityId: selectedPet.identityId,
+              petType: selectedPet.petType,
+              managerID: selectedPet.managerID,
+            };
+            await movePetToInactiveTable(newInactivePet, petId);
           }
           // 2명 이상의 가족이 있으면 가족에게 매니저 위임하도록 하는 장치 필요
         }),

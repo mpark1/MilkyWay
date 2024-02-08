@@ -65,26 +65,23 @@ const Pets = ({navigation}) => {
     };
     // if user info does not exist in redux, fetch user info again and save it in redux
     const fetchUser = async () => {
-      console.log('does email exist? ', email);
-      if (email.length === 0) {
-        const response = await fetchUserFromDB(userID);
+      const response = await fetchUserFromDB(userID);
+      email.length === 0 &&
         dispatch(
           setOwnerDetails({
             name: response.name,
             email: response.email,
           }),
         );
-        dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
-        await retrieveS3Url(response.profilePic).then(res => {
-          // console.log('print user profile pic url', res.url.href);
-          dispatch(
-            setUserProfilePic({
-              profilePic: res.url.href,
-              s3UrlExpiredAt: res.expiresAt.toString(),
-            }),
-          );
-        });
-      }
+      dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
+      await retrieveS3Url(response.profilePic).then(res => {
+        dispatch(
+          setUserProfilePic({
+            profilePic: res.url.href,
+            s3UrlExpiredAt: res.expiresAt.toString(),
+          }),
+        );
+      });
     };
     const checkIfAdmin = async () => {
       await checkAdmin().then(res => dispatch(setIsAdmin(res)));

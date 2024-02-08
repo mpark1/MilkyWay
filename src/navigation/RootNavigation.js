@@ -1,14 +1,13 @@
 import React, {useEffect} from 'react';
+import {ActivityIndicator, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-
-// navigators
-import AuthNavigation from './AuthNavigation';
 import {setCognitoUsername, setCognitoUserToNull} from '../redux/slices/User';
+import AuthNavigation from './AuthNavigation';
 import NonAuthNavigation from './NonAuthNavigation';
-import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {getCurrentUser} from 'aws-amplify/auth';
 import {getIdentityID} from '../utils/amplifyUtil';
+import globalStyle from '../assets/styles/globalStyle';
 
 export default function RootNavigation() {
   const dispatch = useDispatch();
@@ -42,7 +41,7 @@ export default function RootNavigation() {
 
   if (loggedInUserId === undefined) {
     return (
-      <View style={styles.activityIndicatorContainer}>
+      <View style={globalStyle.activityIndicatorContainer}>
         <ActivityIndicator />
       </View>
     );
@@ -53,11 +52,3 @@ export default function RootNavigation() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  activityIndicatorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

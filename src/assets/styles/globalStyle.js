@@ -21,6 +21,11 @@ const globalStyle = StyleSheet.create({
     headerTitleStyle: {fontSize: scaleFontSize(22)},
     headerTintColor: '#374957',
   },
+  activityIndicatorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default globalStyle;

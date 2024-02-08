@@ -35,12 +35,6 @@ const ConfirmAccount = ({navigation, route}) => {
           response = await checkUser();
           console.log('in confirm account page, response: ', response);
           dispatch(setCognitoUsername(response));
-          dispatch(
-            setOwnerDetails({
-              name: response.name,
-              email: response.email,
-            }),
-          );
           const updateUserInput = {
             id: response,
             email: email,

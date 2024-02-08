@@ -76,7 +76,7 @@ const SearchPets = () => {
         {petData.pets.length > 0 ? (
           <FlatList
             onMomentumScrollBegin={() => setIsLoadingPets(false)}
-            onEndReachedThreshold={0.8}
+            onEndReachedThreshold={0.2}
             onEndReached={onEndReached}
             showsVerticalScrollIndicator={false}
             data={petData.pets}
