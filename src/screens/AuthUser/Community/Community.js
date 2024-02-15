@@ -6,14 +6,17 @@ import {
   Pressable,
   SafeAreaView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import globalStyle from '../../../assets/styles/globalStyle';
 import PetCard from '../../../components/PetCard';
+import mockData from '../../../data/myMilkyWays.json';
 // import {queryPetsPagination} from '../../../utils/amplifyUtil';
 // import {useSelector} from 'react-redux';
 import SearchBox from '../../../components/SearchBox';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 // import {petByName} from '../../../graphql/queries';
 
 const Community = ({navigation}) => {
@@ -21,7 +24,7 @@ const Community = ({navigation}) => {
   // const userID = useSelector(state => state.user.cognitoUsername);
   // const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
   const [petData, setPetData] = useState({
-    pets: [],
+    pets: mockData,
     nextToken: null,
   });
   const [isLoadingPets, setIsLoadingPets] = useState(false);
@@ -108,6 +111,9 @@ const Community = ({navigation}) => {
             <Ionicons name={'search'} color={'#FFF'} size={30} />
           </Pressable>
         </View>
+        <View style={styles.test}>
+          <Text style={styles.testText}>심리 검사 테스트 (개발 예정)</Text>
+        </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
@@ -145,5 +151,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     alignItems: 'center',
+  },
+  test: {
+    width: '90%',
+    height: 100,
+    backgroundColor: '#FFF',
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  testText: {
+    fontSize: scaleFontSize(30),
+    textAlign: 'center',
   },
 });
