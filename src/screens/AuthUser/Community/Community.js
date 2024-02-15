@@ -78,15 +78,15 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <View style={styles.psychTest}>
-          <Text style={styles.psychTestText}>심리 검사 테스트 (준비 예정)</Text>
-        </View>
         <View style={styles.searchIconContainer}>
           <Pressable
             style={styles.searchIcon}
             onPress={() => navigation.navigate('SearchPets')}>
             <Ionicons name={'search'} color={'#FFF'} size={22} />
           </Pressable>
+        </View>
+        <View style={styles.psychTest}>
+          <Text style={styles.psychTestText}>심리 검사 테스트 (개발 예정)</Text>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   psychTest: {
     width: '90%',
-    height: 100,
+    height: 70,
     backgroundColor: '#FFF',
     alignSelf: 'center',
     justifyContent: 'center',
