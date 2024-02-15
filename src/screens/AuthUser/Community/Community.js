@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Text,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {petsByAccessLevel} from '../../../graphql/queries';
@@ -14,6 +15,7 @@ import {queryPetsPagination} from '../../../utils/amplifyUtil';
 import PetCard from '../../../components/PetCard';
 import globalStyle from '../../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -76,6 +78,9 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
+        <View style={styles.psychTest}>
+          <Text style={styles.psychTestText}>심리 검사 테스트 (준비 예정)</Text>
+        </View>
         <View style={styles.searchIconContainer}>
           <Pressable
             style={styles.searchIcon}
@@ -105,6 +110,17 @@ export default Community;
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
+  },
+  psychTest: {
+    width: '90%',
+    height: 100,
+    backgroundColor: '#FFF',
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  psychTestText: {
+    fontSize: scaleFontSize(25),
+    textAlign: 'center',
   },
   searchIconContainer: {
     width: '100%',
