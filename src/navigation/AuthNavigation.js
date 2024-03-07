@@ -14,6 +14,8 @@ import ConfirmAccount from '../screens/NonAuthUser/ConfirmAccount';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 import UserSettings from '../screens/AuthUser/UserSettings';
 import ChangePassword from '../screens/AuthUser/ChangePassword';
+import TesteeInfo from '../screens/AuthUser/PBQTest/TesteeInfo';
+import Questions from '../screens/AuthUser/PBQTest/Questions';
 
 const Stack = createNativeStackNavigator();
 
@@ -112,6 +114,20 @@ const AuthNavigation = () => {
           component={MediaPreview}
           options={{
             headerTitle: '캡션 작성',
+          }}
+        />
+        <Stack.Screen
+          name={'TesteeInfo'}
+          component={TesteeInfo}
+          options={{
+            headerTitle: '심리 테스트 준비',
+          }}
+        />
+        <Stack.Screen
+          name={'PBQTestQuestions'}
+          component={Questions}
+          options={{
+            headerTitle: '심리 테스트',
           }}
         />
       </Stack.Group>

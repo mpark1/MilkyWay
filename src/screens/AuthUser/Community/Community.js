@@ -23,6 +23,7 @@ const Community = ({navigation}) => {
   const pageSize = 5;
   // const userID = useSelector(state => state.user.cognitoUsername);
   // const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
+  const gender = useState(-1); // female or male, 0 or 1?
   const [petData, setPetData] = useState({
     pets: [
       {
@@ -124,13 +125,23 @@ const Community = ({navigation}) => {
   //   });
   // };
 
+  const checkGenderInfoAndNavigate = () => {
+    gender === -1
+      ? navigation.navigate('TesteeInfo')
+      : navigation.navigate('Questions');
+  };
+
   return (
     <SafeAreaView style={globalStyle.flex}>
       <ImageBackground
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <Pressable style={styles.psychTest}>
+        <Pressable
+          style={styles.psychTest}
+          onPress={() => {
+            navigation.navigate('TesteeInfo');
+          }}>
           <Text style={styles.psychTestText}>심리 검사 테스트 </Text>
         </Pressable>
         <View style={styles.searchIconContainer}>
