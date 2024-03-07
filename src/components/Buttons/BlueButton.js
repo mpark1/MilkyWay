@@ -23,10 +23,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#6395E1',
   },
   defaultTitleStyle: {
-    fontSize: scaleFontSize(16),
+    fontSize: scaleFontSize(18),
     color: '#FFF',
     fontWeight: 'bold',
-    paddingVertical: 10,
+    paddingVertical: 5,
     paddingHorizontal: 25,
   },
   defaultContainerStyle: {

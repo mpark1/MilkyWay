@@ -4,7 +4,9 @@ import Community from '../screens/AuthUser/Community/Community';
 import PetPage from '../screens/AuthUser/PetPage';
 import SearchPets from '../screens/AuthUser/Community/SearchPets';
 import NavigationPopButton from '../components/NavigationPopButton';
+import TestResult from '../screens/AuthUser/PBQTest/TestResult';
 import globalStyle from '../assets/styles/globalStyle';
+import ServiceQuestions from '../screens/AuthUser/PBQTest/ServiceQuestions';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +24,27 @@ const CommunityNavigation = ({navigation}) => {
         name={'PetPage'}
         component={PetPage}
         options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name={'TestResult'}
+        component={TestResult}
+        options={{
+          headerShown: true,
+          headerTitle: '심리 테스트 결과',
+          headerLeft: () => null,
+          headerStyle: {
+            backgroundColor: '#EEEEEE', // Set your desired color
+          },
+        }}
+      />
+      <Stack.Screen
+        name={'ServiceQuestions'}
+        component={ServiceQuestions}
+        options={{
+          headerShown: true,
+          headerTitle: '추가질문',
+          headerLeft: () => null,
+        }}
       />
       <Stack.Screen
         name={'SearchPets'}

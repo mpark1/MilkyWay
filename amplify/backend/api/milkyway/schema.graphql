@@ -99,6 +99,8 @@ type User @model(queries: {get: "getUser"}, mutations: {create: "createUser", up
     email: String!
     profilePic: String
     name: String!
+    gender: Int
+    age: Int
     state: userState!
 }
 

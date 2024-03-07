@@ -86,7 +86,11 @@ const Community = ({navigation}) => {
           </Pressable>
         </View>
         <View style={styles.psychTest}>
-          <Text style={styles.psychTestText}>심리 검사 테스트 (개발 예정)</Text>
+          <Pressable onPress={() => navigation.navigate('TestResult')}>
+            <Text style={styles.psychTestText}>
+              심리 검사 테스트 (개발 예정)
+            </Text>
+          </Pressable>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
