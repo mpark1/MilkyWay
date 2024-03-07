@@ -9,7 +9,7 @@ import PBQTestQuestion from '../../../components/PBQTestQuestion';
 
 import questionnaire from '../../../data/PBQ.json';
 
-const Questions = ({navigation}) => {
+const PBQ = ({navigation}) => {
   const [answers, setAnswers] = useState({}); // maintain state of answers
   console.log(answers);
   const canGoNext = Object.keys(answers).length === 16;
@@ -90,7 +90,7 @@ const Questions = ({navigation}) => {
   );
 };
 
-export default Questions;
+export default PBQ;
 
 const styles = StyleSheet.create({
   spacer: {

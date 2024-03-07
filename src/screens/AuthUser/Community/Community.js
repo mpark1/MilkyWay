@@ -22,7 +22,7 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 const Community = ({navigation}) => {
   const pageSize = 5;
   // const userID = useSelector(state => state.user.cognitoUsername);
-  // const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
+  // const {myPets, readyForCommunityFetch, gender} = useSelector(state => state.user);
   const gender = useState(-1); // female or male, 0 or 1?
   const [petData, setPetData] = useState({
     pets: [
@@ -140,6 +140,9 @@ const Community = ({navigation}) => {
         <Pressable
           style={styles.psychTest}
           onPress={() => {
+            // check gender
+            // gender === null? testeeInfo, otherwise navigate to screen 'PBQ'
+            // 한 유저가 두번째 심리테스트를 다른 반려동물을 잃은 것에 대해서 심리 테스트 할 경우는?
             navigation.navigate('TesteeInfo');
           }}>
           <Text style={styles.psychTestText}>심리 검사 테스트 </Text>

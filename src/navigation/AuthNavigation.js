@@ -15,7 +15,7 @@ import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 import UserSettings from '../screens/AuthUser/UserSettings';
 import ChangePassword from '../screens/AuthUser/ChangePassword';
 import TesteeInfo from '../screens/AuthUser/PBQTest/TesteeInfo';
-import Questions from '../screens/AuthUser/PBQTest/Questions';
+import PBQ from '../screens/AuthUser/PBQTest/PBQ';
 
 const Stack = createNativeStackNavigator();
 
@@ -124,8 +124,8 @@ const AuthNavigation = () => {
           }}
         />
         <Stack.Screen
-          name={'PBQTestQuestions'}
-          component={Questions}
+          name={'PBQ'}
+          component={PBQ}
           options={{
             headerTitle: '심리 테스트',
           }}

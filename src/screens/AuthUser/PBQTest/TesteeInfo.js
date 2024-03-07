@@ -1,12 +1,5 @@
-import React, {useState} from 'react';
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {Dimensions, StyleSheet, Text, View, TextInput} from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {CheckBox} from '@rneui/themed';
 
@@ -19,47 +12,53 @@ import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const TesteeInfo = ({navigation}) => {
-  const [gender, setGender] = useState(-1);
-  const [age, setAge] = useState('');
-
-  const [singleCaretaker, setSingleCaretaker] = useState(false); // 1인 보호자 / 가족 단위 보호자
-  const [familyCaretaker, setFamilyCaretaker] = useState(false);
-
-  const toggleFemale = () => setGender(gender === 0 ? -1 : 0);
-  const toggleMale = () => setGender(gender === 1 ? -1 : 1);
-  const toggleSingleCaretaker = () => setSingleCaretaker(!singleCaretaker);
-  const toggleFamilyCaretaker = () => setFamilyCaretaker(!familyCaretaker);
-
-  const [petOwnershipPeriod, setPetOwnershipPeriod] = useState({
-    year: '',
-    month: '',
-  }); // 양육 기간
-
-  const [petType, setPetType] = useState('');
   const petOptions = Object.keys(PetTypes).map(key => ({
     label: key,
     value: key,
   }));
-  const [deathCause, setDeathCause] = useState(null);
   const deathOptions = deathCauses.map(item => ({
     label: item,
     value: item,
   }));
+  const [petType, setPetType] = useState('');
+  const [deathCause, setDeathCause] = useState('');
 
   const [typePickerOpen, setTypePickerOpen] = useState(false);
   const [deathCausePickerOpen, setDeathCausePickerOpen] = useState(false);
 
-  const [ageOfDeath, setAgeOfDeath] = useState('');
-  const [timePassed, setTimePassed] = useState('');
-  const [pastExperience, setPastExperience] = useState(null);
+  const [answer, setAnswer] = useState({
+    gender: -1, // 0 - 여자, 1 - 남자
+    age: '',
+    caretakerType: -1, // 0 - 1인 보호자, 1 - 가족 단위 보호자
+    petOwnershipPeriodYear: '',
+    petOwnershipPeriodMonth: '',
+    ageOfDeath: '',
+    timePassed: '',
+    pastExperience: null,
+  });
 
-  const canGoNext = false;
+  const canGoNext =
+    answer.gender !== -1 &&
+    answer.age.length !== 0 &&
+    answer.caretakerType !== -1 &&
+    answer.petOwnershipPeriodYear.length +
+      answer.petOwnershipPeriodMonth.length !==
+      0 &&
+    answer.ageOfDeath.length !== 0 &&
+    answer.timePassed.length !== 0 &&
+    answer.pastExperience !== null;
 
-  const renderInstruction = () => {
+  const updateAnswer = (fieldTitle, newValue) =>
+    setAnswer(prev => ({
+      ...prev,
+      [fieldTitle]: newValue,
+    }));
+
+  const renderInstruction = useCallback(() => {
     return (
       <Text style={styles.instruction}>심리 테스트 전 질문 몇개만 할게요.</Text>
     );
-  };
+  }, []);
 
   const renderGenderField = () => {
     return (
@@ -69,8 +68,8 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={gender === 0}
-            onPress={toggleFemale}
+            checked={answer.gender === 0}
+            onPress={() => updateAnswer('gender', answer.gender === 0 ? -1 : 0)}
             iconType="material-community"
             checkedIcon="checkbox-marked"
             uncheckedIcon="checkbox-blank-outline"
@@ -83,8 +82,8 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={gender === 1}
-            onPress={toggleMale}
+            checked={answer.gender === 1}
+            onPress={() => updateAnswer('gender', answer.gender === 1 ? -1 : 1)}
             iconType="material-community"
             checkedIcon="checkbox-marked"
             uncheckedIcon="checkbox-blank-outline"
@@ -97,7 +96,7 @@ const TesteeInfo = ({navigation}) => {
     );
   };
 
-  const renderAgeField = () => {
+  const renderAgeField = useCallback(() => {
     return (
       <View
         style={[
@@ -111,15 +110,15 @@ const TesteeInfo = ({navigation}) => {
             clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
-            onChangeText={setAge}
-            value={age}
+            onChangeText={age => updateAnswer('age', age)}
+            value={answer.age}
             keyboardType={'numeric'}
           />
           <Text style={[styles.text]}>{'  '}세</Text>
         </View>
       </View>
     );
-  };
+  }, [answer.age]);
 
   const renderSubInstruction = () => {
     return (
@@ -137,8 +136,10 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={singleCaretaker}
-            onPress={toggleSingleCaretaker}
+            checked={answer.caretakerType === 0}
+            onPress={() =>
+              updateAnswer('caretakerType', answer.caretakerType === 0 ? -1 : 0)
+            }
             iconType="material-community"
             checkedIcon="checkbox-marked"
             uncheckedIcon="checkbox-blank-outline"
@@ -151,8 +152,10 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={[styles.checkBox]}
             size={24}
-            checked={familyCaretaker}
-            onPress={toggleFamilyCaretaker}
+            checked={answer.caretakerType === 1}
+            onPress={() =>
+              updateAnswer('caretakerType', answer.caretakerType === 1 ? -1 : 1)
+            }
             iconType="material-community"
             checkedIcon="checkbox-marked"
             uncheckedIcon="checkbox-blank-outline"
@@ -175,10 +178,8 @@ const TesteeInfo = ({navigation}) => {
             autoCapitalize={'none'}
             autoCorrect={false}
             keyboardType={'numeric'}
-            onChangeText={year => {
-              setPetOwnershipPeriod(prev => ({...prev, year: year}));
-            }}
-            value={petOwnershipPeriod.year}
+            onChangeText={year => updateAnswer('petOwnershipPeriodYear', year)}
+            value={answer.petOwnershipPeriodYear}
           />
           <Text style={styles.text}>
             {'  '}년{'   '}{' '}
@@ -190,9 +191,9 @@ const TesteeInfo = ({navigation}) => {
             autoCorrect={false}
             keyboardType={'numeric'}
             onChangeText={month => {
-              setPetOwnershipPeriod(prev => ({...prev, month: month}));
+              updateAnswer('petOwnershipPeriodMonth', month);
             }}
-            value={petOwnershipPeriod.month}
+            value={answer.petOwnershipPeriodMonth}
           />
           <Text style={[styles.text]}>{'  '}개월</Text>
         </View>
@@ -259,8 +260,8 @@ const TesteeInfo = ({navigation}) => {
             clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
-            value={ageOfDeath}
-            onChangeText={setAgeOfDeath}
+            value={answer.ageOfDeath}
+            onChangeText={ageDied => updateAnswer('ageOfDeath', ageDied)}
             keyboardType={'numeric'}
           />
           <Text style={[styles.text]}>{'  '}살</Text>
@@ -287,8 +288,10 @@ const TesteeInfo = ({navigation}) => {
             clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
-            value={timePassed}
-            onChangeText={setTimePassed}
+            value={answer.timePassed}
+            onChangeText={monthsPassed =>
+              updateAnswer('timePassed', monthsPassed)
+            }
             keyboardType={'numeric'}
           />
           <Text style={[styles.text]}>{'  '}개월 미만</Text>
@@ -307,10 +310,13 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={pastExperience === true}
+            checked={answer.pastExperience === true}
             onPress={() =>
-              setPastExperience(pastExperience === true ? null : true)
-            } // Toggle between true and null
+              updateAnswer(
+                'pastExperience',
+                answer.pastExperience === true ? null : true,
+              )
+            }
             iconType="material-community"
             checkedIcon="checkbox-marked"
             uncheckedIcon="checkbox-blank-outline"
@@ -323,9 +329,12 @@ const TesteeInfo = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={pastExperience === false}
+            checked={answer.pastExperience === false}
             onPress={() =>
-              setPastExperience(pastExperience === false ? null : false)
+              updateAnswer(
+                'pastExperience',
+                answer.pastExperience === false ? null : false,
+              )
             }
             iconType="material-community"
             checkedIcon="checkbox-marked"
@@ -343,9 +352,9 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={styles.nextButtonContainer}>
         <BlueButton
-          disabled={false}
+          disabled={!canGoNext}
           title={'테스트 시작'}
-          onPress={() => navigation.navigate('PBQTestQuestions')}
+          onPress={() => navigation.navigate('PBQ')}
         />
       </View>
     );
