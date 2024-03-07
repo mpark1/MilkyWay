@@ -24,11 +24,37 @@ const Community = ({navigation}) => {
   // const userID = useSelector(state => state.user.cognitoUsername);
   // const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
   const [petData, setPetData] = useState({
-    pets: mockData,
+    pets: [
+      {
+        name: '벤지',
+        birthday: '2013-08-23',
+        deathDay: '2023-11-24',
+        lastWord: '사랑하는 벤지 이곳에 잠들다',
+      },
+      {
+        name: '토순이',
+        birthday: '2019-03-17',
+        deathDay: '2024-01-05',
+        lastWord: '토순이 달나라 여행 중',
+        imagePath: 'bunny.png',
+      },
+      {
+        name: '코코',
+        birthday: '2015-03-24',
+        deathDay: '2023-12-11',
+        lastWord: '천사같은 코코 이제 편히 잠들길...',
+      },
+      {
+        name: '나비',
+        birthday: '2002-11-02',
+        deathDay: '2017-11-08',
+        lastWord: '영원히 기억될 나비',
+      },
+    ],
     nextToken: null,
   });
   const [isLoadingPets, setIsLoadingPets] = useState(false);
-  const [isFetchComplete, setIsFetchComplete] = useState(false);
+  const [isFetchComplete, setIsFetchComplete] = useState(true);
   // console.log(
   //   'print my pets in community page: ',
   //   myPets.length,
@@ -104,25 +130,36 @@ const Community = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
+        <Pressable style={styles.psychTest}>
+          <Text style={styles.psychTestText}>심리 검사 테스트 </Text>
+        </Pressable>
         <View style={styles.searchIconContainer}>
           <Pressable
             style={styles.searchIcon}
-            onPress={() => navigation.navigate('SearchPet')}>
-            <Ionicons name={'search'} color={'#FFF'} size={30} />
+            onPress={() => navigation.navigate('SearchPets')}>
+            <Ionicons name={'search'} color={'#FFF'} size={24} />
           </Pressable>
-        </View>
-        <View style={styles.test}>
-          <Text style={styles.testText}>심리 검사 테스트 (개발 예정)</Text>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
           <View style={styles.flatListContainer}>
             <FlatList
               onMomentumScrollBegin={() => setIsLoadingPets(false)}
-              onEndReachedThreshold={0.8}
+              onEndReachedThreshold={0.2}
               onEndReached={onEndReached}
               showsVerticalScrollIndicator={false}
               data={petData.pets}
-              renderItem={({item}) => <PetCard item={item} isFamily={false} />}
+              renderItem={({item, index}) => (
+                <>
+                  <PetCard
+                    name={item.name}
+                    birthday={item.birthday}
+                    deathDay={item.deathDay}
+                    lastWord={item.lastWord}
+                    number={index}
+                    isFamily={false}
+                  />
+                </>
+              )}
             />
           </View>
         )}
@@ -137,11 +174,25 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
   },
+  psychTest: {
+    width: '95%',
+    height: 70,
+    marginVertical: 10,
+    backgroundColor: '#FFF',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+    opacity: 0.9,
+  },
+  psychTestText: {
+    fontSize: scaleFontSize(24),
+    textAlign: 'center',
+  },
   searchIconContainer: {
     width: '100%',
     justifyContent: 'center',
-    paddingVertical: Dimensions.get('window').height * 0.015,
-    paddingRight: Dimensions.get('window').width * 0.027,
+    paddingTop: Dimensions.get('window').height * 0.01,
+    paddingRight: Dimensions.get('window').width * 0.03,
   },
   searchIcon: {
     alignSelf: 'flex-end',
@@ -151,16 +202,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
     alignItems: 'center',
-  },
-  test: {
-    width: '90%',
-    height: 100,
-    backgroundColor: '#FFF',
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  testText: {
-    fontSize: scaleFontSize(30),
-    textAlign: 'center',
   },
 });

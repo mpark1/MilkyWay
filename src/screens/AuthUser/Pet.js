@@ -37,14 +37,10 @@ const Pet = ({navigation, route}) => {
 
   const renderManagerActionButtons = () => {
     return (
-      <View style={styles.iconsWrapper}>
+      <View style={styles.managerActionButtonsContainer}>
+        <Ionicons name={'image-outline'} color={'#FFF'} size={24} />
         <Pressable>
           <SimpleLineIcons name={'envelope'} color={'#FFF'} size={24} />
-        </Pressable>
-        <Pressable
-        // onPress
-        >
-          <SimpleLineIcons name={'picture'} color={'#FFF'} size={20} />
         </Pressable>
         <Pressable onPress={() => navigation.navigate('Settings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={24} />
@@ -102,11 +98,26 @@ export default Pet;
 const styles = StyleSheet.create({
   backgroundImageContainer: {
     width: '100%',
-    height: Dimensions.get('window').height * 0.25,
+    height: Dimensions.get('window').height * 0.2,
   },
   backgroundImage: {
     width: '100%',
     height: '100%',
+  },
+  managerActionButtonsContainer: {
+    position: 'absolute',
+    bottom: 7,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 80,
+    justifyContent: 'space-between',
+  },
+  reportButtonContainer: {
+    position: 'absolute',
+    bottom: 7,
+    right: 10,
+    alignItems: 'center',
   },
   iconsWrapper: {
     position: 'absolute',
@@ -119,23 +130,23 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     width: '100%',
-    height: 100,
-    paddingTop: 15,
+    height: Dimensions.get('window').height * 0.11,
+    paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 40,
   },
   profilePicContainer: {
     position: 'absolute',
-    width: 160,
-    height: 160,
-    top: Dimensions.get('window').height * 0.15,
+    width: 150,
+    height: 150,
+    top: Dimensions.get('window').height * 0.12,
     left: Dimensions.get('window').width * 0.03,
   },
   profilePic: {
     width: '100%',
     height: '100%',
-    borderRadius: 80,
-    borderWidth: 4,
+    borderRadius: 150 / 2,
+    borderWidth: 3,
     borderColor: '#FFF',
   },
   editBackgroundImage: {

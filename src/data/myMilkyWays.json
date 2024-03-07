@@ -1,34 +1,10 @@
 [
   {
     "id": 1,
-    "name": "사랑하는구름이",
+    "name": "마루",
     "profilePic": "",
-    "birthday": "2012-02-03",
-    "deathDay": "2023-11-25",
-    "lastWord": "천사같은 마루 이제 편히 잠들길....."
+    "birthday": "2009-02-03",
+    "deathDay": "2020-02-17",
+    "lastWord": "고양이 별 여행 중인 마루"
   },
-  {
-    "id": 2,
-    "name": "벤지",
-    "profilePic": "",
-    "birthday": "2011-03-03",
-    "deathDay": "2023-11-24",
-    "lastWord": "사랑하는 벤지 이곳에 잠들다"
-  },
-  {
-    "id": 3,
-    "name": "마디",
-    "profilePic": "",
-    "birthday": "2012-02-03",
-    "deathDay": "2023-11-25",
-    "lastWord": "고양이 별 여행 중인 마디"
-  },
-  {
-    "id": 4,
-    "name": "토순이",
-    "profilePic": "",
-    "birthday": "2019-02-03",
-    "deathDay": "2023-12-01",
-    "lastWord": "토순이 달나라에서 행복하기를"
-  }
 ]

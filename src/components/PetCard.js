@@ -11,8 +11,9 @@ import {scaleFontSize} from '../assets/styles/scaling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/core';
 
-const PetCard = ({profilePic, name, birthday, deathDay, lastWord}) => {
+const PetCard = ({name, birthday, deathDay, lastWord, number}) => {
   const navigation = useNavigation();
+  console.log(number);
 
   return (
     <Pressable
@@ -41,6 +42,14 @@ const PetCard = ({profilePic, name, birthday, deathDay, lastWord}) => {
           <Image
             style={styles.profilePic}
             source={require('../assets/images/cat.jpeg')}
+            // source={
+            //   number === 0
+            //     ? require('../assets/images/pug.png')
+            //     : require('../assets/images/bunny.png')
+            //   // number === 2
+            //   //   ? require('../assets/images/default_pet_profilePic.jpg')
+            //   //   : require('../assets/images/nabi.png')
+            // }
             resizeMode={'cover'}
           />
         </View>
@@ -62,7 +71,7 @@ const PetCard = ({profilePic, name, birthday, deathDay, lastWord}) => {
             </Text>
           </View>
 
-          <Text style={styles.lastWords}>{lastWord.substring(0, 22)}</Text>
+          <Text style={styles.lastWords}>{lastWord}</Text>
         </View>
       </View>
     </Pressable>

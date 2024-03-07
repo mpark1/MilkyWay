@@ -33,18 +33,12 @@ const Pets = ({navigation}) => {
         style={styles.backgroundImage}
         source={require('../../assets/images/milkyWayBackgroundImage.png')}
         resizeMode={'cover'}>
-        <View style={styles.test}>
-          <Text style={styles.testText}>심리 검사 테스트 (개발 예정)</Text>
-        </View>
         <Pressable
           style={styles.settingsContainer}
           onPress={() => navigation.navigate('UserSettings')}>
           <Ionicons name={'settings-outline'} color={'#FFF'} size={18} />
           <Text style={styles.settings}>나의 계정 관리</Text>
         </Pressable>
-        {/*<View style={styles.test}>*/}
-        {/*  <Text style={styles.testText}>심리 검사 테스트 (개발 예정)</Text>*/}
-        {/*</View>*/}
         <View style={styles.flatListContainer}>
           <FlatList
             onMomentumScrollBegin={() => setIsLoadingPets(false)}
@@ -54,12 +48,7 @@ const Pets = ({navigation}) => {
                 setIsLoadingPets(true);
                 setRenderedPets(prev => [
                   ...prev,
-                  ...pagination(
-                    mockData,
-                    pageNumber + 1,
-                    pageSize,
-                    setPageNumber,
-                  ),
+                  ...pagination(pets, pageNumber + 1, pageSize, setPageNumber),
                 ]);
                 setIsLoadingPets(false);
               }
@@ -67,7 +56,6 @@ const Pets = ({navigation}) => {
             data={renderedPets}
             renderItem={({item}) => (
               <PetCard
-                // profilePic={item.profilePic}
                 name={item.name}
                 birthday={item.birthday}
                 deathDay={item.deathDay}
