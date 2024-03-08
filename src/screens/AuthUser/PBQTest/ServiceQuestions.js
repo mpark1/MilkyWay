@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,14 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import ServiceQuestionComponent from '../../../components/ServiceQuestionComponent';
 import {CheckBox} from '@rneui/themed';
 import BlueButton from '../../../components/Buttons/BlueButton';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import ButtonGroups from '../../../components/Buttons/ButtonGroups';
 
 // check slider - it exceeds the max value, why???
 const ServiceQuestions = ({navigation}) => {
   const [questionnaire, setQuestionnaire] = useState({
-    1: 0,
-    2: 0,
+    1: 2,
+    2: 2,
     3: 0,
     '3boxChecked': false,
     4: 0,
@@ -44,10 +46,10 @@ const ServiceQuestions = ({navigation}) => {
     return (
       <View style={styles.oneQuestion}>
         <Text style={styles.textStyle}>{question}</Text>
-        <ServiceQuestionComponent
-          type={componentType}
-          updateFunc={updateAnswer}
+        <ButtonGroups
           questionNum={questionNum}
+          updateFunc={updateAnswer}
+          setValue={questionnaire[questionNum]}
         />
       </View>
     );
@@ -82,13 +84,6 @@ const ServiceQuestions = ({navigation}) => {
           </View>
         </View>
         <Text style={styles.textDescription}>{description}</Text>
-        <ServiceQuestionComponent
-          type={componentType}
-          updateFunc={updateAnswer}
-          questionNum={questionNum}
-          lowerbound={lowerbound}
-          upperbound={upperbound}
-        />
       </View>
     );
   };
@@ -170,7 +165,8 @@ const ServiceQuestions = ({navigation}) => {
   };
 
   return (
-    <ScrollView style={[globalStyle.flex, globalStyle.backgroundWhite]}>
+    <KeyboardAwareScrollView
+      style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
         <Text style={styles.textStyle}>
           반려동물을 잃은 슬픔을 극복하는데 본인에게 도움이 되는 서비스를
@@ -179,12 +175,12 @@ const ServiceQuestions = ({navigation}) => {
         <View style={styles.questionnaire}>
           {firstQuestions(
             1,
-            '1. 은하수가 제공하는 온라인 추모공간 (내 추모공간)',
+            '1. 은하수가 제공하는 온라인 추모공간 (내 추모공간)이 슬픔을 극복하는데 도움이 된다.',
             'qualitative',
           )}
           {firstQuestions(
             2,
-            '2. 은하수에서 비슷한 경험을 가진 사람들과 온라인 상에서 소통(커뮤니티)',
+            '2. 은하수 커뮤니티에서 사람들과 소통하는 것이 도움이 된다.',
             'qualitative',
           )}
           <Text style={styles.litteText}>
@@ -236,7 +232,7 @@ const ServiceQuestions = ({navigation}) => {
           </View>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
