@@ -1,5 +1,12 @@
 import React, {useCallback, useState} from 'react';
-import {Dimensions, StyleSheet, Text, View, TextInput} from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+} from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {CheckBox} from '@rneui/themed';
 
@@ -10,6 +17,9 @@ import PetTypes from '../../../data/PetTypes.json';
 import deathCauses from '../../../data/deathCauses.json';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import DropDownComponent from '../../../components/DropDownComponent';
+import DatePicker from 'react-native-date-picker';
+import {getCurrentDate} from '../../../utils/utils';
 
 const TesteeInfo = ({navigation}) => {
   const petOptions = Object.keys(PetTypes).map(key => ({
@@ -37,6 +47,22 @@ const TesteeInfo = ({navigation}) => {
     pastExperience: null,
   });
 
+  const currentDateInString = getCurrentDate();
+
+  const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
+  const [birthdayString, setBirthdayString] = useState('1920-01-01');
+  const [birthday, setBirthday] = useState(new Date(currentDateInString));
+
+  const onChangeBirthday = date => {
+    setIsBirthdayPickerOpen(false);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+    const localDateString = localDate.toISOString().split('T')[0];
+    setBirthday(localDate);
+    setBirthdayString(localDateString);
+  };
+
   const canGoNext =
     answer.gender !== -1 &&
     answer.age.length !== 0 &&
@@ -59,6 +85,26 @@ const TesteeInfo = ({navigation}) => {
       <Text style={styles.instruction}>심리 테스트 전 질문 몇개만 할게요.</Text>
     );
   }, []);
+
+  const renderDatePicker = () => {
+    return (
+      <DatePicker
+        style={{width: 200, height: 40}}
+        locale={'ko_KR'}
+        modal
+        mode={'date'}
+        open={isBirthdayPickerOpen}
+        date={birthday}
+        maximumDate={new Date(currentDateInString)}
+        onConfirm={newDate => {
+          onChangeBirthday(newDate);
+        }}
+        onCancel={() => {
+          setIsBirthdayPickerOpen(false);
+        }}
+      />
+    );
+  };
 
   const renderGenderField = () => {
     return (
@@ -96,29 +142,40 @@ const TesteeInfo = ({navigation}) => {
     );
   };
 
-  const renderAgeField = useCallback(() => {
+  const renderBirthdayField = () => {
     return (
       <View
         style={[
           styles.fieldContainer,
-          {marginBottom: Dimensions.get('window').height * 0.02},
+          {
+            marginBottom: Dimensions.get('window').height * 0.02,
+            alignItems: 'center',
+          },
         ]}>
-        <Text style={styles.text}>2. 나이</Text>
-        <View style={{flexDirection: 'row'}}>
-          <TextInput
-            style={styles.textInput}
-            clearButtonMode={'while-editing'}
-            autoCapitalize={'none'}
-            autoCorrect={false}
-            onChangeText={age => updateAnswer('age', age)}
-            value={answer.age}
-            keyboardType={'numeric'}
-          />
-          <Text style={[styles.text]}>{'  '}세</Text>
-        </View>
+        <Text style={styles.text}>2. 생일</Text>
+        <Pressable
+          style={styles.datePicker}
+          onPress={() => setIsBirthdayPickerOpen(true)}>
+          <Text style={styles.datePickerPlaceholder}>
+            {birthdayString !== '1920-01-01' ? birthdayString : 'YYYY-MM-DD'}
+          </Text>
+          {renderDatePicker('birthday')}
+        </Pressable>
+        {/*<View style={{flexDirection: 'row'}}>*/}
+        {/*  <TextInput*/}
+        {/*    style={styles.textInput}*/}
+        {/*    clearButtonMode={'while-editing'}*/}
+        {/*    autoCapitalize={'none'}*/}
+        {/*    autoCorrect={false}*/}
+        {/*    onChangeText={age => updateAnswer('age', age)}*/}
+        {/*    value={answer.age}*/}
+        {/*    keyboardType={'numeric'}*/}
+        {/*  />*/}
+        {/*  <Text style={[styles.text]}>{'  '}세</Text>*/}
+        {/*</View>*/}
       </View>
     );
-  }, [answer.age]);
+  };
 
   const renderSubInstruction = () => {
     return (
@@ -205,22 +262,31 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={[styles.fieldContainer, {alignItems: 'center', zIndex: 5}]}>
         <Text style={styles.text}>5. 동물종류</Text>
-        <DropDownPicker
-          containerStyle={styles.dropDownPicker.containerStyle}
-          style={styles.dropDownPicker.borderStyle}
-          dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-          textStyle={{fontSize: scaleFontSize(18)}}
-          multiple={false}
-          placeholderStyle={styles.dropDownPicker.placeholder}
+        <DropDownComponent
           items={petOptions}
-          placeholder={'선택'}
-          setValue={setPetType}
           value={petType}
+          setValue={setPetType}
           open={typePickerOpen}
           setOpen={setTypePickerOpen}
-          zIndex={4}
-          listMode="SCROLLVIEW"
+          zIndex={5}
+          whichPage={'TesteeInfo'}
         />
+        {/*<DropDownPicker*/}
+        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
+        {/*  style={styles.dropDownPicker.borderStyle}*/}
+        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
+        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
+        {/*  multiple={false}*/}
+        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
+        {/*  items={petOptions}*/}
+        {/*  placeholder={'선택'}*/}
+        {/*  setValue={setPetType}*/}
+        {/*  value={petType}*/}
+        {/*  open={typePickerOpen}*/}
+        {/*  setOpen={setTypePickerOpen}*/}
+        {/*  zIndex={5}*/}
+        {/*  listMode="SCROLLVIEW"*/}
+        {/*/>*/}
       </View>
     );
   };
@@ -229,23 +295,32 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={[styles.fieldContainer, {alignItems: 'center', zIndex: 3}]}>
         <Text style={styles.text}>6. 죽음의 원인</Text>
-        <DropDownPicker
-          containerStyle={styles.dropDownPicker.containerStyle}
-          style={styles.dropDownPicker.borderStyle}
-          dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-          textStyle={{fontSize: scaleFontSize(18)}}
-          multiple={false}
-          placeholderStyle={styles.dropDownPicker.placeholder}
+        <DropDownComponent
           items={deathOptions}
-          placeholder={'선택'}
-          setValue={setDeathCause}
           value={deathCause}
+          setValue={setDeathCause}
           open={deathCausePickerOpen}
           setOpen={setDeathCausePickerOpen}
-          zIndex={2}
-          listMode="SCROLLVIEW"
-          dropDownDirection="BOTTOM"
+          zIndex={3}
+          whichPage={'TesteeInfo'}
         />
+        {/*<DropDownPicker*/}
+        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
+        {/*  style={styles.dropDownPicker.borderStyle}*/}
+        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
+        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
+        {/*  multiple={false}*/}
+        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
+        {/*  items={deathOptions}*/}
+        {/*  placeholder={'선택'}*/}
+        {/*  setValue={setDeathCause}*/}
+        {/*  value={deathCause}*/}
+        {/*  open={deathCausePickerOpen}*/}
+        {/*  setOpen={setDeathCausePickerOpen}*/}
+        {/*  zIndex={2}*/}
+        {/*  listMode="SCROLLVIEW"*/}
+        {/*  dropDownDirection="BOTTOM"*/}
+        {/*/>*/}
       </View>
     );
   };
@@ -366,7 +441,7 @@ const TesteeInfo = ({navigation}) => {
       {renderInstruction()}
       <View style={styles.spacer}>
         {renderGenderField()}
-        {renderAgeField()}
+        {renderBirthdayField()}
       </View>
       {renderSubInstruction()}
       <View style={styles.threeToNineContainer}>
@@ -403,6 +478,7 @@ const styles = StyleSheet.create({
   greyBackground: {
     backgroundColor: '#EEEEEE',
     borderRadius: 5,
+    zIndex: 3,
   },
   greyBackgroundSpacer: {
     paddingHorizontal: Dimensions.get('window').width * 0.02,
@@ -461,5 +537,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: Dimensions.get('window').height * 0.01,
     marginBottom: Dimensions.get('window').height * 0.1,
+  },
+  datePicker: {
+    borderBottomWidth: 1,
+    paddingBottom: 5,
+    paddingHorizontal: 10,
+  },
+  datePickerPlaceholder: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
   },
 });
