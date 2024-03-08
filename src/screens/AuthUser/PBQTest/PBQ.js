@@ -22,27 +22,22 @@ const PBQ = ({navigation}) => {
     }));
   };
 
+  const calculateScore = (start, end) =>
+    Object.keys(answers)
+      .filter(key => key >= start && key <= end)
+      .reduce((total, key) => total + answers[key], 0);
+
   const onSubmit = () => {
-    // 1. Grief, Anger, Guilt 점수 계산
-    const griefScore = Object.keys(answers)
-      .filter(key => key >= 1 && key <= 5) // For keys 1 to 7
-      .reduce((total, key) => total + answers[key], 0);
+    // Calculate scores
+    const griefScore = calculateScore(1, 5);
+    const angerScore = calculateScore(6, 12);
+    const guiltScore = calculateScore(13, 16);
 
-    const angerScore = Object.keys(answers)
-      .filter(key => key >= 6 && key <= 12) // For keys 8 to 14
-      .reduce((total, key) => total + answers[key], 0);
+    console.log(
+      `Grief: ${griefScore}, Anger: ${angerScore}, Guilt: ${guiltScore}`,
+    );
 
-    const guiltScore = Object.keys(answers)
-      .filter(key => key >= 15 && key <= 16) // For keys 15 to 16
-      .reduce((total, key) => total + answers[key], 0);
-
-    console.log(`Grief: ${griefScore}`);
-    console.log(`Anger: ${angerScore}`);
-    console.log(`Guilt: ${guiltScore}`);
-
-    // 2. db에 결과 업로드?
-
-    // 3. navigation
+    // database upload and navigation
   };
 
   const [showCitation, setShowCitation] = React.useState(false);
