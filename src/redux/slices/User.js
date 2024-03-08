@@ -10,6 +10,7 @@ const initialState = {
   profilePicS3Key: '',
   s3UrlExpiredAt: '',
   isAdmin: false,
+  gender: -1,
 };
 
 const User = createSlice({
@@ -48,6 +49,9 @@ const User = createSlice({
     setIsAdmin: (state, action) => {
       state.isAdmin = action.payload;
     },
+    setUserGender: (state, action) => {
+      state.gender = action.payload;
+    },
   },
 });
 
@@ -62,5 +66,6 @@ export const {
   setMyPets,
   setMyPetsFetchComplete,
   setIsAdmin,
+  setUserGender,
 } = User.actions;
 export default User.reducer;

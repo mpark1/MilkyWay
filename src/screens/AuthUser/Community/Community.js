@@ -19,7 +19,9 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
-  const {myPets, readyForCommunityFetch} = useSelector(state => state.user);
+  const {myPets, readyForCommunityFetch, gender} = useSelector(
+    state => state.user,
+  );
   const [petData, setPetData] = useState({
     pets: [],
     nextToken: null,
@@ -69,6 +71,15 @@ const Community = ({navigation}) => {
     if (petData.nextToken !== null) {
       console.log('print: onEndReached for Community.js. Inside if statement');
       await fetchPets();
+    }
+  };
+
+  const handlePBQTestNavigation = () => {
+    if (gender === -1) {
+      navigation.navigate('TesteeInfo');
+    } else {
+      // 진단 횟수 몇 미만이면 가장 최근 '테스트 준비' 기입 내용 db에서 가져오기 -> navigation.navigate('PBQ');
+      // 진단 횟수 몇 이상이면 Alert
     }
   };
 

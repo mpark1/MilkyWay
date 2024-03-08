@@ -10,6 +10,8 @@ import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
 import EditLetter from '../screens/AuthUser/EditLetter';
 import globalStyle from '../assets/styles/globalStyle';
+import TesteeInfo from '../screens/AuthUser/PBQTest/TesteeInfo';
+import PBQ from '../screens/AuthUser/PBQTest/PBQ';
 
 const Stack = createStackNavigator();
 
@@ -46,57 +48,69 @@ const AuthNavigation = () => {
         component={BottomTabs}
         options={{headerShown: false}}
       />
-      <Stack.Group>
-        <Stack.Screen
-          name={'AddNewPet'}
-          component={AddNewPet}
-          options={{
-            headerTitle: '별이 된 아이',
-          }}
-        />
-        <Stack.Screen
-          name={'SetAccessLevel'}
-          component={SetAccessLevel}
-          options={{
-            headerTitle: '추모공간 접근 설정',
-          }}
-        />
-        <Stack.Screen
-          name={'Settings'}
-          component={Settings}
-          options={{
-            headerTitle: '설정',
-          }}
-        />
-        <Stack.Screen
-          name={'WriteLetter'}
-          component={WriteLetter}
-          options={{
-            headerTitle: '편지쓰기',
-          }}
-        />
-        <Stack.Screen
-          name={'EditLetter'}
-          component={EditLetter}
-          options={{
-            headerTitle: '편지수정',
-          }}
-        />
-        <Stack.Screen
-          name={'ChooseMedia'}
-          component={ChooseMedia}
-          options={{
-            headerTitle: '사진/동영상 선택',
-          }}
-        />
-        <Stack.Screen
-          name={'MediaPreview'}
-          component={MediaPreview}
-          options={{
-            headerTitle: '캡션 작성',
-          }}
-        />
-      </Stack.Group>
+      <Stack.Screen
+        name={'AddNewPet'}
+        component={AddNewPet}
+        options={{
+          headerTitle: '별이 된 아이',
+        }}
+      />
+      <Stack.Screen
+        name={'SetAccessLevel'}
+        component={SetAccessLevel}
+        options={{
+          headerTitle: '추모공간 접근 설정',
+        }}
+      />
+      <Stack.Screen
+        name={'Settings'}
+        component={Settings}
+        options={{
+          headerTitle: '설정',
+        }}
+      />
+      <Stack.Screen
+        name={'WriteLetter'}
+        component={WriteLetter}
+        options={{
+          headerTitle: '편지쓰기',
+        }}
+      />
+      <Stack.Screen
+        name={'EditLetter'}
+        component={EditLetter}
+        options={{
+          headerTitle: '편지수정',
+        }}
+      />
+      <Stack.Screen
+        name={'ChooseMedia'}
+        component={ChooseMedia}
+        options={{
+          headerTitle: '사진/동영상 선택',
+        }}
+      />
+      <Stack.Screen
+        name={'MediaPreview'}
+        component={MediaPreview}
+        options={{
+          headerTitle: '캡션 작성',
+        }}
+      />
+      <Stack.Screen
+        name={'TesteeInfo'}
+        component={TesteeInfo}
+        options={{
+          headerTitle: '심리 테스트 준비',
+        }}
+      />
+      <Stack.Screen
+        name={'PBQ'}
+        component={PBQ}
+        options={{
+          headerTitle: '심리 테스트',
+        }}
+      />
     </Stack.Navigator>
   );
 };
