@@ -49,6 +49,7 @@ const DropDownComponent = ({
       setOpen={setOpen}
       zIndex={zIndex}
       listMode="SCROLLVIEW"
+      dropDownDirection={'BOTTOM'}
     />
   );
 };
