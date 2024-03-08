@@ -1,5 +1,13 @@
 import React, {useCallback, useState} from 'react';
-import {Dimensions, StyleSheet, Text, View, TextInput} from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  Alert,
+} from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {CheckBox} from '@rneui/themed';
 
@@ -11,8 +19,11 @@ import deathCauses from '../../../data/deathCauses.json';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DropDownComponent from '../../../components/DropDownComponent';
+import DatePicker from 'react-native-date-picker';
+import {getCurrentDate} from '../../../utils/utils';
 
 const TesteeInfo = ({navigation}) => {
+  /* TODO - complete input validation */
   const petOptions = Object.keys(PetTypes).map(key => ({
     label: key,
     value: key,
@@ -29,7 +40,7 @@ const TesteeInfo = ({navigation}) => {
 
   const [answer, setAnswer] = useState({
     gender: -1, // 0 - 여자, 1 - 남자
-    age: '',
+    birthdayString: '',
     caretakerType: -1, // 0 - 1인 보호자, 1 - 가족 단위 보호자
     petOwnershipPeriodYear: '',
     petOwnershipPeriodMonth: '',
@@ -38,9 +49,26 @@ const TesteeInfo = ({navigation}) => {
     pastExperience: null,
   });
 
+  const currentDateInString = getCurrentDate();
+
+  const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
+  const [birthdayString, setBirthdayString] = useState('1920-01-01');
+  const [birthday, setBirthday] = useState(new Date(currentDateInString));
+
+  const onChangeBirthday = date => {
+    setIsBirthdayPickerOpen(false);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+    const localDateString = localDate.toISOString().split('T')[0];
+    setBirthday(localDate);
+    setBirthdayString(localDateString);
+    updateAnswer('birthdayString', localDateString);
+  };
+
   const canGoNext =
     answer.gender !== -1 &&
-    answer.age.length !== 0 &&
+    answer.birthdayString.length !== 0 &&
     answer.caretakerType !== -1 &&
     answer.petOwnershipPeriodYear.length +
       answer.petOwnershipPeriodMonth.length !==
@@ -55,11 +83,50 @@ const TesteeInfo = ({navigation}) => {
       [fieldTitle]: newValue,
     }));
 
+  const dropDownAnswer = useState({
+    5: -1,
+    6: -1,
+  });
+  const onSubmit = () => {
+    // input validation
+    if (answer.ageOfDeath === '0') {
+      // Alert
+    }
+
+    if (
+      answer.petOwnershipPeriodYear === '0' &&
+      answer.petOwnershipPeriodMonth === '0'
+    ) {
+      // Alert
+    }
+  };
+
   const renderInstruction = useCallback(() => {
     return (
       <Text style={styles.instruction}>심리 테스트 전 질문 몇개만 할게요.</Text>
     );
   }, []);
+
+  const renderDatePicker = () => {
+    return (
+      <DatePicker
+        style={{width: 200, height: 40}}
+        locale={'ko_KR'}
+        modal
+        mode={'date'}
+        open={isBirthdayPickerOpen}
+        date={birthday}
+        maximumDate={new Date(currentDateInString)}
+        minimumDate={new Date('1920-01-01')}
+        onConfirm={newDate => {
+          onChangeBirthday(newDate);
+        }}
+        onCancel={() => {
+          setIsBirthdayPickerOpen(false);
+        }}
+      />
+    );
+  };
 
   const renderGenderField = () => {
     return (
@@ -97,26 +164,25 @@ const TesteeInfo = ({navigation}) => {
     );
   };
 
-  const renderAgeField = () => {
+  const renderBirthdayField = () => {
     return (
       <View
         style={[
           styles.fieldContainer,
-          {marginBottom: Dimensions.get('window').height * 0.02},
+          {
+            marginBottom: Dimensions.get('window').height * 0.02,
+            alignItems: 'center',
+          },
         ]}>
-        <Text style={styles.text}>2. 나이</Text>
-        <View style={{flexDirection: 'row'}}>
-          <TextInput
-            style={styles.textInput}
-            clearButtonMode={'while-editing'}
-            autoCapitalize={'none'}
-            autoCorrect={false}
-            onChangeText={age => updateAnswer('age', age)}
-            value={answer.age}
-            keyboardType={'numeric'}
-          />
-          <Text style={[styles.text]}>{'  '}세</Text>
-        </View>
+        <Text style={styles.text}>2. 생일</Text>
+        <Pressable
+          style={styles.datePicker}
+          onPress={() => setIsBirthdayPickerOpen(true)}>
+          <Text style={styles.datePickerPlaceholder}>
+            {birthdayString !== '1920-01-01' ? birthdayString : 'YYYY-MM-DD'}
+          </Text>
+          {renderDatePicker('birthday')}
+        </Pressable>
       </View>
     );
   };
@@ -178,8 +244,10 @@ const TesteeInfo = ({navigation}) => {
             clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
-            keyboardType={'numeric'}
-            onChangeText={year => updateAnswer('petOwnershipPeriodYear', year)}
+            keyboardType={'number-pad'}
+            onChangeText={years =>
+              updateAnswer('petOwnershipPeriodYear', years)
+            }
             value={answer.petOwnershipPeriodYear}
           />
           <Text style={styles.text}>
@@ -190,9 +258,22 @@ const TesteeInfo = ({navigation}) => {
             clearButtonMode={'while-editing'}
             autoCapitalize={'none'}
             autoCorrect={false}
-            keyboardType={'numeric'}
-            onChangeText={month => {
-              updateAnswer('petOwnershipPeriodMonth', month);
+            keyboardType={'number-pad'}
+            onChangeText={months => {
+              // Ensure the input is not greater than integer 11
+              let intMonths = parseInt(months, 10);
+              if (intMonths < 12) {
+                updateAnswer('petOwnershipPeriodMonth', months);
+              } else {
+                updateAnswer(
+                  'petOwnershipPeriodMonth',
+                  (intMonths - 12).toString(),
+                );
+                updateAnswer(
+                  'petOwnershipPeriodYear',
+                  (intMonths % 12).toString(),
+                );
+              }
             }}
             value={answer.petOwnershipPeriodMonth}
           />
@@ -281,7 +362,7 @@ const TesteeInfo = ({navigation}) => {
             autoCorrect={false}
             value={answer.ageOfDeath}
             onChangeText={ageDied => updateAnswer('ageOfDeath', ageDied)}
-            keyboardType={'numeric'}
+            keyboardType={'number-pad'}
           />
           <Text style={[styles.text]}>{'  '}살</Text>
         </View>
@@ -311,7 +392,7 @@ const TesteeInfo = ({navigation}) => {
             onChangeText={monthsPassed =>
               updateAnswer('timePassed', monthsPassed)
             }
-            keyboardType={'numeric'}
+            keyboardType={'number-pad'}
           />
           <Text style={[styles.text]}>{'  '}개월 미만</Text>
         </View>
@@ -371,8 +452,9 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={styles.nextButtonContainer}>
         <BlueButton
-          disabled={!canGoNext}
+          disabled={false}
           title={'테스트 시작'}
+          // onPress={onSubmit}
           onPress={() => navigation.navigate('PBQ')}
         />
       </View>
@@ -385,7 +467,7 @@ const TesteeInfo = ({navigation}) => {
       {renderInstruction()}
       <View style={styles.spacer}>
         {renderGenderField()}
-        {renderAgeField()}
+        {renderBirthdayField()}
       </View>
       {renderSubInstruction()}
       <View style={styles.threeToNineContainer}>
@@ -423,6 +505,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EEEEEE',
     borderRadius: 5,
     zIndex: 3,
+    marginBottom: Dimensions.get('window').height * 0.01,
   },
   greyBackgroundSpacer: {
     paddingHorizontal: Dimensions.get('window').width * 0.02,
@@ -481,5 +564,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: Dimensions.get('window').height * 0.01,
     marginBottom: Dimensions.get('window').height * 0.1,
+  },
+  datePicker: {
+    borderBottomWidth: 1,
+    paddingBottom: 5,
+    paddingHorizontal: 10,
+  },
+  datePickerPlaceholder: {
+    color: '#374957',
+    fontSize: scaleFontSize(18),
   },
 });

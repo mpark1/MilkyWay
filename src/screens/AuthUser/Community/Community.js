@@ -97,10 +97,10 @@ const Community = ({navigation}) => {
           </Pressable>
         </View>
         <View style={styles.psychTest}>
-          <Pressable onPress={() => navigation.navigate('TestResult')}>
-            <Text style={styles.psychTestText}>
-              심리 검사 테스트 (개발 예정)
-            </Text>
+          <Pressable
+            // onPress={handlePBQTestNavigation}
+            onPress={() => navigation.navigate('TesteeInfo')}>
+            <Text style={styles.psychTestText}>심리 테스트</Text>
           </Pressable>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (

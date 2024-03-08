@@ -9,9 +9,12 @@ import WriteLetter from '../screens/AuthUser/WriteLetter';
 import MediaPreview from '../screens/AuthUser/MediaPreview';
 import Settings from '../screens/AuthUser/Settings';
 import EditLetter from '../screens/AuthUser/EditLetter';
-import globalStyle from '../assets/styles/globalStyle';
 import TesteeInfo from '../screens/AuthUser/PBQTest/TesteeInfo';
 import PBQ from '../screens/AuthUser/PBQTest/PBQ';
+import TestResult from '../screens/AuthUser/PBQTest/TestResult';
+import ServiceQuestions from '../screens/AuthUser/PBQTest/ServiceQuestions';
+
+import globalStyle from '../assets/styles/globalStyle';
 
 const Stack = createStackNavigator();
 
@@ -109,6 +112,20 @@ const AuthNavigation = () => {
         component={PBQ}
         options={{
           headerTitle: '심리 테스트',
+        }}
+      />
+      <Stack.Screen
+        name={'TestResult'}
+        component={TestResult}
+        options={{
+          headerTitle: '심리 테스트 결과',
+        }}
+      />
+      <Stack.Screen
+        name={'ServiceQuestions'}
+        component={ServiceQuestions}
+        options={{
+          headerTitle: '추가 질문',
         }}
       />
     </Stack.Navigator>
