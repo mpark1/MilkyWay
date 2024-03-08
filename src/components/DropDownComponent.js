@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import DropDownPicker from 'react-native-dropdown-picker';
 
@@ -49,6 +49,7 @@ const DropDownComponent = ({
       setOpen={setOpen}
       zIndex={zIndex}
       listMode="SCROLLVIEW"
+      dropDownDirection={'BOTTOM'}
     />
   );
 };
@@ -73,9 +74,19 @@ const styles = StyleSheet.create({
     textStyle: {fontSize: scaleFontSize(18)},
   },
   serviceQuestions: {
-    containerStyle: {},
-    borderStyle: {},
-    placeholder: {},
-    textStyle: {},
+    containerStyle: {
+      width: Dimensions.get('window').height * 0.18,
+      maxHeight: 30,
+      backgroundColor: '#fff',
+    },
+    borderStyle: {
+      borderRadius: 5,
+      borderColor: '#d9d9d9',
+      minHeight: 40,
+      padding: 5,
+      fontSize: scaleFontSize(18),
+    },
+    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    textStyle: {fontSize: scaleFontSize(18)},
   },
 });

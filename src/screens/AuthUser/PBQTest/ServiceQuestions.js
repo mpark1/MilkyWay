@@ -15,26 +15,29 @@ import {CheckBox} from '@rneui/themed';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ButtonGroups from '../../../components/Buttons/ButtonGroups';
+import DropDownComponent from '../../../components/DropDownComponent';
+import PetTypes from '../../../data/PetTypes.json';
 
 // check slider - it exceeds the max value, why???
 const ServiceQuestions = ({navigation}) => {
   const [questionnaire, setQuestionnaire] = useState({
     1: 2,
     2: 2,
-    3: 0,
-    '3boxChecked': false,
-    4: 0,
-    '4boxChecked': false,
-    5: 0,
-    '5boxChecked': false,
-    6: 0,
-    '6boxChecked': false,
     '7bookChecked': false,
     '7goodsChecked': false,
+    '7artTherapyChecked': false,
     '7otherGoods': '',
     8: '',
   });
   console.log(questionnaire);
+  const [question3, setQuestion3] = useState(0);
+  const [question4, setQuestion4] = useState(0);
+  const [question5, setQuestion5] = useState(0);
+  const [question6, setQuestion6] = useState(0);
+  const [onlineIndividual, setOnlineIndividual] = useState(false);
+  const [onlineGroup, setOnlineGroup] = useState(false);
+  const [offlineIndividual, setOfflineIndividual] = useState(false);
+  const [offlineGroup, setOfflineGroup] = useState(false);
 
   const updateAnswer = (questionNum, newValue) =>
     setQuestionnaire(prev => ({
@@ -42,6 +45,33 @@ const ServiceQuestions = ({navigation}) => {
       [questionNum]: newValue,
     }));
 
+  const setOptionsDropdown = (lowerbound, upperbound) => {
+    const options = [{label: '관심없음', value: -1}];
+    for (let i = lowerbound; i <= upperbound; i++) {
+      options.push({label: i, value: i});
+    }
+    console.log('print dropbox options; ', options);
+    return options;
+  };
+
+  const returnCheckBox = (question, key) => {
+    return (
+      <View style={styles.alignCommentAndBox}>
+        <Text style={[styles.textStyle, {paddingRight: 10}]}>{question}</Text>
+        <CheckBox
+          containerStyle={styles.checkBox}
+          size={22}
+          checked={questionnaire[key]}
+          onPress={() => updateAnswer(key, !questionnaire[key])}
+          iconType="material-community"
+          checkedIcon="checkbox-marked"
+          uncheckedIcon="checkbox-blank-outline"
+          uncheckedColor={'#374957'}
+          checkedColor={'#6395E1'}
+        />
+      </View>
+    );
+  };
   const firstQuestions = (questionNum, question, componentType) => {
     return (
       <View style={styles.oneQuestion}>
@@ -56,32 +86,29 @@ const ServiceQuestions = ({navigation}) => {
   };
 
   const secondQuestions = (
-    questionNum,
-    boxNum,
+    value,
+    setValue,
     question,
     description,
-    componentType,
+    dropdownType,
+    setDropdownType,
+    dropdownIndex,
     lowerbound,
     upperbound,
   ) => {
     return (
-      <View style={styles.oneQuestion}>
+      <View style={[styles.oneQuestion, {zIndex: dropdownIndex}]}>
         <View style={styles.alignQuestionAndBox}>
           <Text style={styles.textStyle}>{question}</Text>
-          <View style={styles.alignBoxComment}>
-            <CheckBox
-              containerStyle={styles.checkBox}
-              size={20}
-              checked={questionnaire[boxNum]}
-              onPress={() => updateAnswer(boxNum, !questionnaire[boxNum])}
-              iconType="material-community"
-              checkedIcon="checkbox-marked"
-              uncheckedIcon="checkbox-blank-outline"
-              uncheckedColor={'#374957'}
-              checkedColor={'#6395E1'}
-            />
-            <Text style={styles.checkboxText}>관심없음</Text>
-          </View>
+          <DropDownComponent
+            items={setOptionsDropdown(lowerbound, upperbound)}
+            value={value}
+            setValue={setValue}
+            open={dropdownType}
+            setOpen={setDropdownType}
+            zIndex={dropdownIndex}
+            whichPage={'ServiceQuestion'}
+          />
         </View>
         <Text style={styles.textDescription}>{description}</Text>
       </View>
@@ -94,41 +121,8 @@ const ServiceQuestions = ({navigation}) => {
         <Text style={styles.textStyle}>
           7. 아래에서 관심있는 서비스를 선택해주세요.
         </Text>
-        <View style={styles.alignCommentAndBox}>
-          <Text style={styles.textStyle}> - 반려동물이 주인공인 책 만들기</Text>
-          <CheckBox
-            containerStyle={styles.checkBox}
-            size={22}
-            checked={questionnaire['7bookChecked']}
-            onPress={() =>
-              updateAnswer('7bookChecked', !questionnaire['7bookChecked'])
-            }
-            iconType="material-community"
-            checkedIcon="checkbox-marked"
-            uncheckedIcon="checkbox-blank-outline"
-            uncheckedColor={'#374957'}
-            checkedColor={'#6395E1'}
-          />
-        </View>
-        <View style={styles.alignCommentAndBox}>
-          <Text style={styles.textStyle}>
-            {' '}
-            - 추모 굿즈 만들기 (컵, 액자 등)
-          </Text>
-          <CheckBox
-            containerStyle={styles.checkBox}
-            size={22}
-            checked={questionnaire['7goodsChecked']}
-            onPress={() =>
-              updateAnswer('7goodsChecked', !questionnaire['7goodsChecked'])
-            }
-            iconType="material-community"
-            checkedIcon="checkbox-marked"
-            uncheckedIcon="checkbox-blank-outline"
-            uncheckedColor={'#374957'}
-            checkedColor={'#6395E1'}
-          />
-        </View>
+        {returnCheckBox('- 반려동물이 주인공인 책 만들기', '7bookChecked')}
+        {returnCheckBox('- 추모 굿즈 만들기 (컵, 액자 등)', '7goodsChecked')}
         <View style={styles.textInputWrapper}>
           <Text style={styles.textStyle}>원하는 굿즈</Text>
           <TextInput
@@ -143,6 +137,7 @@ const ServiceQuestions = ({navigation}) => {
             }
           />
         </View>
+        {returnCheckBox('- 미술 심리 치료', '7artTherapyChecked')}
       </View>
     );
   };
@@ -184,43 +179,51 @@ const ServiceQuestions = ({navigation}) => {
             'qualitative',
           )}
           <Text style={styles.litteText}>
-            *3-6번: 본인이 최대로 지불할 금액을 선택해 주세요.
+            *3-6번: 1회 상담시 본인이 최대로 지불할 금액을 선택해 주세요.
           </Text>
           {secondQuestions(
-            3,
-            '3boxChecked',
+            question3,
+            setQuestion3,
             '3. 개인(1:1) 온라인 심리상담 ',
-            '적정비용 (1회 50분)',
-            'quantitative',
+            '(1회 50분)',
+            onlineIndividual,
+            setOnlineIndividual,
+            500,
             6,
             10,
           )}
           {secondQuestions(
-            4,
-            '4boxChecked',
+            question4,
+            setQuestion4,
             '4. 그룹 온라인 심리상담',
-            '적정비용 (1회 90분, 4명 이하)',
-            'quantitative',
+            '(1회 90분, 4명 이하)',
+            onlineGroup,
+            setOnlineGroup,
+            400,
+            4,
+            8,
+          )}
+          {secondQuestions(
+            question5,
+            setQuestion5,
+            '5. 개인(1:1) 오프라인 심리상담',
+            '(1회 50분)',
+            offlineIndividual,
+            setOfflineIndividual,
+            300,
+            8,
+            12,
+          )}
+          {secondQuestions(
+            question6,
+            setQuestion6,
+            '6. 그룹 오프라인 심리상담',
+            '(1회 90분, 4명 이하)',
+            offlineGroup,
+            setOfflineGroup,
+            200,
             6,
             10,
-          )}
-          {secondQuestions(
-            5,
-            '5boxChecked',
-            '5. 개인(1:1) 오프라인 심리상담',
-            '적정비용 (1회 50분)',
-            'quantitative',
-            7,
-            15,
-          )}
-          {secondQuestions(
-            6,
-            '6boxChecked',
-            '6. 그룹 오프라인 심리상담',
-            '적정비용 (1회 90분, 4명 이하)',
-            'quantitative',
-            6,
-            12,
           )}
           {thirdQuestions()}
           {fourthQuestion()}
@@ -260,7 +263,7 @@ const styles = StyleSheet.create({
   },
   alignCommentAndBox: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 15,
     // paddingTop: 5,
@@ -274,10 +277,6 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     color: '#939393',
   },
-  checkboxText: {
-    fontSize: scaleFontSize(18),
-    marginHorizontal: 5,
-  },
   textDescription: {
     fontSize: scaleFontSize(16),
     marginTop: 5,
@@ -286,7 +285,7 @@ const styles = StyleSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 30,
     marginVertical: 5,
     alignItems: 'center',
   },
