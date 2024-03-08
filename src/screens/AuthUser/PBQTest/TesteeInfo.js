@@ -10,6 +10,7 @@ import PetTypes from '../../../data/PetTypes.json';
 import deathCauses from '../../../data/deathCauses.json';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import DropDownComponent from '../../../components/DropDownComponent';
 
 const TesteeInfo = ({navigation}) => {
   const petOptions = Object.keys(PetTypes).map(key => ({
@@ -205,22 +206,31 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={[styles.fieldContainer, {alignItems: 'center', zIndex: 5}]}>
         <Text style={styles.text}>5. 동물종류</Text>
-        <DropDownPicker
-          containerStyle={styles.dropDownPicker.containerStyle}
-          style={styles.dropDownPicker.borderStyle}
-          dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-          textStyle={{fontSize: scaleFontSize(18)}}
-          multiple={false}
-          placeholderStyle={styles.dropDownPicker.placeholder}
+        <DropDownComponent
           items={petOptions}
-          placeholder={'선택'}
-          setValue={setPetType}
           value={petType}
+          setValue={setPetType}
           open={typePickerOpen}
           setOpen={setTypePickerOpen}
-          zIndex={4}
-          listMode="SCROLLVIEW"
+          zIndex={5}
+          whichPage={'TesteeInfo'}
         />
+        {/*<DropDownPicker*/}
+        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
+        {/*  style={styles.dropDownPicker.borderStyle}*/}
+        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
+        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
+        {/*  multiple={false}*/}
+        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
+        {/*  items={petOptions}*/}
+        {/*  placeholder={'선택'}*/}
+        {/*  setValue={setPetType}*/}
+        {/*  value={petType}*/}
+        {/*  open={typePickerOpen}*/}
+        {/*  setOpen={setTypePickerOpen}*/}
+        {/*  zIndex={5}*/}
+        {/*  listMode="SCROLLVIEW"*/}
+        {/*/>*/}
       </View>
     );
   };
@@ -229,23 +239,32 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={[styles.fieldContainer, {alignItems: 'center', zIndex: 3}]}>
         <Text style={styles.text}>6. 죽음의 원인</Text>
-        <DropDownPicker
-          containerStyle={styles.dropDownPicker.containerStyle}
-          style={styles.dropDownPicker.borderStyle}
-          dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-          textStyle={{fontSize: scaleFontSize(18)}}
-          multiple={false}
-          placeholderStyle={styles.dropDownPicker.placeholder}
+        <DropDownComponent
           items={deathOptions}
-          placeholder={'선택'}
-          setValue={setDeathCause}
           value={deathCause}
+          setValue={setDeathCause}
           open={deathCausePickerOpen}
           setOpen={setDeathCausePickerOpen}
-          zIndex={2}
-          listMode="SCROLLVIEW"
-          dropDownDirection="BOTTOM"
+          zIndex={3}
+          whichPage={'TesteeInfo'}
         />
+        {/*<DropDownPicker*/}
+        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
+        {/*  style={styles.dropDownPicker.borderStyle}*/}
+        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
+        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
+        {/*  multiple={false}*/}
+        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
+        {/*  items={deathOptions}*/}
+        {/*  placeholder={'선택'}*/}
+        {/*  setValue={setDeathCause}*/}
+        {/*  value={deathCause}*/}
+        {/*  open={deathCausePickerOpen}*/}
+        {/*  setOpen={setDeathCausePickerOpen}*/}
+        {/*  zIndex={2}*/}
+        {/*  listMode="SCROLLVIEW"*/}
+        {/*  dropDownDirection="BOTTOM"*/}
+        {/*/>*/}
       </View>
     );
   };
@@ -403,6 +422,7 @@ const styles = StyleSheet.create({
   greyBackground: {
     backgroundColor: '#EEEEEE',
     borderRadius: 5,
+    zIndex: 3,
   },
   greyBackgroundSpacer: {
     paddingHorizontal: Dimensions.get('window').width * 0.02,
