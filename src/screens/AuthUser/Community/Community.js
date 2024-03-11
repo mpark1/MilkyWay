@@ -16,6 +16,7 @@ import PetCard from '../../../components/PetCard';
 import globalStyle from '../../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {scaleFontSize} from '../../../assets/styles/scaling';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -101,6 +102,16 @@ const Community = ({navigation}) => {
             // onPress={handlePBQTestNavigation}
             onPress={() => navigation.navigate('TesteeInfo')}>
             <Text style={styles.psychTestText}>심리 테스트</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Text style={styles.psychTestSubText}>
+                내 마음상태 점검하러 가기
+              </Text>
+              <AntDesign
+                name={'arrowright'}
+                size={scaleFontSize(20)}
+                color={'#FFF'}
+              />
+            </View>
           </Pressable>
         </View>
         {isFetchComplete && petData.pets.length > 0 && (
@@ -127,15 +138,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   psychTest: {
-    width: '90%',
+    width: Dimensions.get('window').width * 0.93,
     height: 70,
-    backgroundColor: '#FFF',
+    backgroundColor: '#B6B02C',
+    opacity: 0.9,
+    borderRadius: 8,
     alignSelf: 'center',
     justifyContent: 'center',
+    marginTop: 5,
   },
   psychTestText: {
-    fontSize: scaleFontSize(25),
-    textAlign: 'center',
+    fontSize: scaleFontSize(20),
+    marginLeft: 10,
+    marginBottom: 10,
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  psychTestSubText: {
+    fontSize: scaleFontSize(18),
+    marginHorizontal: 10,
+    color: '#FFF',
   },
   searchIconContainer: {
     width: '100%',
