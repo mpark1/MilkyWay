@@ -11,8 +11,7 @@ import PBQTestQuestion from '../../../components/PBQTestQuestion';
 import questionnaire from '../../../data/PBQ.json';
 
 const PBQ = ({navigation}) => {
-  const [answers, setAnswers] = useState({}); // maintain state of answers
-  console.log(answers);
+  const [answers, setAnswers] = useState({});
   const canGoNext = Object.keys(answers).length === 16;
 
   const handleSetAnswer = (id, value) => {
@@ -23,7 +22,7 @@ const PBQ = ({navigation}) => {
   };
 
   const onSubmit = () => {
-    // 1. Grief, Anger, Guilt 점수 계산
+    // 1. 점수 계산
     const griefScore = Object.keys(answers)
       .filter(key => key >= 1 && key <= 5) // For keys 1 to 7
       .reduce((total, key) => total + answers[key], 0);
@@ -36,13 +35,14 @@ const PBQ = ({navigation}) => {
       .filter(key => key >= 15 && key <= 16) // For keys 15 to 16
       .reduce((total, key) => total + answers[key], 0);
 
-    console.log(`Grief: ${griefScore}`);
-    console.log(`Anger: ${angerScore}`);
-    console.log(`Guilt: ${guiltScore}`);
+    console.log(`grief: ${griefScore}`);
+    console.log(`anger: ${angerScore}`);
+    console.log(`guilt: ${guiltScore}`);
 
     // 2. db에 결과 업로드?
 
     // 3. navigation
+    navigation.navigate('TestResult');
   };
 
   const [showCitation, setShowCitation] = React.useState(false);
@@ -59,14 +59,9 @@ const PBQ = ({navigation}) => {
             onClose={() => setShowCitation(false)}
             height={45}
             width={Dimensions.get('window').width * 0.8}
-            containerStyle={{
-              marginLeft: Dimensions.get('window').width * 0.15,
-              paddingHorizontal: 5,
-              paddingVertical: 0,
-              alignItems: 'center',
-            }}
+            containerStyle={styles.tooltip.container}
             popover={
-              <Text style={{color: '#fff', fontSize: scaleFontSize(14)}}>
+              <Text style={styles.tooltip.text}>
                 Hunt, M.; Padilla, Y. Development of the Pet Bereavement
                 Questionnaire. Anthrozoös 2006
               </Text>
@@ -97,8 +92,8 @@ const PBQ = ({navigation}) => {
     return (
       <View style={styles.nextButtonContainer}>
         <BlueButton
-          // onPress={onSubmit}
-          onPress={() => navigation.navigate('TestResult')}
+          onPress={onSubmit}
+          // onPress={() => navigation.navigate('TestResult')}
           disabled={!canGoNext}
           title={'결과보기'}
         />
@@ -141,5 +136,17 @@ const styles = StyleSheet.create({
   citation: {
     color: '#939393',
     fontSize: scaleFontSize(16),
+  },
+  tooltip: {
+    container: {
+      marginLeft: Dimensions.get('window').width * 0.15,
+      paddingHorizontal: 5,
+      paddingVertical: 0,
+      alignItems: 'center',
+    },
+    text: {
+      color: '#fff',
+      fontSize: scaleFontSize(14),
+    },
   },
 });

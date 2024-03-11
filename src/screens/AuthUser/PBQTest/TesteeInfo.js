@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -6,9 +6,9 @@ import {
   View,
   TextInput,
   Pressable,
-  Alert,
 } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import DatePicker from 'react-native-date-picker';
 import {CheckBox} from '@rneui/themed';
 
 import globalStyle from '../../../assets/styles/globalStyle';
@@ -17,13 +17,11 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 import PetTypes from '../../../data/PetTypes.json';
 import deathCauses from '../../../data/deathCauses.json';
 import BlueButton from '../../../components/Buttons/BlueButton';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DropDownComponent from '../../../components/DropDownComponent';
-import DatePicker from 'react-native-date-picker';
+import AlertBox from '../../../components/AlertBox';
 import {getCurrentDate} from '../../../utils/utils';
 
 const TesteeInfo = ({navigation}) => {
-  /* TODO - complete input validation */
   const petOptions = Object.keys(PetTypes).map(key => ({
     label: key,
     value: key,
@@ -42,8 +40,8 @@ const TesteeInfo = ({navigation}) => {
     gender: -1, // 0 - 여자, 1 - 남자
     birthdayString: '',
     caretakerType: -1, // 0 - 1인 보호자, 1 - 가족 단위 보호자
-    petOwnershipPeriodYear: '',
-    petOwnershipPeriodMonth: '',
+    petOwnershipYear: '',
+    petOwnershipMonth: '',
     ageOfDeath: '',
     timePassed: '',
     pastExperience: null,
@@ -70,9 +68,7 @@ const TesteeInfo = ({navigation}) => {
     answer.gender !== -1 &&
     answer.birthdayString.length !== 0 &&
     answer.caretakerType !== -1 &&
-    answer.petOwnershipPeriodYear.length +
-      answer.petOwnershipPeriodMonth.length !==
-      0 &&
+    answer.petOwnershipYear.length + answer.petOwnershipMonth.length !== 0 &&
     answer.ageOfDeath.length !== 0 &&
     answer.timePassed.length !== 0 &&
     answer.pastExperience !== null;
@@ -83,29 +79,59 @@ const TesteeInfo = ({navigation}) => {
       [fieldTitle]: newValue,
     }));
 
-  const dropDownAnswer = useState({
-    5: -1,
-    6: -1,
-  });
-  const onSubmit = () => {
-    // input validation
-    if (answer.ageOfDeath === '0') {
-      // Alert
-    }
-
-    if (
-      answer.petOwnershipPeriodYear === '0' &&
-      answer.petOwnershipPeriodMonth === '0'
-    ) {
-      // Alert
+  const question4InputValidation = (years, months) => {
+    if (years.length > 0) {
+      let intYears = parseInt(years, 10);
+      if (intYears > 30) {
+        return AlertBox(
+          '4번 문항 답변을 확인해주세요.',
+          '선택가능한 최장 양육기간은 30년입니다.',
+          '확인',
+          'none',
+        );
+      } else {
+        updateAnswer('petOwnershipPeriodYear', years);
+      }
+    } else {
+      let intMonths = parseInt(months, 10);
+      if (intMonths < 12) {
+        updateAnswer('petOwnershipPeriodMonth', months);
+      } else {
+        updateAnswer('petOwnershipPeriodMonth', (intMonths - 12).toString());
+        updateAnswer(
+          'petOwnershipPeriodYear',
+          Math.floor(intMonths / 12).toString(),
+        );
+      }
     }
   };
 
-  const renderInstruction = useCallback(() => {
+  const onSubmit = () => {
+    // input validation
+    if (answer.petOwnershipYear === '0' && answer.petOwnershipMonth === '0') {
+      return AlertBox('4번 문항 답변을 확인해주세요.', '', '확인', 'none');
+    }
+
+    if (answer.ageOfDeath === '0') {
+      // Alert
+      return AlertBox('7번 문항 답변을 확인해주세요.', '', '확인', 'none');
+    }
+
+    // DB에 업로드 - 양육기간 개월수로 바꿔서 올리기
+    const petOwnershipPeriodLength =
+      (answer.petOwnershipYear * 12).toString() +
+      answer.petOwnershipMonth.toString();
+    // const newDBInput = {};
+
+    // 네비게이션
+    navigation.navigate('PBQ');
+  };
+
+  const renderInstruction = () => {
     return (
       <Text style={styles.instruction}>심리 테스트 전 질문 몇개만 할게요.</Text>
     );
-  }, []);
+  };
 
   const renderDatePicker = () => {
     return (
@@ -245,10 +271,10 @@ const TesteeInfo = ({navigation}) => {
             autoCapitalize={'none'}
             autoCorrect={false}
             keyboardType={'number-pad'}
-            onChangeText={years =>
-              updateAnswer('petOwnershipPeriodYear', years)
-            }
-            value={answer.petOwnershipPeriodYear}
+            onChangeText={years => {
+              question4InputValidation(years, '');
+            }}
+            value={answer.petOwnershipYear}
           />
           <Text style={styles.text}>
             {'  '}년{'   '}{' '}
@@ -260,22 +286,9 @@ const TesteeInfo = ({navigation}) => {
             autoCorrect={false}
             keyboardType={'number-pad'}
             onChangeText={months => {
-              // Ensure the input is not greater than integer 11
-              let intMonths = parseInt(months, 10);
-              if (intMonths < 12) {
-                updateAnswer('petOwnershipPeriodMonth', months);
-              } else {
-                updateAnswer(
-                  'petOwnershipPeriodMonth',
-                  (intMonths - 12).toString(),
-                );
-                updateAnswer(
-                  'petOwnershipPeriodYear',
-                  (intMonths % 12).toString(),
-                );
-              }
+              question4InputValidation('', months);
             }}
-            value={answer.petOwnershipPeriodMonth}
+            value={answer.petOwnershipMonth}
           />
           <Text style={[styles.text]}>{'  '}개월</Text>
         </View>
@@ -296,22 +309,6 @@ const TesteeInfo = ({navigation}) => {
           zIndex={5}
           whichPage={'TesteeInfo'}
         />
-        {/*<DropDownPicker*/}
-        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
-        {/*  style={styles.dropDownPicker.borderStyle}*/}
-        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
-        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
-        {/*  multiple={false}*/}
-        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
-        {/*  items={petOptions}*/}
-        {/*  placeholder={'선택'}*/}
-        {/*  setValue={setPetType}*/}
-        {/*  value={petType}*/}
-        {/*  open={typePickerOpen}*/}
-        {/*  setOpen={setTypePickerOpen}*/}
-        {/*  zIndex={5}*/}
-        {/*  listMode="SCROLLVIEW"*/}
-        {/*/>*/}
       </View>
     );
   };
@@ -329,23 +326,6 @@ const TesteeInfo = ({navigation}) => {
           zIndex={3}
           whichPage={'TesteeInfo'}
         />
-        {/*<DropDownPicker*/}
-        {/*  containerStyle={styles.dropDownPicker.containerStyle}*/}
-        {/*  style={styles.dropDownPicker.borderStyle}*/}
-        {/*  dropDownContainerStyle={styles.dropDownPicker.borderStyle}*/}
-        {/*  textStyle={{fontSize: scaleFontSize(18)}}*/}
-        {/*  multiple={false}*/}
-        {/*  placeholderStyle={styles.dropDownPicker.placeholder}*/}
-        {/*  items={deathOptions}*/}
-        {/*  placeholder={'선택'}*/}
-        {/*  setValue={setDeathCause}*/}
-        {/*  value={deathCause}*/}
-        {/*  open={deathCausePickerOpen}*/}
-        {/*  setOpen={setDeathCausePickerOpen}*/}
-        {/*  zIndex={2}*/}
-        {/*  listMode="SCROLLVIEW"*/}
-        {/*  dropDownDirection="BOTTOM"*/}
-        {/*/>*/}
       </View>
     );
   };
@@ -452,10 +432,9 @@ const TesteeInfo = ({navigation}) => {
     return (
       <View style={styles.nextButtonContainer}>
         <BlueButton
-          disabled={false}
+          disabled={!canGoNext}
           title={'테스트 시작'}
-          // onPress={onSubmit}
-          onPress={() => navigation.navigate('PBQ')}
+          onPress={onSubmit}
         />
       </View>
     );
