@@ -43,12 +43,17 @@ const Home = ({navigation}) => {
 
   useEffect(() => {
     console.log('this is Home tab. print redux: ', petID, lastWord);
-    querySingleItem(getIntroductionMessage, {petID: petID}).then(response => {
-      console.log('print intro message: ', response);
-      response.getIntroductionMessage !== null &&
-        setIntroductionMsg(response.getIntroductionMessage.introductionMsg);
-      setFetchedData(true);
-    });
+    const queryInsideUseEffect = async () => {
+      await querySingleItem(getIntroductionMessage, {petID: petID}).then(
+        response => {
+          console.log('print intro message: ', response);
+          response.getIntroductionMessage !== null &&
+            setIntroductionMsg(response.getIntroductionMessage.introductionMsg);
+          setFetchedData(true);
+        },
+      );
+    };
+    queryInsideUseEffect();
     console.log('Home tab is rendered');
   }, []);
 

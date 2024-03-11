@@ -100,8 +100,45 @@ type User @model(queries: {get: "getUser"}, mutations: {create: "createUser", up
     profilePic: String
     name: String!
     gender: Int
-    age: Int
+    birthday: String
+    numOfDeadPets: Int
     state: userState!
+}
+
+type PsychologicalTest @model(mutations: {create: "createTest", update: "updateTest"}, subscriptions: null)
+@auth(
+    rules: [
+        { allow: groups, groups: ["admin"]}
+        { allow: owner, ownerField: "id"},
+    ])
+{
+    id: ID! @primaryKey
+    totalScore: Float!
+    griefScore:  Float!
+    angerScore:  Float!
+    guiltScore:  Float!
+    numOfTimes: Int!
+}
+
+type ServiceSurvey @model(subscriptions: null)
+@auth(
+    rules: [
+        { allow: groups, groups: ["admin"]}
+    ])
+{
+    id: ID! @primaryKey
+    numOfSurveys: Int!
+    petSpace: Int!
+    communitySpace: Int!
+    individualOnlineCounseling: Int!
+    groupOnlineCounseling: Int!
+    individualOfflineCounseling: Int!
+    groupOfflineCounseling: Int!
+    book: Boolean!
+    goods: Boolean!
+    goodsUserInput: String
+    artTherapy: Boolean!
+    otherService: String
 }
 
 enum letterAccessLevel {

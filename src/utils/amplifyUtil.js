@@ -140,10 +140,10 @@ export async function querySingleItem(queryName, variables) {
       variables: variables,
       authMode: 'userPool',
     });
-    const petData = response.data;
-    return petData;
+    const singleItem = response.data;
+    return singleItem;
   } catch (error) {
-    console.log('error for getting pet data from db: ', error);
+    console.log('error for getting a single item from db: ', error);
   }
 }
 

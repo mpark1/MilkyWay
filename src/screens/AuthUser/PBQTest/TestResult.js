@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,32 @@ import {scaleFontSize} from '../../../assets/styles/scaling';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import PBQTestResult from '../../../components/PBQTestResult';
 import BlueButton from '../../../components/Buttons/BlueButton';
+import testResultComments from '../../../data/testResultComments.json';
+import {useSelector} from 'react-redux';
+import {querySingleItem} from '../../../utils/amplifyUtil';
+import {getPsychologicalTest} from '../../../graphql/queries';
 
-const TestResult = ({navigation}) => {
+const TestResult = ({navigation, route}) => {
+  const {totalScore, griefScore, angerScore, guiltScore} = route.params;
+  console.log(totalScore, griefScore, angerScore, guiltScore);
+
+  const testResultDescription = () => {
+    let comment = '';
+    const thresholds = Object.keys(testResultComments).map(Number);
+    for (let i = 0; i < thresholds.length; i++) {
+      if (totalScore <= thresholds[i]) {
+        comment = testResultComments[thresholds[i]];
+        console.log('print result comment', comment);
+        break;
+      }
+    }
+    return comment;
+  };
+
   return (
     <ScrollView style={styles.page}>
       <View style={[styles.topContainer, styles.shadowProp]}>
-        <Text style={styles.titleText}>총 37점</Text>
+        <Text style={styles.titleText}>총 {totalScore}점</Text>
         <View style={{flexDirection: 'row'}}>
           <FontAwesome6Icon
             name={'prescription-bottle-medical'}
@@ -25,27 +45,27 @@ const TestResult = ({navigation}) => {
             color={'#000'}
           />
           <Text style={styles.prescriptionText}>
-            처방 - 슬픔의 무게가 버거운 당신, 심리상담을 받아보는건 어때요?
+            처방 - {testResultDescription()}
           </Text>
         </View>
       </View>
-      <Text style={styles.dateTime}>검사일시: 2024년 5월 1일 15:00pm</Text>
+      {/*<Text style={styles.dateTime}>검사일시: 2024년 5월 1일 15:00pm</Text>*/}
       <View style={styles.graphContainer}>
         <PBQTestResult
           title={'슬픔'}
-          percentage={0.9}
+          decimal={griefScore}
           barColor={'#DA6666'}
           trackColor={'#DCA1A1'}
         />
         <PBQTestResult
           title={'죄책감'}
-          percentage={0.7}
+          decimal={guiltScore}
           barColor={'#6890DF'}
           trackColor={'#94B3E0'}
         />
         <PBQTestResult
           title={'분노'}
-          percentage={0.6}
+          decimal={angerScore}
           barColor={'#59BC69'}
           trackColor={'#A5BAA8'}
         />

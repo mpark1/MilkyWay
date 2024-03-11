@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Dimensions, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Tooltip} from '@rneui/themed';
 
@@ -9,10 +9,34 @@ import BlueButton from '../../../components/Buttons/BlueButton';
 import PBQTestQuestion from '../../../components/PBQTestQuestion';
 
 import questionnaire from '../../../data/PBQ.json';
+import {
+  mutationItemNoAlertBox,
+  querySingleItem,
+} from '../../../utils/amplifyUtil';
+import {createTest, updateTest, updateUser} from '../../../graphql/mutations';
+import {useSelector} from 'react-redux';
+import {getPsychologicalTest} from '../../../graphql/queries';
 
 const PBQ = ({navigation}) => {
+  const cognitoUsername = useSelector(state => state.user.cognitoUsername);
   const [answers, setAnswers] = useState({});
   const canGoNext = Object.keys(answers).length === 16;
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
+  const [numOfTests, setNumOfTests] = useState(0);
+
+  // 1. first, check if this person took the test before. If null, first time.
+  useEffect(() => {
+    const retrievePBQ = async () => {
+      await querySingleItem(getPsychologicalTest, {id: cognitoUsername}).then(
+        data => {
+          console.log('print single obj', data.getPsychologicalTest);
+          data.getPsychologicalTest !== null &&
+            setNumOfTests(data.getPsychologicalTest.numOfTimes);
+        },
+      );
+    };
+    retrievePBQ();
+  }, [cognitoUsername]);
 
   const handleSetAnswer = (id, value) => {
     setAnswers(prevAnswers => ({
@@ -21,28 +45,60 @@ const PBQ = ({navigation}) => {
     }));
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     // 1. 점수 계산
-    const griefScore = Object.keys(answers)
+    let griefScore = Object.keys(answers)
       .filter(key => key >= 1 && key <= 5) // For keys 1 to 7
       .reduce((total, key) => total + answers[key], 0);
 
-    const angerScore = Object.keys(answers)
+    let angerScore = Object.keys(answers)
       .filter(key => key >= 6 && key <= 12) // For keys 8 to 14
       .reduce((total, key) => total + answers[key], 0);
 
-    const guiltScore = Object.keys(answers)
+    let guiltScore = Object.keys(answers)
       .filter(key => key >= 15 && key <= 16) // For keys 15 to 16
       .reduce((total, key) => total + answers[key], 0);
+
+    const totalScore = griefScore + angerScore + guiltScore;
+    griefScore = parseFloat((griefScore / 21).toFixed(2));
+    angerScore = parseFloat((angerScore / 15).toFixed(2));
+    guiltScore = parseFloat((guiltScore / 12).toFixed(2));
 
     console.log(`grief: ${griefScore}`);
     console.log(`anger: ${angerScore}`);
     console.log(`guilt: ${guiltScore}`);
 
-    // 2. db에 결과 업로드?
-
+    // 2. db에 결과 업로드
+    const inputObj = {
+      id: cognitoUsername,
+      totalScore: totalScore,
+      griefScore: griefScore,
+      angerScore: angerScore,
+      guiltScore: guiltScore,
+      numOfTimes: numOfTests === 0 ? 1 : numOfTests + 1,
+    };
+    if (numOfTests === 0) {
+      await mutationItemNoAlertBox(
+        isCallingAPI,
+        setIsCallingAPI,
+        inputObj,
+        createTest,
+      );
+    } else {
+      await mutationItemNoAlertBox(
+        isCallingAPI,
+        setIsCallingAPI,
+        inputObj,
+        updateTest,
+      );
+    }
     // 3. navigation
-    navigation.navigate('TestResult');
+    navigation.navigate('TestResult', {
+      totalScore: totalScore,
+      griefScore: griefScore,
+      angerScore: angerScore,
+      guiltScore: guiltScore,
+    });
   };
 
   const [showCitation, setShowCitation] = React.useState(false);

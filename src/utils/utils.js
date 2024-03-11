@@ -1,4 +1,3 @@
-import {Alert} from 'react-native';
 import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -34,6 +33,35 @@ export function getTimeElapsed(dateTimeString) {
     return `${minutes}분 전 `;
   } else {
     return `${seconds}초 전 `;
+  }
+}
+
+export function calculateAge(selectedDate, type) {
+  // Get the current date
+  const currentDate = new Date();
+
+  // Calculate the age
+  let ageInYears = currentDate.getFullYear() - selectedDate.getFullYear();
+  let ageInMonths =
+    (currentDate.getFullYear() - selectedDate.getFullYear()) * 12 +
+    (currentDate.getMonth() - selectedDate.getMonth());
+
+  // If the birth month and day haven't occurred this year yet, subtract 1 from age
+  if (
+    currentDate.getMonth() < selectedDate.getMonth() ||
+    (currentDate.getMonth() === selectedDate.getMonth() &&
+      currentDate.getDate() < selectedDate.getDate())
+  ) {
+    ageInYears--;
+    ageInMonths--;
+  }
+
+  if (type === 'human') {
+    return ageInYears;
+  } else if (ageInYears < 1) {
+    return ageInMonths.toString() + '개월';
+  } else {
+    return ageInYears.toString() + '살';
   }
 }
 

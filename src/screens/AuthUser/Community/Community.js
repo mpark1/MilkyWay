@@ -17,6 +17,7 @@ import globalStyle from '../../../assets/styles/globalStyle';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {setUserGender} from '../../../redux/slices/User';
 
 const Community = ({navigation}) => {
   const pageSize = 5;
@@ -75,12 +76,11 @@ const Community = ({navigation}) => {
     }
   };
 
-  const handlePBQTestNavigation = () => {
+  const handlePBQTest = () => {
     if (gender === -1) {
       navigation.navigate('TesteeInfo');
     } else {
-      // 진단 횟수 몇 미만이면 가장 최근 '테스트 준비' 기입 내용 db에서 가져오기 -> navigation.navigate('PBQ');
-      // 진단 횟수 몇 이상이면 Alert
+      navigation.navigate('PBQ');
     }
   };
 
@@ -98,9 +98,7 @@ const Community = ({navigation}) => {
           </Pressable>
         </View>
         <View style={styles.psychTest}>
-          <Pressable
-            // onPress={handlePBQTestNavigation}
-            onPress={() => navigation.navigate('TesteeInfo')}>
+          <Pressable onPress={() => handlePBQTest()}>
             <Text style={styles.psychTestText}>심리 테스트</Text>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Text style={styles.psychTestSubText}>
@@ -142,7 +140,7 @@ const styles = StyleSheet.create({
     height: 70,
     backgroundColor: '#B6B02C',
     opacity: 0.9,
-    borderRadius: 8,
+    // borderRadius: 8,
     alignSelf: 'center',
     justifyContent: 'center',
     marginTop: 5,

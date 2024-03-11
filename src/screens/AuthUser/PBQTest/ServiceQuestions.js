@@ -17,9 +17,22 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ButtonGroups from '../../../components/Buttons/ButtonGroups';
 import DropDownComponent from '../../../components/DropDownComponent';
 import PetTypes from '../../../data/PetTypes.json';
+import {
+  mutationItem,
+  mutationItemNoAlertBox,
+  querySingleItem,
+} from '../../../utils/amplifyUtil';
+import {getPsychologicalTest, getServiceSurvey} from '../../../graphql/queries';
+import {useSelector} from 'react-redux';
+import {
+  createServiceSurvey,
+  updateServiceSurvey,
+} from '../../../graphql/mutations';
 
 // check slider - it exceeds the max value, why???
 const ServiceQuestions = ({navigation}) => {
+  const cognitoUsername = useSelector(state => state.user.cognitoUsername);
+  const [numOfSurvey, setNumOfSurvey] = useState(0);
   const [questionnaire, setQuestionnaire] = useState({
     1: 2,
     2: 2,
@@ -38,6 +51,36 @@ const ServiceQuestions = ({navigation}) => {
   const [onlineGroup, setOnlineGroup] = useState(false);
   const [offlineIndividual, setOfflineIndividual] = useState(false);
   const [offlineGroup, setOfflineGroup] = useState(false);
+  const [isCallingAPI, setIsCallingAPI] = useState(false);
+
+  // 1. first, check if this person took the serviceSurvey before. If null, first time.
+  useEffect(() => {
+    const retrieveServiceSurvey = async () => {
+      await querySingleItem(getServiceSurvey, {id: cognitoUsername}).then(
+        data => {
+          const obj = data.getServiceSurvey;
+          console.log('print single obj', obj);
+          if (obj !== null) {
+            setNumOfSurvey(obj.numOfSurveys);
+            setQuestion3(obj.individualOnlineCounseling);
+            setQuestion4(obj.groupOnlineCounseling);
+            setQuestion5(obj.individualOfflineCounseling);
+            setQuestion6(obj.groupOfflineCounseling);
+            setQuestionnaire({
+              1: obj.petSpace,
+              2: obj.communitySpace,
+              '7bookChecked': obj.book,
+              '7goodsChecked': obj.goods,
+              '7artTherapyChecked': obj.artTherapy,
+              '7otherGoods': obj.goodsUserInput,
+              8: obj.otherService,
+            });
+          }
+        },
+      );
+    };
+    retrieveServiceSurvey();
+  }, [cognitoUsername]);
 
   const updateAnswer = (questionNum, newValue) =>
     setQuestionnaire(prev => ({
@@ -158,6 +201,46 @@ const ServiceQuestions = ({navigation}) => {
       </View>
     );
   };
+  function popPage() {
+    navigation.pop(3);
+  }
+
+  const onSubmit = async () => {
+    const inputObj = {
+      id: cognitoUsername,
+      numOfSurveys: numOfSurvey + 1,
+      petSpace: questionnaire[1],
+      communitySpace: questionnaire[2],
+      individualOnlineCounseling: question3,
+      groupOnlineCounseling: question4,
+      individualOfflineCounseling: question5,
+      groupOfflineCounseling: question6,
+      book: questionnaire['7bookChecked'],
+      goods: questionnaire['7goodsChecked'],
+      goodsUserInput: questionnaire['7otherGoods'],
+      artTherapy: questionnaire['7artTherapyChecked'],
+      otherService: questionnaire[8],
+    };
+    if (numOfSurvey === 0) {
+      await mutationItem(
+        isCallingAPI,
+        setIsCallingAPI,
+        inputObj,
+        createServiceSurvey,
+        '답변 감사합니다. 좋은 서비스 만들기 위해서 더 노력할께요!',
+        popPage,
+      );
+    } else {
+      await mutationItem(
+        isCallingAPI,
+        setIsCallingAPI,
+        inputObj,
+        updateServiceSurvey,
+        '답변 업데이트해 주셔서 감사해요 ^^ 더 좋은 서비스로 보답할께요!',
+        popPage,
+      );
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -228,10 +311,7 @@ const ServiceQuestions = ({navigation}) => {
           {thirdQuestions()}
           {fourthQuestion()}
           <View style={styles.blueButton}>
-            <BlueButton
-              title={'메인 화면으로'}
-              onPress={() => navigation.navigate('')}
-            />
+            <BlueButton title={'메인 화면으로'} onPress={() => onsubmit()} />
           </View>
         </View>
       </View>

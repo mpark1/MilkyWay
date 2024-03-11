@@ -249,6 +249,9 @@ export const createUser = /* GraphQL */ `
       email
       profilePic
       name
+      gender
+      birthday
+      numOfDeadPets
       state
       createdAt
       updatedAt
@@ -266,7 +269,121 @@ export const updateUser = /* GraphQL */ `
       email
       profilePic
       name
+      gender
+      birthday
+      numOfDeadPets
       state
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createTest = /* GraphQL */ `
+  mutation CreateTest(
+    $input: CreatePsychologicalTestInput!
+    $condition: ModelPsychologicalTestConditionInput
+  ) {
+    createTest(input: $input, condition: $condition) {
+      id
+      totalScore
+      griefScore
+      angerScore
+      guiltScore
+      numOfTimes
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateTest = /* GraphQL */ `
+  mutation UpdateTest(
+    $input: UpdatePsychologicalTestInput!
+    $condition: ModelPsychologicalTestConditionInput
+  ) {
+    updateTest(input: $input, condition: $condition) {
+      id
+      totalScore
+      griefScore
+      angerScore
+      guiltScore
+      numOfTimes
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const createServiceSurvey = /* GraphQL */ `
+  mutation CreateServiceSurvey(
+    $input: CreateServiceSurveyInput!
+    $condition: ModelServiceSurveyConditionInput
+  ) {
+    createServiceSurvey(input: $input, condition: $condition) {
+      id
+      numOfSurveys
+      petSpace
+      communitySpace
+      individualOnlineCounseling
+      groupOnlineCounseling
+      individualOfflineCounseling
+      groupOfflineCounseling
+      book
+      goods
+      goodsUserInput
+      artTherapy
+      otherService
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const updateServiceSurvey = /* GraphQL */ `
+  mutation UpdateServiceSurvey(
+    $input: UpdateServiceSurveyInput!
+    $condition: ModelServiceSurveyConditionInput
+  ) {
+    updateServiceSurvey(input: $input, condition: $condition) {
+      id
+      numOfSurveys
+      petSpace
+      communitySpace
+      individualOnlineCounseling
+      groupOnlineCounseling
+      individualOfflineCounseling
+      groupOfflineCounseling
+      book
+      goods
+      goodsUserInput
+      artTherapy
+      otherService
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const deleteServiceSurvey = /* GraphQL */ `
+  mutation DeleteServiceSurvey(
+    $input: DeleteServiceSurveyInput!
+    $condition: ModelServiceSurveyConditionInput
+  ) {
+    deleteServiceSurvey(input: $input, condition: $condition) {
+      id
+      numOfSurveys
+      petSpace
+      communitySpace
+      individualOnlineCounseling
+      groupOnlineCounseling
+      individualOfflineCounseling
+      groupOfflineCounseling
+      book
+      goods
+      goodsUserInput
+      artTherapy
+      otherService
       createdAt
       updatedAt
       __typename
@@ -292,6 +409,9 @@ export const createLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -323,6 +443,9 @@ export const updateLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -354,6 +477,9 @@ export const deleteLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -382,6 +508,9 @@ export const createGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -410,6 +539,9 @@ export const updateGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -438,6 +570,9 @@ export const deleteGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt

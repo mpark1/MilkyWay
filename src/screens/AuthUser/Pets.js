@@ -30,6 +30,7 @@ import {
   setMyPets,
   setMyPetsFetchComplete,
   setOwnerDetails,
+  setUserGender,
   setUserProfilePic,
   setUserProfilePicS3Key,
 } from '../../redux/slices/User';
@@ -74,6 +75,9 @@ const Pets = ({navigation}) => {
           }),
         );
       dispatch(setUserProfilePicS3Key(response.profilePic)); // update s3 key
+      if ('gender' in response) {
+        dispatch(setUserGender(response.gender));
+      } // update gender if one exists
       await retrieveS3Url(response.profilePic).then(res => {
         dispatch(
           setUserProfilePic({

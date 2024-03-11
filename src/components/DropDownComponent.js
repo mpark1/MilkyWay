@@ -20,9 +20,16 @@ const DropDownComponent = ({
         textStyle: styles.testeeInfo.textStyle,
         placeholderStyle: styles.testeeInfo.placeholder,
       };
-    } else {
+    } else if (whichPage === 'ServiceQuestion') {
       return {
         containerStyle: styles.serviceQuestions.containerStyle,
+        borderStyle: styles.serviceQuestions.borderStyle,
+        textStyle: styles.serviceQuestions.textStyle,
+        placeholderStyle: styles.serviceQuestions.placeholder,
+      };
+    } else {
+      return {
+        containerStyle: styles.otherContainerStyle,
         borderStyle: styles.serviceQuestions.borderStyle,
         textStyle: styles.serviceQuestions.textStyle,
         placeholderStyle: styles.serviceQuestions.placeholder,
@@ -57,6 +64,9 @@ const DropDownComponent = ({
 export default DropDownComponent;
 
 const styles = StyleSheet.create({
+  otherContainerStyle: {
+    width: Dimensions.get('window').height * 0.1,
+  },
   testeeInfo: {
     containerStyle: {
       width: '50%',

@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {scaleFontSize} from '../assets/styles/scaling';
 import {LinearProgress} from '@rneui/themed';
 
-const PBQTestResult = ({title, percentage, barColor, trackColor}) => {
+const PBQTestResult = ({title, decimal, barColor, trackColor}) => {
   return (
     <View style={styles.container}>
       <Text
@@ -14,13 +14,13 @@ const PBQTestResult = ({title, percentage, barColor, trackColor}) => {
         }}>
         {title}
         {'   '}
-        {percentage * 100}
+        {Math.trunc(decimal * 100)}
         {'%'}
       </Text>
       <View style={styles.shadowProp}>
         <LinearProgress
           style={styles.progressBar}
-          value={percentage}
+          value={decimal}
           color={barColor}
           trackColor={trackColor}
           variant="determinate"

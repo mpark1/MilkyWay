@@ -258,6 +258,9 @@ export const onCreateLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -289,6 +292,9 @@ export const onUpdateLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -320,6 +326,9 @@ export const onDeleteLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -348,6 +357,9 @@ export const onCreateGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -376,6 +388,9 @@ export const onUpdateGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -404,6 +419,9 @@ export const onDeleteGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt

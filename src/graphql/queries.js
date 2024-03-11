@@ -292,9 +292,118 @@ export const getUser = /* GraphQL */ `
       email
       profilePic
       name
+      gender
+      birthday
+      numOfDeadPets
       state
       createdAt
       updatedAt
+      __typename
+    }
+  }
+`;
+export const getPsychologicalTest = /* GraphQL */ `
+  query GetPsychologicalTest($id: ID!) {
+    getPsychologicalTest(id: $id) {
+      id
+      totalScore
+      griefScore
+      angerScore
+      guiltScore
+      numOfTimes
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listPsychologicalTests = /* GraphQL */ `
+  query ListPsychologicalTests(
+    $id: ID
+    $filter: ModelPsychologicalTestFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listPsychologicalTests(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        totalScore
+        griefScore
+        angerScore
+        guiltScore
+        numOfTimes
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
+      __typename
+    }
+  }
+`;
+export const getServiceSurvey = /* GraphQL */ `
+  query GetServiceSurvey($id: ID!) {
+    getServiceSurvey(id: $id) {
+      id
+      numOfSurveys
+      petSpace
+      communitySpace
+      individualOnlineCounseling
+      groupOnlineCounseling
+      individualOfflineCounseling
+      groupOfflineCounseling
+      book
+      goods
+      goodsUserInput
+      artTherapy
+      otherService
+      createdAt
+      updatedAt
+      __typename
+    }
+  }
+`;
+export const listServiceSurveys = /* GraphQL */ `
+  query ListServiceSurveys(
+    $id: ID
+    $filter: ModelServiceSurveyFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listServiceSurveys(
+      id: $id
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        numOfSurveys
+        petSpace
+        communitySpace
+        individualOnlineCounseling
+        groupOnlineCounseling
+        individualOfflineCounseling
+        groupOfflineCounseling
+        book
+        goods
+        goodsUserInput
+        artTherapy
+        otherService
+        createdAt
+        updatedAt
+        __typename
+      }
+      nextToken
       __typename
     }
   }
@@ -315,6 +424,9 @@ export const getLetter = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt
@@ -376,6 +488,9 @@ export const getGuestBook = /* GraphQL */ `
         email
         profilePic
         name
+        gender
+        birthday
+        numOfDeadPets
         state
         createdAt
         updatedAt

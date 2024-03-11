@@ -7,7 +7,7 @@ const initialState = {
   name: '',
   myPets: [],
   readyForCommunityFetch: false,
-  profilePicS3Key: '',
+  profilePicS3Key: '', // matches with a path in DB
   s3UrlExpiredAt: '',
   isAdmin: false,
   gender: -1,
@@ -38,7 +38,7 @@ const User = createSlice({
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
     },
     setUserProfilePicS3Key: (state, action) => {
-      state.profilePicS3Key = action.payload.profilePicS3Key;
+      state.profilePicS3Key = action.payload;
     },
     setMyPets: (state, action) => {
       state.myPets.push(action.payload);
