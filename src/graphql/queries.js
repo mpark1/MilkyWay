@@ -14,6 +14,10 @@ export const getPet = /* GraphQL */ `
       deathCause
       identityId
       petType
+      breed
+      ownerSinceBirth
+      ownershipPeriodInMonths
+      careTakerType
       managerID
       createdAt
       updatedAt
@@ -48,6 +52,10 @@ export const listPets = /* GraphQL */ `
         deathCause
         identityId
         petType
+        breed
+        ownerSinceBirth
+        ownershipPeriodInMonths
+        careTakerType
         managerID
         createdAt
         updatedAt
@@ -87,6 +95,10 @@ export const petByName = /* GraphQL */ `
         deathCause
         identityId
         petType
+        breed
+        ownerSinceBirth
+        ownershipPeriodInMonths
+        careTakerType
         managerID
         createdAt
         updatedAt
@@ -124,6 +136,10 @@ export const petsByAccessLevel = /* GraphQL */ `
         deathCause
         identityId
         petType
+        breed
+        ownerSinceBirth
+        ownershipPeriodInMonths
+        careTakerType
         managerID
         createdAt
         updatedAt

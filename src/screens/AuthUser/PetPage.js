@@ -54,8 +54,6 @@ const PetPage = ({navigation, route}) => {
     name,
     birthday,
     deathday,
-    lastWord,
-    accessLevel,
     manager,
     profilePic,
     s3UrlExpiredAt,
@@ -64,10 +62,6 @@ const PetPage = ({navigation, route}) => {
     backgroundPicS3Key,
     backgroundPicS3UrlExpiredAt,
     identityId,
-    breed,
-    ownerSinceBirth,
-    ownershipPeriodInMonths,
-    caretakerType,
   } = useSelector(state => state.pet);
   const dispatch = useDispatch();
 
@@ -83,42 +77,44 @@ const PetPage = ({navigation, route}) => {
     backgroundPic.length !== 0 && checkS3urlFunc('backgroundPic');
   }, []);
 
-  // useEffect(() => {
-  //   const client = generateClient();
-  //   const updatePetSub = petPageTabsSubscription(
-  //     client,
-  //     onUpdatePet,
-  //     'Update',
-  //     processSubscriptionData,
-  //     id,
-  //   );
-  //   console.log('update subscription is on for Pets table.');
-  //   return () => {
-  //     console.log('Petpage subscription is turned off!');
-  //     updatePetSub.unsubscribe();
-  //   };
-  // }, []);
+  useEffect(() => {
+    const client = generateClient();
+    const updatePetSub = petPageTabsSubscription(
+      client,
+      onUpdatePet,
+      'Update',
+      processSubscriptionData,
+      id,
+    );
+    console.log('update subscription is on for Pets table.');
+    return () => {
+      console.log('Petpage subscription is turned off!');
+      updatePetSub.unsubscribe();
+    };
+  }, []);
 
   async function processSubscriptionData(mutationType, data) {
     const newObj = data.onUpdatePet;
     console.log('print modified intro message: ', newObj);
     const item = await getUrlForProfilePic(newObj);
-    setPetGeneralInfo({
-      id: item.id,
-      name: item.name,
-      birthday: item.birthday,
-      deathday: item.deathDay,
-      profilePic: item.profilePic,
-      lastWord: item.lastWord,
-      accessLevel: item.accessLevel,
-      profilePicS3Key: item.profilePicS3Key,
-      s3UrlExpiredAt: item.s3UrlExpiredAt,
-      identityId: item.identityId,
-      breed: item.breed,
-      ownerSinceBirth: item.ownerSinceBirth,
-      ownershipPeriodInMonths: item.ownershipPeriodInMonths,
-      caretakerType: item.caretakerType,
-    });
+    dispatch(
+      setPetGeneralInfo({
+        id: item.id,
+        name: item.name,
+        birthday: item.birthday,
+        deathday: item.deathDay,
+        profilePic: item.profilePic,
+        lastWord: item.lastWord,
+        accessLevel: item.accessLevel,
+        profilePicS3Key: item.profilePicS3Key,
+        s3UrlExpiredAt: item.s3UrlExpiredAt,
+        identityId: item.identityId,
+        breed: item.breed,
+        ownerSinceBirth: item.ownerSinceBirth,
+        ownershipPeriodInMonths: item.ownershipPeriodInMonths,
+        caretakerType: item.careTakerType,
+      }),
+    );
   }
 
   useEffect(() => {

@@ -249,7 +249,7 @@ const AddNewPet = ({navigation}) => {
           value={years}
           open={yearPickerOpen}
           setOpen={setYearPickerOpen}
-          zIndex={10}
+          zIndex={100}
           whichPage={'AddNewPet'}
           placeholderText={''}
         />
@@ -273,7 +273,7 @@ const AddNewPet = ({navigation}) => {
 
   const renderCaretakerField = () => {
     return (
-      <View style={[styles.flexDirectionRow, {zIndex: 10}]}>
+      <View style={[styles.flexDirectionRow, {zIndex: -10}]}>
         <View style={styles.flexDirectionRow}>
           <Text style={styles.checkBoxes.text}>1인 보호자</Text>
           <CheckBox
@@ -312,7 +312,7 @@ const AddNewPet = ({navigation}) => {
 
   const renderNextButton = () => {
     return (
-      <View style={styles.blueButton}>
+      <View style={[styles.blueButton, {zIndex: -10}]}>
         <Button
           disabled={!canGoNext}
           title={'다음'}
@@ -352,7 +352,7 @@ const AddNewPet = ({navigation}) => {
         {renderDeathDayField()}
         {renderPetOwnershipField()}
         {renderCaretakerField()}
-        <Text style={styles.instruction}>
+        <Text style={[styles.instruction, {zIndex: -10}]}>
           *사진을 제외한 모든 항목은 필수 기입 항목입니다.
         </Text>
         {renderNextButton()}
@@ -370,7 +370,7 @@ const AddNewPet = ({navigation}) => {
 export default AddNewPet;
 
 const styles = StyleSheet.create({
-  spacer: {padding: 20},
+  spacer: {padding: 20, zIndex: -15},
   profilePicAndButtonWrapper: {
     width: 130,
     height: 130,
@@ -463,7 +463,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    zIndex: 100,
     paddingTop: Dimensions.get('window').height * 0.025,
   },
   blueButton: {

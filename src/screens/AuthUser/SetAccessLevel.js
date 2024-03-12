@@ -36,15 +36,15 @@ const SetAccessLevel = ({navigation}) => {
   const [checkAll, setAll] = useState(true); // defaults to all
   const [isCallingAPI, setIsCallingAPI] = useState(false);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     //upload pet info in db
-    createNewPet();
+    await createNewPet();
     return AlertBox(
       '추모공간이 성공적으로 만들어졌습니다.',
       '',
       '내 추모공간으로 이동',
       () => {
-        navigation.pop(2);
+        navigation.pop(3);
       },
     );
   };
@@ -62,6 +62,7 @@ const SetAccessLevel = ({navigation}) => {
           s3key = await uploadProfilePic(profilePic, 'pet');
         }
         // 1. create a new item in Pet table
+
         const newPetDetails = {
           name: name,
           birthday: birthday,
@@ -77,7 +78,7 @@ const SetAccessLevel = ({navigation}) => {
           breed: breed,
           ownerSinceBirth: ownerSinceBirth,
           ownershipPeriodInMonths: ownershipPeriodInMonths,
-          caretakerType: caretakerType,
+          careTakerType: caretakerType,
         };
         const newPetResponse = await client.graphql({
           query: createPet,

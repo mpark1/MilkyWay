@@ -35,6 +35,13 @@ const DropDownComponent = ({
         textStyle: styles.addNewPet.textStyle,
         placeholderStyle: styles.addNewPet.placeholder,
       };
+    } else if (whichPage === 'Settings') {
+      return {
+        containerStyle: styles.settings.containerStyle,
+        borderStyle: styles.settings.borderStyle,
+        textStyle: styles.settings.textStyle,
+        placeholderStyle: styles.settings.placeholder,
+      };
     } else {
       return {
         containerStyle: styles.otherContainerStyle,
@@ -57,7 +64,7 @@ const DropDownComponent = ({
       multiple={false}
       placeholderStyle={placeholderStyle}
       items={items}
-      placeholder={whichPage !== 'AddNewPet' ? '선택' : placeholderText}
+      placeholder={whichPage !== 'Settings' ? '선택' : placeholderText}
       setValue={setValue}
       value={value}
       open={open}
@@ -108,6 +115,21 @@ const styles = StyleSheet.create({
     textStyle: {fontSize: scaleFontSize(18)},
   },
   addNewPet: {
+    containerStyle: {
+      width: '21%',
+      maxHeight: 30,
+      backgroundColor: '#fff',
+    },
+    borderStyle: {
+      borderBottomWidth: 1,
+      borderColor: '#d9d9d9',
+      minHeight: 30,
+      fontSize: scaleFontSize(18),
+    },
+    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    textStyle: {fontSize: scaleFontSize(18)},
+  },
+  settings: {
     containerStyle: {
       width: '31%',
       maxHeight: 30,

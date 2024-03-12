@@ -13,7 +13,7 @@ export async function petPageTabsSubscription(
     return client
       .graphql({
         query: subscriptionQuery,
-        variables: {filter: {petID: {eq: petID}}},
+        variables: {filter: {id: {eq: petID}}},
         authMode: 'userPool',
       })
       .subscribe({

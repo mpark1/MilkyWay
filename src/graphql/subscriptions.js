@@ -17,6 +17,10 @@ export const onCreatePet = /* GraphQL */ `
       deathCause
       identityId
       petType
+      breed
+      ownerSinceBirth
+      ownershipPeriodInMonths
+      careTakerType
       managerID
       createdAt
       updatedAt
@@ -41,6 +45,10 @@ export const onUpdatePet = /* GraphQL */ `
       deathCause
       identityId
       petType
+      breed
+      ownerSinceBirth
+      ownershipPeriodInMonths
+      careTakerType
       managerID
       createdAt
       updatedAt
@@ -65,6 +73,10 @@ export const onDeletePet = /* GraphQL */ `
       deathCause
       identityId
       petType
+      breed
+      ownerSinceBirth
+      ownershipPeriodInMonths
+      careTakerType
       managerID
       createdAt
       updatedAt

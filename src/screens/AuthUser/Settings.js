@@ -1,13 +1,13 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
+  Alert,
   Dimensions,
   Image,
-  TextInput,
   Pressable,
-  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -20,13 +20,9 @@ import {updatePet} from '../../graphql/mutations';
 import {
   checkS3Url,
   deletePetPage,
-  mutationItem,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
-import {
-  setPetGeneralInfo,
-  setUpdateProfilePicUrl,
-} from '../../redux/slices/Pet';
+import {setUpdateProfilePicUrl} from '../../redux/slices/Pet';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getCurrentDate} from '../../utils/utils';
@@ -38,7 +34,8 @@ import {
   yearOptions,
 } from '../../constants/petOwnershipPeriodYearsMonths';
 
-const Settings = ({navigation, route}) => {
+const Settings = ({navigation}) => {
+  /*TODO: 리덕스에서 업데이트 된 정보 안가져와짐 */
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const {
     id,
@@ -58,6 +55,8 @@ const Settings = ({navigation, route}) => {
     ownershipPeriodInMonths,
     caretakerType,
   } = useSelector(state => state.pet);
+  const petObj = useSelector(state => state.pet);
+  console.log('current petObj: ', petObj);
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
   const deathOptions = deathCauses.map(item => ({
@@ -87,6 +86,7 @@ const Settings = ({navigation, route}) => {
       ? Math.floor(ownershipPeriodInMonths / 12)
       : 0,
   );
+
   const [yearPickerOpen, setYearPickerOpen] = useState(false);
   const [months, setMonths] = useState(
     ownerSinceBirth === 1 && ownershipPeriodInMonths < 12
@@ -110,7 +110,6 @@ const Settings = ({navigation, route}) => {
 
   const [newPetInfo, setNewPetInfo] = useState({
     newOwnerSinceBirth: ownerSinceBirth,
-    newOwnershipPeriodInMonths: years * 12 + months,
     newCaretakerType: caretakerType,
   });
 
@@ -118,7 +117,7 @@ const Settings = ({navigation, route}) => {
     newPetInfo.newOwnerSinceBirth === ownerSinceBirth &&
     (ownerSinceBirth === 0 ||
       (ownerSinceBirth === 1 &&
-        newPetInfo.newOwnershipPeriodInMonths === ownershipPeriodInMonths));
+        years * 12 + months === ownershipPeriodInMonths));
 
   let noUpdateInPetInfo =
     name === petName &&
@@ -304,7 +303,7 @@ const Settings = ({navigation, route}) => {
             open={yearPickerOpen}
             setOpen={setYearPickerOpen}
             zIndex={10}
-            whichPage={'AddNewPet'}
+            whichPage={'Settings'}
             placeholderText={years === 0 ? '' : years.toString()}
           />
           <Text style={[styles.label, {paddingRight: 0}]}> 년{'   '}</Text>
@@ -315,7 +314,7 @@ const Settings = ({navigation, route}) => {
             open={monthPickerOpen}
             setOpen={setMonthPickerOpen}
             zIndex={100}
-            whichPage={'AddNewPet'}
+            whichPage={'Settings'}
             placeholderText={months === 0 ? '' : months.toString()}
           />
           <Text style={[styles.label, {paddingRight: 0}]}> 개월</Text>
@@ -339,7 +338,7 @@ const Settings = ({navigation, route}) => {
             onPress={() =>
               updateAnswer(
                 'newOwnerSinceBirth',
-                newPetInfo.ownerSinceBirth === 0 ? -1 : 0,
+                newPetInfo.newOwnerSinceBirth === 0 ? -1 : 0,
               )
             }
             iconType="material-community"
@@ -356,7 +355,7 @@ const Settings = ({navigation, route}) => {
             onPress={() =>
               updateAnswer(
                 'newOwnerSinceBirth',
-                newPetInfo.ownerSinceBirth === 1 ? -1 : 1,
+                newPetInfo.newOwnerSinceBirth === 1 ? -1 : 1,
               )
             }
             iconType="material-community"
@@ -461,7 +460,6 @@ const Settings = ({navigation, route}) => {
           setOpen={setDeathCausePickerOpen}
           zIndex={50}
           whichPage={'TesteeInfo'}
-          placeholderText={'선택'}
         />
       </View>
     );
@@ -609,17 +607,6 @@ const Settings = ({navigation, route}) => {
   }
 
   function popPage() {
-    // update redux
-    dispatch(
-      setPetGeneralInfo({
-        name: petName,
-        birthday: birthdayString,
-        deathday: deathDayString,
-        profilePic: newProfilePic,
-        lastWord: newLastWord,
-        accessLevel: checkPrivate ? 'Private' : 'Public',
-      }),
-    );
     navigation.pop();
   }
 
@@ -636,6 +623,9 @@ const Settings = ({navigation, route}) => {
         s3key = await updateProfilePic(newProfilePic, 'pet', profilePicS3Key);
       }
 
+      let newOwnershipPeriodInMonths =
+        parseInt(years, 10) * 12 + parseInt(months, 10);
+
       // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
       const newPetInput = {
         id: id,
@@ -649,18 +639,19 @@ const Settings = ({navigation, route}) => {
         petType: petType, // cannot be modified
         breed: breed, // cannot be modified
         ownerSinceBirth: newPetInfo.newOwnerSinceBirth,
-        ownershipPeriodInMonths: newPetInfo.newOwnershipPeriodInMonths,
-        caretakerType: newPetInfo.newCaretakerType,
+        ownershipPeriodInMonths: newOwnershipPeriodInMonths,
+        careTakerType: newPetInfo.newCaretakerType,
       };
+      console.log('newInput: ', newPetInput);
 
-      await mutationItem(
-        isCallingUpdateAPI,
-        setIsCallingUpdateAPI,
-        newPetInput,
-        updatePet,
-        '정보가 성공적으로 변경되었습니다.',
-        popPage,
-      );
+      // await mutationItem(
+      //   isCallingUpdateAPI,
+      //   setIsCallingUpdateAPI,
+      //   newPetInput,
+      //   updatePet,
+      //   '정보가 성공적으로 변경되었습니다.',
+      //   popPage,
+      // );
     } catch (error) {
       console.log('Error in onUpdatePetInfo: ', error);
     }
