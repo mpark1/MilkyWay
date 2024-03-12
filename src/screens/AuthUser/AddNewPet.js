@@ -50,7 +50,7 @@ const AddNewPet = ({navigation}) => {
 
   const [answer, setAnswer] = useState({
     ownerSinceBirth: -1,
-    caretakerType: -1,
+    careTakerType: -1,
   });
 
   const canGoNext =
@@ -59,7 +59,7 @@ const AddNewPet = ({navigation}) => {
     deathDayString !== 'YYYY-MM-DD' &&
     (answer.ownerSinceBirth === 0 ||
       (answer.ownerSinceBirth === 1 && (months !== -1 || years !== -1))) &&
-    answer.caretakerType !== -1;
+    answer.careTakerType !== -1;
 
   const updateAnswer = (fieldTitle, newValue) =>
     setAnswer(prev => ({
@@ -271,7 +271,7 @@ const AddNewPet = ({navigation}) => {
     );
   };
 
-  const renderCaretakerField = () => {
+  const renderCareTakerField = () => {
     return (
       <View style={[styles.flexDirectionRow, {zIndex: -10}]}>
         <View style={styles.flexDirectionRow}>
@@ -279,9 +279,9 @@ const AddNewPet = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBoxes.checkBox}
             size={24}
-            checked={answer.caretakerType === 0}
+            checked={answer.careTakerType === 0}
             onPress={() =>
-              updateAnswer('caretakerType', answer.caretakerType === 0 ? -1 : 0)
+              updateAnswer('careTakerType', answer.careTakerType === 0 ? -1 : 0)
             }
             iconType="material-community"
             checkedIcon="checkbox-marked"
@@ -295,9 +295,9 @@ const AddNewPet = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBoxes.checkBox}
             size={24}
-            checked={answer.caretakerType === 1}
+            checked={answer.careTakerType === 1}
             onPress={() =>
-              updateAnswer('caretakerType', answer.caretakerType === 1 ? -1 : 1)
+              updateAnswer('careTakerType', answer.careTakerType === 1 ? -1 : 1)
             }
             iconType="material-community"
             checkedIcon="checkbox-marked"
@@ -336,7 +336,7 @@ const AddNewPet = ({navigation}) => {
         answer.ownerSinceBirth === 0
           ? getMonthsElapsed(birthdayString)
           : years * 12 + months,
-      caretakerType: answer.caretakerType,
+      careTakerType: answer.careTakerType,
     };
     dispatch(setNewPetGeneralInfo(petDetails));
     navigation.navigate('AddNewPet2');
@@ -351,7 +351,7 @@ const AddNewPet = ({navigation}) => {
         {renderBirthdayField()}
         {renderDeathDayField()}
         {renderPetOwnershipField()}
-        {renderCaretakerField()}
+        {renderCareTakerField()}
         <Text style={[styles.instruction, {zIndex: -10}]}>
           *사진을 제외한 모든 항목은 필수 기입 항목입니다.
         </Text>

@@ -53,7 +53,7 @@ const Settings = ({navigation}) => {
     breed,
     ownerSinceBirth,
     ownershipPeriodInMonths,
-    caretakerType,
+    careTakerType,
   } = useSelector(state => state.pet);
   const petObj = useSelector(state => state.pet);
   console.log('current petObj: ', petObj);
@@ -110,7 +110,7 @@ const Settings = ({navigation}) => {
 
   const [newPetInfo, setNewPetInfo] = useState({
     newOwnerSinceBirth: ownerSinceBirth,
-    newCaretakerType: caretakerType,
+    newCareTakerType: careTakerType,
   });
 
   let noUpdateInOwnership =
@@ -127,7 +127,7 @@ const Settings = ({navigation}) => {
     deathCause === newDeathCause &&
     accessLevel === privateAccessMapping[checkPrivate] &&
     noUpdateInOwnership &&
-    newPetInfo.newCaretakerType === caretakerType;
+    newPetInfo.newCareTakerType === careTakerType;
 
   let noUpdateInPetProfilePic = profilePic === newProfilePic;
 
@@ -370,7 +370,7 @@ const Settings = ({navigation}) => {
     );
   };
 
-  const renderCaretakerField = () => {
+  const renderCareTakerField = () => {
     return (
       <View style={[styles.containerForInput, styles.flexDirectionRow]}>
         <View style={styles.ownershipCheckboxesContainer}>
@@ -378,11 +378,11 @@ const Settings = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={newPetInfo.newCaretakerType === 0}
+            checked={newPetInfo.newCareTakerType === 0}
             onPress={() =>
               updateAnswer(
-                'newCaretakerType',
-                newPetInfo.newCaretakerType === 0 ? -1 : 0,
+                'newCareTakerType',
+                newPetInfo.newCareTakerType === 0 ? -1 : 0,
               )
             }
             iconType="material-community"
@@ -397,11 +397,11 @@ const Settings = ({navigation}) => {
           <CheckBox
             containerStyle={styles.checkBox}
             size={24}
-            checked={newPetInfo.newCaretakerType === 1}
+            checked={newPetInfo.newCareTakerType === 1}
             onPress={() =>
               updateAnswer(
-                'newCaretakerType',
-                newPetInfo.newCaretakerType === 1 ? -1 : 1,
+                'newCareTakerType',
+                newPetInfo.newCareTakerType === 1 ? -1 : 1,
               )
             }
             iconType="material-community"
@@ -640,7 +640,7 @@ const Settings = ({navigation}) => {
         breed: breed, // cannot be modified
         ownerSinceBirth: newPetInfo.newOwnerSinceBirth,
         ownershipPeriodInMonths: newOwnershipPeriodInMonths,
-        careTakerType: newPetInfo.newCaretakerType,
+        careTakerType: newPetInfo.newCareTakerType,
       };
       console.log('newInput: ', newPetInput);
 
@@ -706,7 +706,7 @@ const Settings = ({navigation}) => {
         {renderBirthdayField()}
         {renderDeathDayField()}
         {renderPetOwnershipField()}
-        {renderCaretakerField()}
+        {renderCareTakerField()}
         {renderPetTypeAndBreed()}
         {renderDeathCauseField()}
         {renderLastWordField()}

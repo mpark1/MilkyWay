@@ -13,7 +13,7 @@ const initialState = {
   breed: '',
   ownerSinceBirth: -1,
   ownershipPeriodInMonths: -1,
-  caretakerType: -1,
+  careTakerType: -1,
 };
 
 const NewPet = createSlice({
@@ -27,7 +27,7 @@ const NewPet = createSlice({
       state.profilePic = action.payload.profilePic;
       state.ownerSinceBirth = action.payload.ownerSinceBirth;
       state.ownershipPeriodInMonths = action.payload.ownershipPeriodInMonths;
-      state.caretakerType = action.payload.caretakerType;
+      state.careTakerType = action.payload.careTakerType;
     },
     setNewPetGeneralInfo2: (state, action) => {
       state.petType = action.payload.petType;

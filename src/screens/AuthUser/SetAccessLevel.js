@@ -29,7 +29,7 @@ const SetAccessLevel = ({navigation}) => {
     breed,
     ownerSinceBirth,
     ownershipPeriodInMonths,
-    caretakerType,
+    careTakerType,
   } = useSelector(state => state.newPet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const [checkPrivate, setPrivate] = useState(false);
@@ -78,7 +78,7 @@ const SetAccessLevel = ({navigation}) => {
           breed: breed,
           ownerSinceBirth: ownerSinceBirth,
           ownershipPeriodInMonths: ownershipPeriodInMonths,
-          careTakerType: caretakerType,
+          careTakerType: careTakerType,
         };
         const newPetResponse = await client.graphql({
           query: createPet,

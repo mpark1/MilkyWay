@@ -21,7 +21,7 @@ const initialState = {
   breed: '',
   ownerSinceBirth: -1,
   ownershipPeriodInMonths: -1,
-  caretakerType: -1,
+  careTakerType: -1,
 };
 
 const Pet = createSlice({
@@ -45,7 +45,7 @@ const Pet = createSlice({
       state.breed = action.payload.breed;
       state.ownerSinceBirth = action.payload.ownerSinceBirth;
       state.ownershipPeriodInMonths = action.payload.ownershipPeriodInMonths;
-      state.caretakerType = action.payload.careTakerType;
+      state.careTakerType = action.payload.careTakerType;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;
