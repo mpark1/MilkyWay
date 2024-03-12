@@ -48,15 +48,15 @@ const PBQ = ({navigation}) => {
   const onSubmit = async () => {
     // 1. 점수 계산
     let griefScore = Object.keys(answers)
-      .filter(key => key >= 1 && key <= 5) // For keys 1 to 7
+      .filter(key => key >= 1 && key <= 7) // For keys 1 to 7
       .reduce((total, key) => total + answers[key], 0);
 
     let angerScore = Object.keys(answers)
-      .filter(key => key >= 6 && key <= 12) // For keys 8 to 14
+      .filter(key => key >= 8 && key <= 12) // For keys 8 to 12
       .reduce((total, key) => total + answers[key], 0);
 
     let guiltScore = Object.keys(answers)
-      .filter(key => key >= 15 && key <= 16) // For keys 15 to 16
+      .filter(key => key >= 13 && key <= 16) // For keys 13 to 16
       .reduce((total, key) => total + answers[key], 0);
 
     const totalScore = griefScore + angerScore + guiltScore;

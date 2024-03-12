@@ -21,6 +21,7 @@ type Pet @model
     deathCause: String!
     identityId: String!
     petType: String!
+    breed: String!
     managerID: ID!
 }
 

@@ -1,33 +1,28 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Dimensions,
-  SafeAreaView,
-  ScrollView,
+  Pressable,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
 } from 'react-native';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
-import ServiceQuestionComponent from '../../../components/ServiceQuestionComponent';
 import {CheckBox} from '@rneui/themed';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ButtonGroups from '../../../components/Buttons/ButtonGroups';
 import DropDownComponent from '../../../components/DropDownComponent';
-import PetTypes from '../../../data/PetTypes.json';
-import {
-  mutationItem,
-  mutationItemNoAlertBox,
-  querySingleItem,
-} from '../../../utils/amplifyUtil';
-import {getPsychologicalTest, getServiceSurvey} from '../../../graphql/queries';
+import {mutationItem, querySingleItem} from '../../../utils/amplifyUtil';
+import {getServiceSurvey} from '../../../graphql/queries';
 import {useSelector} from 'react-redux';
 import {
   createServiceSurvey,
   updateServiceSurvey,
 } from '../../../graphql/mutations';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {Button} from '@rneui/base';
 
 // check slider - it exceeds the max value, why???
 const ServiceQuestions = ({navigation}) => {
@@ -52,6 +47,7 @@ const ServiceQuestions = ({navigation}) => {
   const [offlineIndividual, setOfflineIndividual] = useState(false);
   const [offlineGroup, setOfflineGroup] = useState(false);
   const [isCallingAPI, setIsCallingAPI] = useState(false);
+  const [obj, setDbObj] = useState({});
 
   // 1. first, check if this person took the serviceSurvey before. If null, first time.
   useEffect(() => {
@@ -61,6 +57,7 @@ const ServiceQuestions = ({navigation}) => {
           const obj = data.getServiceSurvey;
           console.log('print single obj', obj);
           if (obj !== null) {
+            setDbObj(obj);
             setNumOfSurvey(obj.numOfSurveys);
             setQuestion3(obj.individualOnlineCounseling);
             setQuestion4(obj.groupOnlineCounseling);
@@ -82,6 +79,22 @@ const ServiceQuestions = ({navigation}) => {
     retrieveServiceSurvey();
   }, [cognitoUsername]);
 
+  let canGoNext =
+    question3 !== 0 && question4 !== 0 && question5 !== 0 && question6 !== 0;
+
+  let noChangeInResponse =
+    obj.individualOnlineCounseling === question3 &&
+    obj.groupOnlineCounseling === question4 &&
+    obj.individualOfflineCounseling === question5 &&
+    obj.groupOfflineCounseling === question6 &&
+    questionnaire[1] === obj.petSpace &&
+    questionnaire[2] === obj.communitySpace &&
+    questionnaire['7bookChecked'] === obj.book &&
+    questionnaire['7goodsChecked'] === obj.goods &&
+    questionnaire['7artTherapyChecked'] === obj.artTherapy &&
+    questionnaire['7otherGoods'] === obj.goodsUserInput &&
+    questionnaire[8] === obj.otherService;
+
   const updateAnswer = (questionNum, newValue) =>
     setQuestionnaire(prev => ({
       ...prev,
@@ -93,7 +106,6 @@ const ServiceQuestions = ({navigation}) => {
     for (let i = lowerbound; i <= upperbound; i++) {
       options.push({label: i, value: i});
     }
-    console.log('print dropbox options; ', options);
     return options;
   };
 
@@ -203,6 +215,7 @@ const ServiceQuestions = ({navigation}) => {
   };
   function popPage() {
     navigation.pop(3);
+    // return null;
   }
 
   const onSubmit = async () => {
@@ -221,6 +234,7 @@ const ServiceQuestions = ({navigation}) => {
       artTherapy: questionnaire['7artTherapyChecked'],
       otherService: questionnaire[8],
     };
+    // 1. first time survey, create a new item in db
     if (numOfSurvey === 0) {
       await mutationItem(
         isCallingAPI,
@@ -230,7 +244,8 @@ const ServiceQuestions = ({navigation}) => {
         '답변 감사합니다. 좋은 서비스 만들기 위해서 더 노력할께요!',
         popPage,
       );
-    } else {
+      // 2. if any of the previous answer has been updated, update db
+    } else if (!noChangeInResponse) {
       await mutationItem(
         isCallingAPI,
         setIsCallingAPI,
@@ -239,6 +254,9 @@ const ServiceQuestions = ({navigation}) => {
         '답변 업데이트해 주셔서 감사해요 ^^ 더 좋은 서비스로 보답할께요!',
         popPage,
       );
+      // if a returned user (item exists in db) and no answer has been changed, popPage
+    } else {
+      popPage();
     }
   };
 
@@ -250,6 +268,20 @@ const ServiceQuestions = ({navigation}) => {
           반려동물을 잃은 슬픔을 극복하는데 본인에게 도움이 되는 서비스를
           알려주세요!
         </Text>
+        <View
+          style={{
+            width: 120,
+            marginTop: 5,
+          }}>
+          <Button
+            disabled={!canGoNext}
+            title={'제출하기 >>'}
+            titleStyle={styles.defaultTitleStyle}
+            // containerStyle={styles.defaultContainerStyle}
+            buttonStyle={styles.buttonStyle}
+            onPress={onSubmit}
+          />
+        </View>
         <View style={styles.questionnaire}>
           {firstQuestions(
             1,
@@ -310,9 +342,9 @@ const ServiceQuestions = ({navigation}) => {
           )}
           {thirdQuestions()}
           {fourthQuestion()}
-          <View style={styles.blueButton}>
-            <BlueButton title={'메인 화면으로'} onPress={() => onsubmit()} />
-          </View>
+          {/*<View style={styles.blueButton}>*/}
+          {/*  <BlueButton title={'메인 화면으로'} onPress={() => onSubmit()} />*/}
+          {/*</View>*/}
         </View>
       </View>
     </KeyboardAwareScrollView>
@@ -391,5 +423,16 @@ const styles = StyleSheet.create({
   blueButton: {
     marginVertical: Dimensions.get('window').height * 0.05,
     alignSelf: 'center',
+  },
+  buttonStyle: {
+    backgroundColor: '#FFF',
+    borderColor: '#6395E1',
+    borderWidth: 1.5,
+    borderRadius: 10,
+  },
+  defaultTitleStyle: {
+    fontSize: scaleFontSize(18),
+    color: '#6395E1',
+    fontWeight: 'bold',
   },
 });

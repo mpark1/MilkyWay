@@ -1,20 +1,10 @@
-import React, {useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  SafeAreaView,
-  ScrollView,
-} from 'react-native';
+import React from 'react';
+import {Dimensions, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import PBQTestResult from '../../../components/PBQTestResult';
 import BlueButton from '../../../components/Buttons/BlueButton';
 import testResultComments from '../../../data/testResultComments.json';
-import {useSelector} from 'react-redux';
-import {querySingleItem} from '../../../utils/amplifyUtil';
-import {getPsychologicalTest} from '../../../graphql/queries';
 
 const TestResult = ({navigation, route}) => {
   const {totalScore, griefScore, angerScore, guiltScore} = route.params;
