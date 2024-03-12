@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,42 +9,64 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-
+import {useDispatch, useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {profilePicOption} from '../../constants/imagePickerOptions';
-
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-date-picker';
 import {Button, Icon, Tooltip} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';
-
+// import {updatePet} from '../../graphql/mutations';
+// import {
+//   checkS3Url,
+//   deletePetPage,
+//   mutationItem,
+//   updateProfilePic,
+// } from '../../utils/amplifyUtil';
+import {
+  setPetGeneralInfo,
+  setUpdateProfilePicUrl,
+} from '../../redux/slices/Pet';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-
 import {getCurrentDate} from '../../utils/utils';
-import Backdrop from '../../components/Backdrop';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import ImageResizer from '@bam.tech/react-native-image-resizer';
-import ImagePicker from 'react-native-image-crop-picker';
-// import {createUpdateItem, mutationItem} from '../../utils/amplifyUtil';
-// import {deleteLetter, updatePet} from '../../graphql/mutations';
-// import {generateClient} from 'aws-amplify/api';
-// import AlertBox from '../../components/AlertBox';
+import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import DropDownComponent from '../../components/DropDownComponent';
+import {yearOptions} from '../../constants/petOwnershipPeriodYearsMonths';
+import {monthOptions} from '../../constants/petOwnershipPeriodYearsMonths';
+import deathCauses from '../../data/deathCauses.json';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
-  const [isCallingDeleteAPI, setIsCallingDeleteAPI] = useState(false);
 
-  // const {petInfo} = route.params;
+  const {
+    id,
+    name,
+    profilePic,
+    lastWord,
+    birthday,
+    deathday,
+    accessLevel,
+    profilePicS3Key,
+    s3UrlExpiredAt,
+    ownerSinceBirth,
+    ownershipPeriodInMonths,
+    caretakerType,
+    petType,
+    breed,
+    deathCause,
+    identityId,
+  } = useSelector(state => state.pet);
+  const userID = useSelector(state => state.user.cognitoUsername);
+  const dispatch = useDispatch();
+  const deathOptions = deathCauses.map(item => ({
+    label: item,
+    value: item,
+  }));
+  const [newProfilePic, setProfilePic] = useState(profilePic);
+  const [petName, setPetName] = useState(name);
+  const [newLastWord, setLastWord] = useState(lastWord);
 
-  const [profilePic, setProfilePic] = useState('petInfo.profilePic');
-  const [petName, setPetName] = useState('이름');
-  const [lastWord, setLastWord] = useState('마지막 인사');
-
-  const snapPoints = useMemo(() => ['30%'], []);
   const bottomSheetModalRef = useRef(null);
 
   const currentDateInString = getCurrentDate();
@@ -52,16 +74,73 @@ const Settings = ({navigation, route}) => {
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
   const [isDeathDayPickerOpen, setIsDeathDayPickerOpen] = useState(false);
 
-  const [birthdayString, setBirthdayString] = useState('2020-12-01');
-  const [deathDayString, setDeathDayString] = useState('2024-01-01');
+  const [birthdayString, setBirthdayString] = useState(birthday);
+  const [deathDayString, setDeathDayString] = useState(deathday);
 
-  const [birthday, setBirthday] = useState(new Date(birthdayString));
-  const [deathDay, setDeathDay] = useState(new Date(deathDayString));
+  const [newBirthday, setBirthday] = useState(new Date(birthdayString));
+  const [newDeathDay, setDeathDay] = useState(new Date(deathDayString));
 
-  const [checkPrivate, setPrivate] = useState(true);
-  const [checkAll, setAll] = useState(false); // defaults to all
+  const [years, setYears] = useState(
+    ownerSinceBirth === 1 && ownershipPeriodInMonths >= 12
+      ? Math.floor(ownershipPeriodInMonths / 12)
+      : 0,
+  );
+  const [yearPickerOpen, setYearPickerOpen] = useState(false);
+  const [months, setMonths] = useState(
+    ownerSinceBirth === 1 && ownershipPeriodInMonths < 12
+      ? ownershipPeriodInMonths
+      : ownershipPeriodInMonths % 12,
+  );
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+
+  const [newDeathCause, setNewDeathCause] = useState(deathCause);
+  const [deathCausePickerOpen, setDeathCausePickerOpen] = useState(false);
+
+  const [checkPrivate, setPrivate] = useState(accessLevel === 'Private');
+  const [checkAll, setAll] = useState(accessLevel === 'Public'); // defaults to all
 
   const [isToolTipOpen, setIsToolTipOpen] = useState(false);
+
+  const privateAccessMapping = {
+    true: 'Private',
+    false: 'Public',
+  };
+
+  const [newPetInfo, setNewPetInfo] = useState({
+    newOwnerSinceBirth: ownerSinceBirth,
+    newOwnershipPeriodInMonths: ownershipPeriodInMonths,
+    newCaretakerType: caretakerType,
+  });
+
+  const updateAnswer = (fieldTitle, newValue) =>
+    setNewPetInfo(prev => ({
+      ...prev,
+      [fieldTitle]: newValue,
+    }));
+
+  const noUpdateInPetInfo =
+    name === petName &&
+    birthday === birthdayString &&
+    deathday === deathDayString &&
+    lastWord === newLastWord &&
+    accessLevel === privateAccessMapping[checkPrivate];
+
+  const noUpdateInPetProfilePic = profilePic === newProfilePic;
+
+  const canGoNext =
+    !(noUpdateInPetInfo && noUpdateInPetProfilePic) && !isCallingUpdateAPI;
+
+  useEffect(() => {
+    //check pet's profile picture url expiration once when the page is loaded.
+    // profilePic.length !== 0 && checkS3urlFunc();
+  }, []);
+
+  // const checkS3urlFunc = async () => {
+  //   const newProfileUrl = await checkS3Url(s3UrlExpiredAt, profilePicS3Key);
+  //   if (newProfileUrl.profilePic !== null) {
+  //     dispatch(setUpdateProfilePicUrl(newProfileUrl));
+  //   }
+  // };
 
   const onChangeName = useCallback(text => {
     const trimmedText = text.trim();
@@ -71,30 +150,6 @@ const Settings = ({navigation, route}) => {
   const onChangeLastWord = useCallback(text => {
     setLastWord(text);
   }, []);
-
-  const onResponseFromImagePicker = useCallback(async res => {
-    bottomSheetModalRef.current?.close();
-    if (res.didCancel || !res) {
-      return;
-    }
-    ImageResizer.createResizedImage(res.path, 300, 300, 'JPEG', 100, 0)
-      .then(r => {
-        setProfilePic(r.uri);
-      })
-      .catch(err => console.log(err.message));
-  }, []);
-
-  const onLaunchCamera = () => {
-    ImagePicker.openCamera(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log(err.message));
-  };
-
-  const onLaunchGallery = async () => {
-    ImagePicker.openPicker(profilePicOption)
-      .then(onResponseFromImagePicker)
-      .catch(err => console.log('Error: ', err.message));
-  };
 
   const onChangeDate = (date, option) => {
     option === 'birthday'
@@ -112,53 +167,22 @@ const Settings = ({navigation, route}) => {
       : setDeathDayString(localDateString);
   };
 
-  const renderBackdrop = useCallback(
-    props => <Backdrop {...props} opacity={0.2} pressBehavior={'close'} />,
-    [],
-  );
-
-  const renderBottomSheetModalInner = useCallback(() => {
-    return (
-      <View style={styles.bottomSheet.inner}>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchCamera()}>
-          <Entypo name={'camera'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>카메라</Text>
-        </Pressable>
-        <Pressable
-          style={styles.bottomSheet.icons}
-          onPress={() => onLaunchGallery()}>
-          <FontAwesome name={'picture-o'} size={50} color={'#374957'} />
-          <Text style={{color: '#000'}}>갤러리</Text>
-        </Pressable>
-      </View>
-    );
-  }, []);
-
-  const renderBottomSheetModal = useCallback(() => {
-    return (
-      <BottomSheetModal
-        handleIndicatorStyle={styles.hideBottomSheetHandle}
-        handleStyle={styles.hideBottomSheetHandle}
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        enablePanDownToClose={true}
-        backdropComponent={renderBackdrop}
-        children={renderBottomSheetModalInner()}
-      />
-    );
-  }, []);
-
   const renderProfilePic = () => {
     return (
       <View style={styles.profilePicPlaceholder}>
-        <Image
-          resizeMode={'cover'}
-          style={styles.profilePic}
-          source={{uri: profilePic}}
-        />
+        {newProfilePic.length !== 0 ? (
+          <Image
+            resizeMode={'cover'}
+            style={styles.profilePic}
+            source={{uri: newProfilePic}}
+          />
+        ) : (
+          <Image
+            style={styles.profilePic}
+            source={require('../../assets/images/default_pet_profilePic.jpg')}
+            resizeMode={'cover'}
+          />
+        )}
         <Pressable
           style={styles.changeProfilePicButton}
           onPress={() => bottomSheetModalRef.current?.present()}>
@@ -196,7 +220,7 @@ const Settings = ({navigation, route}) => {
         open={
           option === 'birthday' ? isBirthdayPickerOpen : isDeathDayPickerOpen
         }
-        date={option === 'birthday' ? birthday : deathDay}
+        date={option === 'birthday' ? newBirthday : newDeathDay}
         maximumDate={
           option === 'birthday'
             ? new Date(deathDayString)
@@ -251,13 +275,194 @@ const Settings = ({navigation, route}) => {
     );
   };
 
+  const renderYearMonthField = () => {
+    return (
+      <View style={styles.yearMonthFieldContainer}>
+        <Text style={styles.label}>양육 기간</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            width: Dimensions.get('window').width * 0.6,
+          }}>
+          <DropDownComponent
+            items={yearOptions}
+            setValue={setYears}
+            value={years}
+            open={yearPickerOpen}
+            setOpen={setYearPickerOpen}
+            zIndex={10}
+            whichPage={'AddNewPet'}
+            placeholderText={years === 0 ? '' : years.toString()}
+          />
+          <Text style={[styles.label, {paddingRight: 0}]}> 년{'   '}</Text>
+          <DropDownComponent
+            items={monthOptions}
+            setValue={setMonths}
+            value={months}
+            open={monthPickerOpen}
+            setOpen={setMonthPickerOpen}
+            zIndex={100}
+            whichPage={'AddNewPet'}
+            placeholderText={months === 0 ? '' : months.toString()}
+          />
+          <Text style={[styles.label, {paddingRight: 0}]}> 개월</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPetOwnershipField = () => {
+    return (
+      <View style={[styles.containerForInput, {zIndex: 100}]}>
+        <Text style={[styles.label, {marginTop: 10}]}>
+          아이가 태어났을 때부터 키우셨나요?
+        </Text>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>예 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newOwnerSinceBirth === 0}
+            onPress={() =>
+              updateAnswer(
+                'newOwnerSinceBirth',
+                newPetInfo.ownerSinceBirth === 0 ? -1 : 0,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+          <Text style={styles.label}>{'         '}아니오 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newOwnerSinceBirth === 1}
+            onPress={() =>
+              updateAnswer(
+                'newOwnerSinceBirth',
+                newPetInfo.ownerSinceBirth === 1 ? -1 : 1,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        {newPetInfo.newOwnerSinceBirth === 1 && renderYearMonthField()}
+      </View>
+    );
+  };
+
+  const renderCaretakerField = () => {
+    return (
+      <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>1인 보호자 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newCaretakerType === 0}
+            onPress={() =>
+              updateAnswer(
+                'newCaretakerType',
+                newPetInfo.newCaretakerType === 0 ? -1 : 0,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>가족 단위 보호자 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newCaretakerType === 1}
+            onPress={() =>
+              updateAnswer(
+                'newCaretakerType',
+                newPetInfo.newCaretakerType === 1 ? -1 : 1,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  const renderPetTypeAndBreed = () => {
+    return (
+      <View>
+        <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+          <Text style={styles.label}>동물종류</Text>
+          <TextInput
+            placeholder={petType}
+            style={styles.textInput}
+            placeholderTextColor={'#000'}
+            editable={false}
+          />
+        </View>
+        <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+          <Text style={styles.label}>세부종류</Text>
+          <TextInput
+            placeholder={breed}
+            style={styles.textInput}
+            placeholderTextColor={'#000'}
+            editable={false}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  const renderDeathCauseField = () => {
+    return (
+      <View
+        style={[
+          styles.flexDirectionRow,
+          {
+            marginTop: 10,
+            marginBottom: Dimensions.get('window').height * 0.04,
+            zIndex: 50,
+          },
+        ]}>
+        <Text style={styles.label}>별이된 이유*</Text>
+        <DropDownComponent
+          items={deathOptions}
+          value={newDeathCause}
+          setValue={setNewDeathCause}
+          open={deathCausePickerOpen}
+          setOpen={setDeathCausePickerOpen}
+          zIndex={50}
+          whichPage={'TesteeInfo'}
+          placeholderText={'선택'}
+        />
+      </View>
+    );
+  };
+
   const renderLastWordField = () => {
     return (
       <View style={styles.lastWordField.container}>
         <Text style={styles.label}>마지막 인사</Text>
         <TextInput
           style={styles.lastWordField.textInput}
-          value={lastWord}
+          value={newLastWord}
           multiline={true}
           textAlign={'left'}
           textAlignVertical={'top'}
@@ -270,6 +475,7 @@ const Settings = ({navigation, route}) => {
       </View>
     );
   };
+
   const renderAccessLevelField = () => {
     return (
       <View>
@@ -330,7 +536,6 @@ const Settings = ({navigation, route}) => {
               setAll(!checkAll);
             }}
           />
-
           <CheckBox
             containerStyle={styles.accessLevelField.checkBox.container}
             right={true}
@@ -365,48 +570,83 @@ const Settings = ({navigation, route}) => {
   };
 
   const deletePetApi = async () => {
-    const deletePetInput = {
-      id: petInfo.id,
-      SK: petInfo.SK,
-      state: 'INACTIVE',
+    // 1. delete items from petFamily table
+    // 2. move pet item from Pet table to InactivePet table
+    const createInputVariables = {
+      id: id,
+      name: name,
+      profilePic: profilePicS3Key,
+      lastWord: lastWord,
+      birthday: birthday,
+      deathDay: deathday,
+      petType: petType,
+      managerID: userID,
+      identityId: identityId,
+      deathCause: deathCause,
     };
-    mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      deletePetInput,
-      updatePet,
-      '추모공간이 삭제되었습니다.',
-      navigateToPets,
-    );
+    console.log('print input variable: ', createInputVariables);
+    // await deletePetPage(
+    //   isCallingUpdateAPI,
+    //   setIsCallingUpdateAPI,
+    //   id,
+    //   createInputVariables,
+    //   navigateToPets,
+    // );
   };
   function navigateToPets() {
     navigation.navigate('Pets');
   }
 
   function popPage() {
+    // update redux
+    dispatch(
+      setPetGeneralInfo({
+        name: petName,
+        birthday: birthdayString,
+        deathday: deathDayString,
+        profilePic: newProfilePic,
+        lastWord: newLastWord,
+        accessLevel: checkPrivate ? 'Private' : 'Public',
+      }),
+    );
     navigation.pop();
   }
 
-  const onUpdatePetInfo = () => {
-    const newPetInput = {
-      id: petInfo.id,
-      SK: petInfo.SK,
-      profilePic: profilePic,
-      name: petName,
-      birthday: birthdayString,
-      deathDay: deathDayString,
-      lastWord: lastWord,
-      state: 'ACTIVE',
-      accessLevel: checkPrivate ? 'Private' : 'Public',
-    };
-    mutationItem(
-      isCallingUpdateAPI,
-      setIsCallingUpdateAPI,
-      newPetInput,
-      updatePet,
-      '정보가 성공적으로 변경되었습니다.',
-      popPage,
-    );
+  const onUpdatePetInfo = async () => {
+    // 1. 사진 업데이트
+    let s3key = '';
+    try {
+      if (
+        // 1-1. 기존에 사진이 없다가 사진을 선택한 경우
+        (profilePic.length === 0 && newProfilePic.length > 0) ||
+        // 1-2. 기존에 사진이 있다가 새로운 사진으로 변경하는 경우
+        (profilePic.length !== 0 && newProfilePic !== profilePic)
+      ) {
+        // s3key = await updateProfilePic(newProfilePic, 'pet', profilePicS3Key);
+      }
+
+      // 2. Pet profilePic 을 새로운 사진의 uuid 로 업데이트
+      const newPetInput = {
+        id: id,
+        name: petName,
+        birthday: birthdayString,
+        deathDay: deathDayString,
+        lastWord: newLastWord,
+        accessLevel: checkPrivate ? 'Private' : 'Public',
+        profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
+      };
+
+      // await mutationItem(
+      //   isCallingUpdateAPI,
+      //   setIsCallingUpdateAPI,
+      //   newPetInput,
+      //   updatePet,
+      //   '정보가 성공적으로 변경되었습니다.',
+      //   popPage,
+      // );
+    } catch (error) {
+      console.log('Error in onUpdatePetInfo: ', error);
+    }
   };
 
   const renderSubmitButton = () => {
@@ -414,6 +654,7 @@ const Settings = ({navigation, route}) => {
       <View style={{alignSelf: 'center'}}>
         <Button
           title={'완료'}
+          disabled={!canGoNext}
           titleStyle={styles.submitButton.titleStyle}
           containerStyle={styles.submitButton.containerStyle}
           buttonStyle={globalStyle.backgroundBlue}
@@ -440,6 +681,7 @@ const Settings = ({navigation, route}) => {
   const renderCloseMemorialSpace = () => {
     return (
       <Pressable
+        disabled={isCallingUpdateAPI}
         style={styles.closeMemorialSpace}
         onPress={() => onCloseMemorialSpace()}>
         <Text style={styles.closeMemorialSpace.text}>추모공간 삭제</Text>
@@ -455,12 +697,21 @@ const Settings = ({navigation, route}) => {
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
+        {renderPetOwnershipField()}
+        {renderCaretakerField()}
+        {renderPetTypeAndBreed()}
+        {renderDeathCauseField()}
         {renderLastWordField()}
         {renderAccessLevelField()}
       </View>
       {renderSubmitButton()}
       {renderCloseMemorialSpace()}
-      {renderBottomSheetModal()}
+      <SinglePictureBottomSheetModal
+        type={'updatePet'}
+        bottomSheetModalRef={bottomSheetModalRef}
+        setPicture={setProfilePic}
+        setPictureUrl={''}
+      />
     </KeyboardAwareScrollView>
   );
 };
@@ -495,10 +746,10 @@ const styles = StyleSheet.create({
     width: '90%',
     marginVertical: 18,
     alignSelf: 'center',
+    zIndex: 30,
   },
   containerForInput: {
     marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 3000,
   },
   textInput: {
     color: '#000',
@@ -509,10 +760,6 @@ const styles = StyleSheet.create({
     fontSize: scaleFontSize(18),
     textAlign: 'center',
     alignSelf: 'flex-end',
-  },
-  containerForInput2: {
-    marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 2000,
   },
   animalType: {
     flexDirection: 'row',
@@ -594,6 +841,7 @@ const styles = StyleSheet.create({
   },
   closeMemorialSpace: {
     alignSelf: 'center',
+    marginBottom: Dimensions.get('window').height * 0.1,
     text: {
       fontSize: scaleFontSize(18),
       color: '#939393',
@@ -619,5 +867,23 @@ const styles = StyleSheet.create({
   toolTipContainer: {
     width: '50%',
     height: Dimensions.get('window').height * 0.19,
+  },
+  ownershipCheckboxesContainer: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  checkBox: {
+    padding: 0,
+    marginRight: -4,
+    marginLeft: 0,
+    marginVertical: 0,
+  },
+  yearMonthFieldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Dimensions.get('window').height * 0.015,
+    justifyContent: 'space-between',
   },
 });

@@ -11,6 +11,7 @@ const DropDownComponent = ({
   zIndex,
   setOpen,
   whichPage,
+  placeholderText,
 }) => {
   const selectStyles = () => {
     if (whichPage === 'TesteeInfo') {
@@ -20,12 +21,19 @@ const DropDownComponent = ({
         textStyle: styles.testeeInfo.textStyle,
         placeholderStyle: styles.testeeInfo.placeholder,
       };
-    } else {
+    } else if (whichPage === 'ServiceQuestions') {
       return {
         containerStyle: styles.serviceQuestions.containerStyle,
         borderStyle: styles.serviceQuestions.borderStyle,
         textStyle: styles.serviceQuestions.textStyle,
         placeholderStyle: styles.serviceQuestions.placeholder,
+      };
+    } else {
+      return {
+        containerStyle: styles.addNewPet.containerStyle,
+        borderStyle: styles.addNewPet.borderStyle,
+        textStyle: styles.addNewPet.textStyle,
+        placeholderStyle: styles.addNewPet.placeholder,
       };
     }
   };
@@ -42,7 +50,7 @@ const DropDownComponent = ({
       multiple={false}
       placeholderStyle={placeholderStyle}
       items={items}
-      placeholder={'선택'}
+      placeholder={placeholderText}
       setValue={setValue}
       value={value}
       open={open}
@@ -78,5 +86,20 @@ const styles = StyleSheet.create({
     borderStyle: {},
     placeholder: {},
     textStyle: {},
+  },
+  addNewPet: {
+    containerStyle: {
+      width: '31%',
+      maxHeight: 30,
+      backgroundColor: '#fff',
+    },
+    borderStyle: {
+      borderBottomWidth: 1,
+      borderColor: '#d9d9d9',
+      minHeight: 30,
+      fontSize: scaleFontSize(18),
+    },
+    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    textStyle: {fontSize: scaleFontSize(18)},
   },
 });

@@ -16,6 +16,7 @@ import UserSettings from '../screens/AuthUser/UserSettings';
 import ChangePassword from '../screens/AuthUser/ChangePassword';
 import TesteeInfo from '../screens/AuthUser/PBQTest/TesteeInfo';
 import PBQ from '../screens/AuthUser/PBQTest/PBQ';
+import AddNewPet2 from '../screens/AuthUser/AddNewPet2';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,13 @@ const AuthNavigation = () => {
         <Stack.Screen
           name={'AddNewPet'}
           component={AddNewPet}
+          options={{
+            headerTitle: '별이 된 아이',
+          }}
+        />
+        <Stack.Screen
+          name={'AddNewPet2'}
+          component={AddNewPet2}
           options={{
             headerTitle: '별이 된 아이',
           }}
