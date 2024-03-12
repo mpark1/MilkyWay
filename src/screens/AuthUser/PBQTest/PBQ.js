@@ -98,6 +98,7 @@ const PBQ = ({navigation}) => {
       griefScore: griefScore,
       angerScore: angerScore,
       guiltScore: guiltScore,
+      whichPAge: 'PBQTest',
     });
   };
 

@@ -7,7 +7,8 @@ import BlueButton from '../../../components/Buttons/BlueButton';
 import testResultComments from '../../../data/testResultComments.json';
 
 const TestResult = ({navigation, route}) => {
-  const {totalScore, griefScore, angerScore, guiltScore} = route.params;
+  const {totalScore, griefScore, angerScore, guiltScore, whichPage} =
+    route.params;
   console.log(totalScore, griefScore, angerScore, guiltScore);
 
   const testResultDescription = () => {
@@ -60,12 +61,14 @@ const TestResult = ({navigation, route}) => {
           trackColor={'#A5BAA8'}
         />
       </View>
-      <View style={styles.blueButton}>
-        <BlueButton
-          title={'다음'}
-          onPress={() => navigation.navigate('ServiceQuestions')}
-        />
-      </View>
+      {whichPage === 'PBQTest' && (
+        <View style={styles.blueButton}>
+          <BlueButton
+            title={'다음'}
+            onPress={() => navigation.navigate('ServiceQuestions')}
+          />
+        </View>
+      )}
     </ScrollView>
   );
 };

@@ -1,16 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import {Dimensions, StyleSheet, Text, TextInput, View} from 'react-native';
 import {scaleFontSize} from '../../../assets/styles/scaling';
 import globalStyle from '../../../assets/styles/globalStyle';
 import {CheckBox} from '@rneui/themed';
-import BlueButton from '../../../components/Buttons/BlueButton';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ButtonGroups from '../../../components/Buttons/ButtonGroups';
 import DropDownComponent from '../../../components/DropDownComponent';
@@ -21,7 +13,6 @@ import {
   createServiceSurvey,
   updateServiceSurvey,
 } from '../../../graphql/mutations';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import {Button} from '@rneui/base';
 
 // check slider - it exceeds the max value, why???

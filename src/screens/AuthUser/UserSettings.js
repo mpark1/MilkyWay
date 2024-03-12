@@ -1,12 +1,13 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
+  Alert,
+  Dimensions,
   Image,
   Pressable,
-  Dimensions,
+  StyleSheet,
+  Text,
   TextInput,
+  View,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -24,7 +25,7 @@ import {
   hasOneFamilyMember,
   movePetToInactiveTable,
   mutationItem,
-  mutationItemNoAlertBox,
+  querySingleItem,
   retrieveS3Url,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
@@ -33,7 +34,11 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import AlertBox from '../../components/AlertBox';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
-import {getPet} from '../../graphql/queries';
+import {
+  getPet,
+  getPsychologicalTest,
+  getServiceSurvey,
+} from '../../graphql/queries';
 import {generateClient} from 'aws-amplify/api';
 
 const UserSettings = ({navigation}) => {
@@ -321,11 +326,50 @@ const UserSettings = ({navigation}) => {
     );
   };
 
+  const renderPsychTestResult = () => {
+    const onSubmit = async () => {
+      await querySingleItem(getPsychologicalTest, {id: cognitoUsername}).then(
+        data => {
+          const obj = data.getPsychologicalTest;
+          console.log('print single obj', obj);
+          if (obj !== null) {
+            navigation.navigate('TestResult', {
+              totalScore: obj.totalScore,
+              griefScore: obj.griefScore,
+              angerScore: obj.angerScore,
+              guiltScore: obj.guiltScore,
+              whichPage: 'UserSettings',
+            });
+          } else {
+            Alert.alert('아직 심리상담을 받지 않으셨네요', '', [
+              {
+                text: '심리상담 받으러 가기',
+                onPress: () => navigation.navigate('커뮤니티'), // Pass the callback function here
+              },
+            ]);
+          }
+        },
+      );
+    };
+
+    return (
+      <Pressable style={styles.psychTest} onPress={onSubmit}>
+        <Text style={styles.psychTestText}>심리테스트 결과보기</Text>
+        <AntDesign
+          name={'arrowright'}
+          size={scaleFontSize(20)}
+          color={'#6395E1'}
+        />
+      </Pressable>
+    );
+  };
+
   return (
     <View style={[globalStyle.flex, globalStyle.backgroundWhite]}>
       <View style={styles.spacer}>
         {renderProfilePicField()}
         <View style={styles.fieldsContainer}>
+          {renderPsychTestResult()}
           {renderNameField()}
           {renderEmailField()}
           <SinglePictureBottomSheetModal
@@ -375,7 +419,7 @@ const styles = StyleSheet.create({
   },
   fieldsContainer: {
     width: '90%',
-    marginTop: Dimensions.get('window').height * 0.05,
+    marginTop: 15,
     marginBottom: Dimensions.get('window').height * 0.1,
     alignSelf: 'center',
   },
@@ -440,5 +484,15 @@ const styles = StyleSheet.create({
       fontSize: scaleFontSize(18),
       color: '#6395E1',
     },
+  },
+  psychTest: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  psychTestText: {
+    fontSize: scaleFontSize(18),
+    color: '#6395E1',
+    paddingRight: 5,
   },
 });
