@@ -1,8 +1,8 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import {useDispatch, useSelector} from 'react-redux';
 import BottomTabs from './BottomTabs';
 import AddNewPet from '../screens/AuthUser/AddNewPet';
+import AddNewPet2 from '../screens/AuthUser/AddNewPet2';
 import SetAccessLevel from '../screens/AuthUser/SetAccessLevel';
 import ChooseMedia from '../screens/AuthUser/ChooseMedia';
 import WriteLetter from '../screens/AuthUser/WriteLetter';
@@ -19,31 +19,6 @@ import globalStyle from '../assets/styles/globalStyle';
 const Stack = createStackNavigator();
 
 const AuthNavigation = () => {
-  const dispatch = useDispatch();
-  const userId = useSelector(state => state.user.cognitoUsername);
-
-  useEffect(() => {
-    // const user = await fetchUserFromDB(userId);
-    // dispatch(
-    //   setOwnerDetails({
-    //     name: user.name,
-    //     email: user.email,
-    //   }),
-    // );
-    // user.profilePic.length > 0 &&
-    //   dispatch(setUserProfilePicS3Key(user.profilePic)); // s3 key
-    // await retrieveS3Url(user.profilePic).then(res => {
-    //   // console.log('print user profile pic url', res.url.href);
-    //   dispatch(
-    //     setUserProfilePic({
-    //       profilePic: res.url.href,
-    //       s3UrlExpiredAt: res.expiresAt.toString(),
-    //     }),
-    //   );
-    // });
-    // await checkAdmin().then(res => dispatch(setIsAdmin(res)));
-  }, []);
-
   return (
     <Stack.Navigator screenOptions={globalStyle.stackNavigator}>
       <Stack.Screen
@@ -54,6 +29,13 @@ const AuthNavigation = () => {
       <Stack.Screen
         name={'AddNewPet'}
         component={AddNewPet}
+        options={{
+          headerTitle: '별이 된 아이',
+        }}
+      />
+      <Stack.Screen
+        name={'AddNewPet2'}
+        component={AddNewPet2}
         options={{
           headerTitle: '별이 된 아이',
         }}

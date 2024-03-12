@@ -13,33 +13,24 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DatePicker from 'react-native-date-picker';
 import {Button} from '@rneui/base';
+import {CheckBox} from '@rneui/themed';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {setNewPetGeneralInfo} from '../../redux/slices/NewPet';
 
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
-import {getCurrentDate} from '../../utils/utils';
+import {getCurrentDate, getMonthsElapsed} from '../../utils/utils';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
-
-import PetTypes from '../../data/PetTypes.json';
-import deathCauses from '../../data/deathCauses.json';
+import DropDownComponent from '../../components/DropDownComponent';
+import {
+  monthOptions,
+  yearOptions,
+} from '../../constants/petOwnershipPeriodYearsMonths';
 
 const AddNewPet = ({navigation}) => {
   const dispatch = useDispatch();
   const [profilePic, setProfilePic] = useState('');
   const bottomSheetModalRef = useRef(null);
-  const [value, setValue] = useState(null);
-  const petOptions = Object.keys(PetTypes).map(key => ({
-    label: key,
-    value: key,
-  }));
-  const [value2, setValue2] = useState(null);
-  const deathOptions = deathCauses.map(item => ({
-    label: item,
-    value: item,
-  }));
-  const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
   const currentDateInString = getCurrentDate();
 
   const [isBirthdayPickerOpen, setIsBirthdayPickerOpen] = useState(false);
@@ -52,14 +43,44 @@ const AddNewPet = ({navigation}) => {
   const [deathDay, setDeathDay] = useState(new Date(currentDateInString));
 
   const [petName, setPetName] = useState('');
-  const [lastWord, setLastWord] = useState('');
+
+  const [years, setYears] = useState(-1);
+  const [yearPickerOpen, setYearPickerOpen] = useState(false);
+  const [months, setMonths] = useState(-1);
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+
+  const [answer, setAnswer] = useState({
+    ownerSinceBirth: -1,
+    caretakerType: -1,
+  });
 
   const canGoNext =
     petName &&
-    value &&
-    value2 &&
     birthdayString !== 'YYYY-MM-DD' &&
-    deathDayString !== 'YYYY-MM-DD';
+    deathDayString !== 'YYYY-MM-DD' &&
+    (answer.ownerSinceBirth === 0 ||
+      (answer.ownerSinceBirth === 1 && (months !== -1 || years !== -1))) &&
+    answer.caretakerType !== -1;
+
+  const updateAnswer = (fieldTitle, newValue) =>
+    setAnswer(prev => ({
+      ...prev,
+      [fieldTitle]: newValue,
+    }));
+
+  const onChangeDate = (date, option) => {
+    option === 'birthday'
+      ? setIsBirthdayPickerOpen(false)
+      : setIsDeathDayPickerOpen(false);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000,
+    );
+    const localDateString = localDate.toISOString().split('T')[0];
+    option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
+    option === 'birthday'
+      ? setBirthdayString(localDateString)
+      : setDeathDayString(localDateString);
+  };
 
   const renderProfilePicField = () => {
     return (
@@ -79,20 +100,6 @@ const AddNewPet = ({navigation}) => {
         </Pressable>
       </View>
     );
-  };
-
-  const onChangeDate = (date, option) => {
-    option === 'birthday'
-      ? setIsBirthdayPickerOpen(false)
-      : setIsDeathDayPickerOpen(false);
-    const localDate = new Date(
-      date.getTime() - date.getTimezoneOffset() * 60000,
-    );
-    const localDateString = localDate.toISOString().split('T')[0];
-    option === 'birthday' ? setBirthday(localDate) : setDeathDay(localDate);
-    option === 'birthday'
-      ? setBirthdayString(localDateString)
-      : setDeathDayString(localDateString);
   };
 
   const renderDatePicker = option => {
@@ -188,110 +195,168 @@ const AddNewPet = ({navigation}) => {
     );
   };
 
-  const renderLastWordField = () => {
+  const renderPetOwnershipField = () => {
     return (
-      <View>
-        <Text style={styles.label}>멀리 떠나는 아이에게 전하는 인사말</Text>
-        <TextInput
-          style={styles.lastWord}
-          placeholder={'예: 천사같은 아이, 편히 잠들기를 (25자이내)'}
-          autoCorrect={false}
-          placeholderTextColor={'#d9d9d9'}
-          maxLength={25}
-          onChangeText={text => setLastWord(text)}
-        />
+      <View style={[styles.containerForInput, {marginVertical: 10}]}>
+        <Text style={styles.label}>아이가 태어났을 때부터 키우셨나요?</Text>
+        <View style={styles.checkBoxes}>
+          <Text style={styles.checkBoxes.text}>예</Text>
+          <CheckBox
+            containerStyle={[styles.checkBoxes.checkBox, {marginRight: 20}]}
+            size={24}
+            checked={answer.ownerSinceBirth === 0}
+            onPress={() =>
+              updateAnswer(
+                'ownerSinceBirth',
+                answer.ownerSinceBirth === 0 ? -1 : 0,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+          <Text style={styles.checkBoxes.text}>아니오</Text>
+          <CheckBox
+            containerStyle={styles.checkBoxes.checkBox}
+            size={24}
+            checked={answer.ownerSinceBirth === 1}
+            onPress={() =>
+              updateAnswer(
+                'ownerSinceBirth',
+                answer.ownerSinceBirth === 1 ? -1 : 1,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        {answer.ownerSinceBirth === 1 && renderYearMonthField()}
       </View>
     );
   };
-  const renderPetTypeField = () => {
+
+  const renderYearMonthField = () => {
     return (
-      <View style={styles.containerForInput}>
-        <View style={styles.animalType}>
-          <Text style={styles.label}>동물종류*</Text>
-          <DropDownPicker
-            containerStyle={styles.dropDownPicker.containerStyle}
-            style={styles.dropDownPicker.borderStyle}
-            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-            textStyle={{fontSize: scaleFontSize(18)}}
-            multiple={false}
-            placeholderStyle={styles.dropDownPicker.placeholder}
-            items={petOptions}
-            placeholder={'선택'}
-            setValue={setValue}
-            value={value}
-            open={open}
-            setOpen={setOpen}
-            zIndex={3000}
-            listMode="SCROLLVIEW"
+      <View style={styles.yearMonthFieldContainer}>
+        <Text style={styles.label}>양육 기간</Text>
+        <DropDownComponent
+          items={yearOptions}
+          setValue={setYears}
+          value={years}
+          open={yearPickerOpen}
+          setOpen={setYearPickerOpen}
+          zIndex={10}
+          whichPage={'AddNewPet'}
+          placeholderText={''}
+        />
+        <Text style={styles.label}>
+          {'  '}년{'   '}
+        </Text>
+        <DropDownComponent
+          items={monthOptions}
+          setValue={setMonths}
+          value={months}
+          open={monthPickerOpen}
+          setOpen={setMonthPickerOpen}
+          zIndex={100}
+          whichPage={'AddNewPet'}
+          placeholderText={''}
+        />
+        <Text style={styles.label}>{'  '}개월</Text>
+      </View>
+    );
+  };
+
+  const renderCaretakerField = () => {
+    return (
+      <View style={[styles.flexDirectionRow, {zIndex: 10}]}>
+        <View style={styles.flexDirectionRow}>
+          <Text style={styles.checkBoxes.text}>1인 보호자</Text>
+          <CheckBox
+            containerStyle={styles.checkBoxes.checkBox}
+            size={24}
+            checked={answer.caretakerType === 0}
+            onPress={() =>
+              updateAnswer('caretakerType', answer.caretakerType === 0 ? -1 : 0)
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        <View style={styles.flexDirectionRow}>
+          <Text style={styles.checkBoxes.text}>가족 단위 보호자</Text>
+          <CheckBox
+            containerStyle={styles.checkBoxes.checkBox}
+            size={24}
+            checked={answer.caretakerType === 1}
+            onPress={() =>
+              updateAnswer('caretakerType', answer.caretakerType === 1 ? -1 : 1)
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
           />
         </View>
       </View>
     );
   };
 
-  const renderDeathCausesField = () => {
+  const renderNextButton = () => {
     return (
-      <View style={styles.containerForInput2}>
-        <View style={styles.animalType}>
-          <Text style={styles.label}>별이된 이유*</Text>
-          <DropDownPicker
-            containerStyle={styles.dropDownPicker.containerStyle}
-            style={styles.dropDownPicker.borderStyle}
-            dropDownContainerStyle={styles.dropDownPicker.borderStyle}
-            textStyle={{fontSize: scaleFontSize(18)}}
-            multiple={false}
-            placeholderStyle={styles.dropDownPicker.placeholder}
-            items={deathOptions}
-            placeholder={'별이된 이유를 알려주세요'}
-            setValue={setValue2}
-            value={value2}
-            open={open2}
-            setOpen={setOpen2}
-            zIndex={1000}
-            listMode="SCROLLVIEW"
-            dropDownDirection="BOTTOM"
-          />
-        </View>
+      <View style={styles.blueButton}>
+        <Button
+          disabled={!canGoNext}
+          title={'다음'}
+          titleStyle={styles.submitButton.titleStyle}
+          containerStyle={styles.submitButton.containerStyle}
+          buttonStyle={globalStyle.backgroundBlue}
+          onPress={onSubmit}
+        />
       </View>
     );
   };
 
   const onSubmit = () => {
     const petDetails = {
+      profilePic: profilePic,
       name: petName,
       birthday: birthdayString,
       deathDay: deathDayString,
-      petType: value,
-      profilePic: profilePic,
-      deathCause: value2,
-      lastWord: lastWord,
+      ownerSinceBirth: answer.ownerSinceBirth, // 0 - 예, 1 - 아니오
+      ownershipPeriodInMonths:
+        answer.ownerSinceBirth === 0
+          ? getMonthsElapsed(birthdayString)
+          : years * 12 + months,
+      caretakerType: answer.caretakerType,
     };
     dispatch(setNewPetGeneralInfo(petDetails));
-    navigation.navigate('SetAccessLevel');
+    navigation.navigate('AddNewPet2');
   };
 
   return (
     <KeyboardAwareScrollView
-      style={[globalStyle.flex, globalStyle.backgroundWhite, {padding: 20}]}>
+      style={[globalStyle.flex, globalStyle.backgroundWhite, styles.spacer]}>
       {renderProfilePicField()}
       <View style={styles.inputFieldsContainer}>
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
-        {renderPetTypeField()}
-        {renderDeathCausesField()}
-        {renderLastWordField()}
-        <Text style={{paddingTop: 8}}>*필수기입 항목</Text>
-        <View style={styles.blueButton}>
-          <Button
-            disabled={!canGoNext}
-            title={'계속하기'}
-            titleStyle={styles.submitButton.titleStyle}
-            containerStyle={styles.submitButton.containerStyle}
-            buttonStyle={globalStyle.backgroundBlue}
-            onPress={() => onSubmit()}
-          />
-        </View>
+        {renderPetOwnershipField()}
+        {renderCaretakerField()}
+        <Text style={styles.instruction}>
+          *사진을 제외한 모든 항목은 필수 기입 항목입니다.
+        </Text>
+        {renderNextButton()}
       </View>
       <SinglePictureBottomSheetModal
         type={'createPet'}
@@ -306,6 +371,7 @@ const AddNewPet = ({navigation}) => {
 export default AddNewPet;
 
 const styles = StyleSheet.create({
+  spacer: {padding: 20},
   profilePicAndButtonWrapper: {
     width: 130,
     height: 130,
@@ -313,11 +379,6 @@ const styles = StyleSheet.create({
   },
   containerForInput: {
     marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 3000,
-  },
-  containerForInput2: {
-    marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 2000,
   },
   profilePicPlaceholder: {
     width: 120,
@@ -364,14 +425,6 @@ const styles = StyleSheet.create({
     color: '#939393',
     textAlign: 'center',
   },
-  lastWord: {
-    marginTop: 10,
-    marginBottom: 2,
-    fontSize: scaleFontSize(18),
-    color: '#939393',
-    borderColor: '#939393',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
   bottomSheet: {
     inner: {
       flex: 1,
@@ -388,28 +441,34 @@ const styles = StyleSheet.create({
   hideBottomSheetHandle: {
     height: 0,
   },
-  animalType: {
+  checkBoxes: {
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-end',
     justifyContent: 'space-between',
-  },
-  dropDownPicker: {
-    containerStyle: {
-      width: '65%',
-      maxHeight: 40,
-      backgroundColor: '#fff',
-    },
-    borderStyle: {
-      borderRadius: 5,
-      borderColor: '#d9d9d9',
-      minHeight: 40,
-      padding: 8,
+    width: '50%',
+    text: {
       fontSize: scaleFontSize(18),
+      color: '#000',
+      marginRight: 10,
     },
-    placeholder: {color: '#939393', fontSize: scaleFontSize(16)},
+    checkBox: {
+      padding: 0,
+      marginRight: -4,
+      marginLeft: 0,
+      marginVertical: 0,
+    },
+  },
+  yearMonthFieldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    zIndex: 100,
+    paddingTop: Dimensions.get('window').height * 0.025,
   },
   blueButton: {
-    marginVertical: Dimensions.get('window').height * 0.03,
+    marginVertical: Dimensions.get('window').height * 0.05,
     alignSelf: 'center',
   },
   submitButton: {
@@ -423,5 +482,11 @@ const styles = StyleSheet.create({
     containerStyle: {
       borderRadius: 10,
     },
+  },
+  instruction: {
+    color: '#939393',
+    fontSize: scaleFontSize(14),
+    paddingTop: Dimensions.get('window').height * 0.01,
+    zIndex: 0,
   },
 });

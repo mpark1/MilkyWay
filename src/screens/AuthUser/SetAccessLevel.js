@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from 'react';
-import {StyleSheet, Text, View, Dimensions, Pressable} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, Text, View, Dimensions} from 'react-native';
 import globalStyle from '../../assets/styles/globalStyle';
 import {CheckBox} from '@rneui/themed';
 import {Icon} from '@rneui/base';
@@ -18,8 +18,19 @@ import {getIdentityID, uploadProfilePic} from '../../utils/amplifyUtil';
 
 const SetAccessLevel = ({navigation}) => {
   const dispatch = useDispatch();
-  const {name, birthday, deathDay, profilePic, petType, deathCause, lastWord} =
-    useSelector(state => state.newPet);
+  const {
+    name,
+    birthday,
+    deathDay,
+    profilePic,
+    petType,
+    deathCause,
+    lastWord,
+    breed,
+    ownerSinceBirth,
+    ownershipPeriodInMonths,
+    caretakerType,
+  } = useSelector(state => state.newPet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const [checkPrivate, setPrivate] = useState(false);
   const [checkAll, setAll] = useState(true); // defaults to all
@@ -63,6 +74,10 @@ const SetAccessLevel = ({navigation}) => {
           accessLevel: checkAll ? 'Public' : 'Private',
           managerID: userID,
           identityId: identityId,
+          breed: breed,
+          ownerSinceBirth: ownerSinceBirth,
+          ownershipPeriodInMonths: ownershipPeriodInMonths,
+          caretakerType: caretakerType,
         };
         const newPetResponse = await client.graphql({
           query: createPet,

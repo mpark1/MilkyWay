@@ -31,6 +31,12 @@ import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getCurrentDate} from '../../utils/utils';
 import SinglePictureBottomSheetModal from '../../components/SinglePictureBottomSheetModal';
+import deathCauses from '../../data/deathCauses.json';
+import DropDownComponent from '../../components/DropDownComponent';
+import {
+  monthOptions,
+  yearOptions,
+} from '../../constants/petOwnershipPeriodYearsMonths';
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
@@ -48,9 +54,18 @@ const Settings = ({navigation, route}) => {
     petType,
     identityId,
     deathCause,
+    breed,
+    ownerSinceBirth,
+    ownershipPeriodInMonths,
+    caretakerType,
   } = useSelector(state => state.pet);
   const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
+  const deathOptions = deathCauses.map(item => ({
+    label: item,
+    value: item,
+  }));
+
   const [newProfilePic, setProfilePic] = useState(profilePic);
   const [petName, setPetName] = useState(name);
   const [newLastWord, setLastWord] = useState(lastWord);
@@ -68,6 +83,22 @@ const Settings = ({navigation, route}) => {
   const [newBirthday, setBirthday] = useState(new Date(birthdayString));
   const [newDeathDay, setDeathDay] = useState(new Date(deathDayString));
 
+  const [years, setYears] = useState(
+    ownerSinceBirth === 1 && ownershipPeriodInMonths >= 12
+      ? Math.floor(ownershipPeriodInMonths / 12)
+      : 0,
+  );
+  const [yearPickerOpen, setYearPickerOpen] = useState(false);
+  const [months, setMonths] = useState(
+    ownerSinceBirth === 1 && ownershipPeriodInMonths < 12
+      ? ownershipPeriodInMonths
+      : ownershipPeriodInMonths % 12,
+  );
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+
+  const [newDeathCause, setNewDeathCause] = useState(deathCause);
+  const [deathCausePickerOpen, setDeathCausePickerOpen] = useState(false);
+
   const [checkPrivate, setPrivate] = useState(accessLevel === 'Private');
   const [checkAll, setAll] = useState(accessLevel === 'Public'); // defaults to all
 
@@ -78,17 +109,28 @@ const Settings = ({navigation, route}) => {
     false: 'Public',
   };
 
-  const noUpdateInPetInfo =
+  let noUpdateInPetInfo =
     name === petName &&
     birthday === birthdayString &&
     deathday === deathDayString &&
     lastWord === newLastWord &&
     accessLevel === privateAccessMapping[checkPrivate];
-
-  const noUpdateInPetProfilePic = profilePic === newProfilePic;
+  let noUpdateInPetProfilePic = profilePic === newProfilePic;
 
   const canGoNext =
     !(noUpdateInPetInfo && noUpdateInPetProfilePic) && !isCallingUpdateAPI;
+
+  const [newPetInfo, setNewPetInfo] = useState({
+    newOwnerSinceBirth: ownerSinceBirth,
+    newOwnershipPeriodInMonths: ownershipPeriodInMonths,
+    newCaretakerType: caretakerType,
+  });
+
+  const updateAnswer = (fieldTitle, newValue) =>
+    setNewPetInfo(prev => ({
+      ...prev,
+      [fieldTitle]: newValue,
+    }));
 
   useEffect(() => {
     //check pet's profile picture url expiration once when the page is loaded.
@@ -235,6 +277,187 @@ const Settings = ({navigation, route}) => {
     );
   };
 
+  const renderYearMonthField = () => {
+    return (
+      <View style={styles.yearMonthFieldContainer}>
+        <Text style={styles.label}>양육 기간</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            width: Dimensions.get('window').width * 0.6,
+          }}>
+          <DropDownComponent
+            items={yearOptions}
+            setValue={setYears}
+            value={years}
+            open={yearPickerOpen}
+            setOpen={setYearPickerOpen}
+            zIndex={10}
+            whichPage={'AddNewPet'}
+            placeholderText={years === 0 ? '' : years.toString()}
+          />
+          <Text style={[styles.label, {paddingRight: 0}]}> 년{'   '}</Text>
+          <DropDownComponent
+            items={monthOptions}
+            setValue={setMonths}
+            value={months}
+            open={monthPickerOpen}
+            setOpen={setMonthPickerOpen}
+            zIndex={100}
+            whichPage={'AddNewPet'}
+            placeholderText={months === 0 ? '' : months.toString()}
+          />
+          <Text style={[styles.label, {paddingRight: 0}]}> 개월</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPetOwnershipField = () => {
+    return (
+      <View style={[styles.containerForInput, {zIndex: 100}]}>
+        <Text style={[styles.label, {marginTop: 10}]}>
+          아이가 태어났을 때부터 키우셨나요?
+        </Text>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>예 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newOwnerSinceBirth === 0}
+            onPress={() =>
+              updateAnswer(
+                'newOwnerSinceBirth',
+                newPetInfo.ownerSinceBirth === 0 ? -1 : 0,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+          <Text style={styles.label}>{'         '}아니오 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newOwnerSinceBirth === 1}
+            onPress={() =>
+              updateAnswer(
+                'newOwnerSinceBirth',
+                newPetInfo.ownerSinceBirth === 1 ? -1 : 1,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        {newPetInfo.newOwnerSinceBirth === 1 && renderYearMonthField()}
+      </View>
+    );
+  };
+
+  const renderCaretakerField = () => {
+    return (
+      <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>1인 보호자 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newCaretakerType === 0}
+            onPress={() =>
+              updateAnswer(
+                'newCaretakerType',
+                newPetInfo.newCaretakerType === 0 ? -1 : 0,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+        <View style={styles.ownershipCheckboxesContainer}>
+          <Text style={styles.label}>가족 단위 보호자 </Text>
+          <CheckBox
+            containerStyle={styles.checkBox}
+            size={24}
+            checked={newPetInfo.newCaretakerType === 1}
+            onPress={() =>
+              updateAnswer(
+                'newCaretakerType',
+                newPetInfo.newCaretakerType === 1 ? -1 : 1,
+              )
+            }
+            iconType="material-community"
+            checkedIcon="checkbox-marked"
+            uncheckedIcon="checkbox-blank-outline"
+            uncheckedColor={'#939393'}
+            checkedColor={'#6395E1'}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  const renderPetTypeAndBreed = () => {
+    return (
+      <View>
+        <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+          <Text style={styles.label}>동물종류</Text>
+          <TextInput
+            placeholder={petType}
+            style={styles.textInput}
+            placeholderTextColor={'#000'}
+            editable={false}
+          />
+        </View>
+        <View style={[styles.containerForInput, styles.flexDirectionRow]}>
+          <Text style={styles.label}>세부종류</Text>
+          <TextInput
+            placeholder={breed}
+            style={styles.textInput}
+            placeholderTextColor={'#000'}
+            editable={false}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  const renderDeathCauseField = () => {
+    return (
+      <View
+        style={[
+          styles.flexDirectionRow,
+          {
+            marginTop: 10,
+            marginBottom: Dimensions.get('window').height * 0.04,
+            zIndex: 50,
+          },
+        ]}>
+        <Text style={styles.label}>별이된 이유*</Text>
+        <DropDownComponent
+          items={deathOptions}
+          value={newDeathCause}
+          setValue={setNewDeathCause}
+          open={deathCausePickerOpen}
+          setOpen={setDeathCausePickerOpen}
+          zIndex={50}
+          whichPage={'TesteeInfo'}
+          placeholderText={'선택'}
+        />
+      </View>
+    );
+  };
+
   const renderLastWordField = () => {
     return (
       <View style={styles.lastWordField.container}>
@@ -315,7 +538,6 @@ const Settings = ({navigation, route}) => {
               setAll(!checkAll);
             }}
           />
-
           <CheckBox
             containerStyle={styles.accessLevelField.checkBox.container}
             right={true}
@@ -477,6 +699,10 @@ const Settings = ({navigation, route}) => {
         {renderNameField()}
         {renderBirthdayField()}
         {renderDeathDayField()}
+        {renderPetOwnershipField()}
+        {renderCaretakerField()}
+        {renderPetTypeAndBreed()}
+        {renderDeathCauseField()}
         {renderLastWordField()}
         {renderAccessLevelField()}
       </View>
@@ -522,10 +748,10 @@ const styles = StyleSheet.create({
     width: '90%',
     marginVertical: 18,
     alignSelf: 'center',
+    zIndex: 30,
   },
   containerForInput: {
     marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 3000,
   },
   textInput: {
     color: '#000',
@@ -536,10 +762,6 @@ const styles = StyleSheet.create({
     fontSize: scaleFontSize(18),
     textAlign: 'center',
     alignSelf: 'flex-end',
-  },
-  containerForInput2: {
-    marginBottom: Dimensions.get('window').height * 0.025,
-    zIndex: 2000,
   },
   animalType: {
     flexDirection: 'row',
@@ -621,6 +843,7 @@ const styles = StyleSheet.create({
   },
   closeMemorialSpace: {
     alignSelf: 'center',
+    marginBottom: Dimensions.get('window').height * 0.1,
     text: {
       fontSize: scaleFontSize(18),
       color: '#939393',
@@ -646,5 +869,23 @@ const styles = StyleSheet.create({
   toolTipContainer: {
     width: '50%',
     height: Dimensions.get('window').height * 0.19,
+  },
+  ownershipCheckboxesContainer: {
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  checkBox: {
+    padding: 0,
+    marginRight: -4,
+    marginLeft: 0,
+    marginVertical: 0,
+  },
+  yearMonthFieldContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Dimensions.get('window').height * 0.015,
+    justifyContent: 'space-between',
   },
 });

@@ -18,6 +18,10 @@ const initialState = {
   backgroundPic: '',
   backgroundPicS3Key: '',
   backgroundPicS3UrlExpiredAt: '',
+  breed: '',
+  ownerSinceBirth: -1,
+  ownershipPeriodInMonths: -1,
+  caretakerType: -1,
 };
 
 const Pet = createSlice({

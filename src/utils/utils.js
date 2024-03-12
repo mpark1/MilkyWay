@@ -85,3 +85,31 @@ export async function removeUserProfilePicOnDevice(imagePathInFS) {
     console.log('Error deleting profilePic from local storage: ', error);
   }
 }
+
+export function getMonthsElapsed(dateString) {
+  const inputDate = new Date(dateString);
+  const currentDate = new Date();
+
+  const yearsDifference = currentDate.getFullYear() - inputDate.getFullYear();
+  const monthsDifference = currentDate.getMonth() - inputDate.getMonth();
+  const totalMonths = yearsDifference * 12 + monthsDifference;
+
+  if (totalMonths <= 0) {
+    // Check if at least a month has passed or if it's the same month but a different day.
+    if (totalMonths === 0 && currentDate.getDate() >= inputDate.getDate()) {
+      // If it's the same month and at least one day has passed, return 1.
+      return 1;
+    } else {
+      // If no full month has passed or it's still the same day, adjust to indicate at least one month has passed.
+      return 1;
+    }
+  } else {
+    // Calculate if a partial month has passed and adjust the count.
+    if (currentDate.getDate() < inputDate.getDate()) {
+      // If the current day of the month is less than the input day, subtract one to adjust for the partial month.
+      return Math.max(1, totalMonths - 1);
+    } else {
+      return Math.max(1, totalMonths);
+    }
+  }
+}
