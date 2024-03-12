@@ -44,6 +44,10 @@ const PetCard = ({item, isFamily}) => {
         petType: item.petType,
         identityId: item.identityId,
         deathCause: item.deathCause,
+        breed: item.breed,
+        ownerSinceBirth: item.ownerSinceBirth,
+        ownershipPeriodInMonths: item.ownershipPeriodInMonths,
+        caretakerType: item.caretakerType,
       }),
     );
     dispatch(setIsManager(item.owner === userID));

@@ -42,6 +42,10 @@ const Pet = createSlice({
       state.s3UrlExpiredAt = action.payload.s3UrlExpiredAt;
       state.identityId = action.payload.identityId;
       state.deathCause = action.payload.deathCause;
+      state.breed = action.payload.breed;
+      state.ownerSinceBirth = action.payload.ownerSinceBirth;
+      state.ownershipPeriodInMonths = action.payload.ownershipPeriodInMonths;
+      state.caretakerType = action.payload.caretakerType;
     },
     setIsManager: (state, action) => {
       state.manager = action.payload;

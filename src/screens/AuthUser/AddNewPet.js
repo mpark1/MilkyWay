@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {useDispatch} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import DropDownPicker from 'react-native-dropdown-picker';
 import DatePicker from 'react-native-date-picker';
 import {Button} from '@rneui/base';
 import {CheckBox} from '@rneui/themed';

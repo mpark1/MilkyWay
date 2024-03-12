@@ -40,7 +40,6 @@ import {
 
 const Settings = ({navigation, route}) => {
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
-
   const {
     id,
     name,
@@ -109,22 +108,32 @@ const Settings = ({navigation, route}) => {
     false: 'Public',
   };
 
+  const [newPetInfo, setNewPetInfo] = useState({
+    newOwnerSinceBirth: ownerSinceBirth,
+    newOwnershipPeriodInMonths: years * 12 + months,
+    newCaretakerType: caretakerType,
+  });
+
+  let noUpdateInOwnership =
+    newPetInfo.newOwnerSinceBirth === ownerSinceBirth &&
+    (ownerSinceBirth === 0 ||
+      (ownerSinceBirth === 1 &&
+        newPetInfo.newOwnershipPeriodInMonths === ownershipPeriodInMonths));
+
   let noUpdateInPetInfo =
     name === petName &&
     birthday === birthdayString &&
     deathday === deathDayString &&
     lastWord === newLastWord &&
-    accessLevel === privateAccessMapping[checkPrivate];
+    deathCause === newDeathCause &&
+    accessLevel === privateAccessMapping[checkPrivate] &&
+    noUpdateInOwnership &&
+    newPetInfo.newCaretakerType === caretakerType;
+
   let noUpdateInPetProfilePic = profilePic === newProfilePic;
 
   const canGoNext =
     !(noUpdateInPetInfo && noUpdateInPetProfilePic) && !isCallingUpdateAPI;
-
-  const [newPetInfo, setNewPetInfo] = useState({
-    newOwnerSinceBirth: ownerSinceBirth,
-    newOwnershipPeriodInMonths: ownershipPeriodInMonths,
-    newCaretakerType: caretakerType,
-  });
 
   const updateAnswer = (fieldTitle, newValue) =>
     setNewPetInfo(prev => ({
@@ -636,6 +645,12 @@ const Settings = ({navigation, route}) => {
         lastWord: newLastWord,
         accessLevel: checkPrivate ? 'Private' : 'Public',
         profilePic: s3key.length > 0 ? 'petProfile/' + s3key : profilePicS3Key,
+        deathCause: newDeathCause,
+        petType: petType, // cannot be modified
+        breed: breed, // cannot be modified
+        ownerSinceBirth: newPetInfo.newOwnerSinceBirth,
+        ownershipPeriodInMonths: newPetInfo.newOwnershipPeriodInMonths,
+        caretakerType: newPetInfo.newCaretakerType,
       };
 
       await mutationItem(

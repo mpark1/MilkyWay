@@ -22,6 +22,9 @@ type Pet @model
     identityId: String!
     petType: String!
     breed: String!
+    ownerSinceBirth: Int!
+    ownershipPeriodInMonths: Int!
+    careTakerType: Int!
     managerID: ID!
 }
 

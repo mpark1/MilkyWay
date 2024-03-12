@@ -64,6 +64,10 @@ const PetPage = ({navigation, route}) => {
     backgroundPicS3Key,
     backgroundPicS3UrlExpiredAt,
     identityId,
+    breed,
+    ownerSinceBirth,
+    ownershipPeriodInMonths,
+    caretakerType,
   } = useSelector(state => state.pet);
   const dispatch = useDispatch();
 
@@ -110,6 +114,10 @@ const PetPage = ({navigation, route}) => {
       profilePicS3Key: item.profilePicS3Key,
       s3UrlExpiredAt: item.s3UrlExpiredAt,
       identityId: item.identityId,
+      breed: item.breed,
+      ownerSinceBirth: item.ownerSinceBirth,
+      ownershipPeriodInMonths: item.ownershipPeriodInMonths,
+      caretakerType: item.caretakerType,
     });
   }
 
