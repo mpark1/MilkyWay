@@ -29,6 +29,7 @@ const Pet = createSlice({
   initialState: initialState,
   reducers: {
     setPetGeneralInfo: (state, action) => {
+      console.log('check setPetGeneralInfo payload: ', action.payload);
       state.id = action.payload.id;
       state.name = action.payload.name;
       state.birthday = action.payload.birthday;

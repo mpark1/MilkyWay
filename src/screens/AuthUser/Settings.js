@@ -38,7 +38,6 @@ import {
 } from '../../constants/petOwnershipPeriodYearsMonths';
 
 const Settings = ({navigation}) => {
-  /*TODO: 리덕스에서 업데이트 된 정보 안가져와짐 */
   const [isCallingUpdateAPI, setIsCallingUpdateAPI] = useState(false);
   const {
     id,
@@ -607,22 +606,6 @@ const Settings = ({navigation}) => {
   }
 
   function popPage() {
-    // update redux
-    // dispatch(
-    //   setPetGeneralInfo({
-    //     name: petName,
-    //     birthday: birthdayString,
-    //     deathday: deathDayString,
-    //     profilePic: newProfilePic,
-    //     lastWord: newLastWord,
-    //     accessLevel: checkPrivate ? 'Private' : 'Public',
-    //     breed: breed,
-    //     ownerSinceBirth: newPetInfo.newOwnerSinceBirth,
-    //     ownershipPeriodInMonths: years * 12 + months,
-    //     // parseInt(years, 10) * 12 + parseInt(months, 10),
-    //     careTakerType: newPetInfo.newCareTakerType,
-    //   }),
-    // );
     navigation.pop();
   }
 
