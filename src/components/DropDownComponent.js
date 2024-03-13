@@ -11,7 +11,7 @@ const DropDownComponent = ({
   zIndex,
   setOpen,
   whichPage,
-  placeholderText,
+  placeholder,
 }) => {
   const selectStyles = () => {
     if (whichPage === 'TesteeInfo') {
@@ -20,6 +20,7 @@ const DropDownComponent = ({
         borderStyle: styles.testeeInfo.borderStyle,
         textStyle: styles.testeeInfo.textStyle,
         placeholderStyle: styles.testeeInfo.placeholder,
+        placeholderText: '선택',
       };
     } else if (whichPage === 'ServiceQuestion') {
       return {
@@ -27,6 +28,7 @@ const DropDownComponent = ({
         borderStyle: styles.serviceQuestions.borderStyle,
         textStyle: styles.serviceQuestions.textStyle,
         placeholderStyle: styles.serviceQuestions.placeholder,
+        placeholderText: '선택',
       };
     } else if (whichPage === 'AddNewPet') {
       return {
@@ -34,6 +36,7 @@ const DropDownComponent = ({
         borderStyle: styles.addNewPet.borderStyle,
         textStyle: styles.addNewPet.textStyle,
         placeholderStyle: styles.addNewPet.placeholder,
+        placeholderText: placeholder,
       };
     } else if (whichPage === 'Settings') {
       return {
@@ -41,6 +44,7 @@ const DropDownComponent = ({
         borderStyle: styles.settings.borderStyle,
         textStyle: styles.settings.textStyle,
         placeholderStyle: styles.settings.placeholder,
+        placeholderText: placeholder,
       };
     } else {
       return {
@@ -48,12 +52,18 @@ const DropDownComponent = ({
         borderStyle: styles.serviceQuestions.borderStyle,
         textStyle: styles.serviceQuestions.textStyle,
         placeholderStyle: styles.serviceQuestions.placeholder,
+        placeholderText: '선택',
       };
     }
   };
 
-  const {containerStyle, borderStyle, textStyle, placeholderStyle} =
-    selectStyles();
+  const {
+    containerStyle,
+    borderStyle,
+    textStyle,
+    placeholderStyle,
+    placeholderText,
+  } = selectStyles();
 
   return (
     <DropDownPicker
@@ -64,7 +74,7 @@ const DropDownComponent = ({
       multiple={false}
       placeholderStyle={placeholderStyle}
       items={items}
-      placeholder={whichPage !== 'Settings' ? '선택' : placeholderText}
+      placeholder={placeholderText}
       setValue={setValue}
       value={value}
       open={open}

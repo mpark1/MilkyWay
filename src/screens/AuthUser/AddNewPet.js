@@ -59,7 +59,7 @@ const AddNewPet = ({navigation}) => {
     deathDayString !== 'YYYY-MM-DD' &&
     (answer.ownerSinceBirth === 0 ||
       (answer.ownerSinceBirth === 1 && (months !== -1 || years !== -1))) &&
-    answer.careTakerType !== -1;
+    (answer.careTakerType !== -1 || answer.ownerSinceBirth === -1);
 
   const updateAnswer = (fieldTitle, newValue) =>
     setAnswer(prev => ({
@@ -251,7 +251,7 @@ const AddNewPet = ({navigation}) => {
           setOpen={setYearPickerOpen}
           zIndex={100}
           whichPage={'AddNewPet'}
-          placeholderText={''}
+          placeholder={''}
         />
         <Text style={styles.label}>
           {'  '}년{'   '}
@@ -264,7 +264,7 @@ const AddNewPet = ({navigation}) => {
           setOpen={setMonthPickerOpen}
           zIndex={100}
           whichPage={'AddNewPet'}
-          placeholderText={''}
+          placeholder={''}
         />
         <Text style={styles.label}>{'  '}개월</Text>
       </View>

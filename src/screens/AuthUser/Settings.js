@@ -22,7 +22,10 @@ import {
   deletePetPage,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
-import {setUpdateProfilePicUrl} from '../../redux/slices/Pet';
+import {
+  setPetGeneralInfo,
+  setUpdateProfilePicUrl,
+} from '../../redux/slices/Pet';
 import globalStyle from '../../assets/styles/globalStyle';
 import {scaleFontSize} from '../../assets/styles/scaling';
 import {getCurrentDate} from '../../utils/utils';
@@ -86,7 +89,6 @@ const Settings = ({navigation}) => {
       ? Math.floor(ownershipPeriodInMonths / 12)
       : 0,
   );
-
   const [yearPickerOpen, setYearPickerOpen] = useState(false);
   const [months, setMonths] = useState(
     ownerSinceBirth === 1 && ownershipPeriodInMonths < 12
@@ -131,8 +133,13 @@ const Settings = ({navigation}) => {
 
   let noUpdateInPetProfilePic = profilePic === newProfilePic;
 
+  let missingCheckBoxSelection =
+    newPetInfo.newCareTakerType === -1 || newPetInfo.newOwnerSinceBirth === -1;
+
   const canGoNext =
-    !(noUpdateInPetInfo && noUpdateInPetProfilePic) && !isCallingUpdateAPI;
+    !(noUpdateInPetInfo && noUpdateInPetProfilePic) &&
+    !missingCheckBoxSelection &&
+    !isCallingUpdateAPI;
 
   const updateAnswer = (fieldTitle, newValue) =>
     setNewPetInfo(prev => ({
@@ -304,7 +311,7 @@ const Settings = ({navigation}) => {
             setOpen={setYearPickerOpen}
             zIndex={10}
             whichPage={'Settings'}
-            placeholderText={years === 0 ? '' : years.toString()}
+            placeholder={years === 0 ? '' : years.toString()}
           />
           <Text style={[styles.label, {paddingRight: 0}]}> 년{'   '}</Text>
           <DropDownComponent
@@ -315,7 +322,7 @@ const Settings = ({navigation}) => {
             setOpen={setMonthPickerOpen}
             zIndex={100}
             whichPage={'Settings'}
-            placeholderText={months === 0 ? '' : months.toString()}
+            placeholder={months === 0 ? '' : months.toString()}
           />
           <Text style={[styles.label, {paddingRight: 0}]}> 개월</Text>
         </View>
@@ -442,16 +449,8 @@ const Settings = ({navigation}) => {
 
   const renderDeathCauseField = () => {
     return (
-      <View
-        style={[
-          styles.flexDirectionRow,
-          {
-            marginTop: 10,
-            marginBottom: Dimensions.get('window').height * 0.04,
-            zIndex: 50,
-          },
-        ]}>
-        <Text style={styles.label}>별이된 이유*</Text>
+      <View style={[styles.flexDirectionRow, styles.deathCauseFieldContainer]}>
+        <Text style={styles.label}>별이된 이유</Text>
         <DropDownComponent
           items={deathOptions}
           value={newDeathCause}
@@ -460,6 +459,7 @@ const Settings = ({navigation}) => {
           setOpen={setDeathCausePickerOpen}
           zIndex={50}
           whichPage={'TesteeInfo'}
+          placeholder={newDeathCause}
         />
       </View>
     );
@@ -607,6 +607,22 @@ const Settings = ({navigation}) => {
   }
 
   function popPage() {
+    // update redux
+    // dispatch(
+    //   setPetGeneralInfo({
+    //     name: petName,
+    //     birthday: birthdayString,
+    //     deathday: deathDayString,
+    //     profilePic: newProfilePic,
+    //     lastWord: newLastWord,
+    //     accessLevel: checkPrivate ? 'Private' : 'Public',
+    //     breed: breed,
+    //     ownerSinceBirth: newPetInfo.newOwnerSinceBirth,
+    //     ownershipPeriodInMonths: years * 12 + months,
+    //     // parseInt(years, 10) * 12 + parseInt(months, 10),
+    //     careTakerType: newPetInfo.newCareTakerType,
+    //   }),
+    // );
     navigation.pop();
   }
 
@@ -893,5 +909,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: Dimensions.get('window').height * 0.015,
     justifyContent: 'space-between',
+  },
+  deathCauseFieldContainer: {
+    marginTop: 10,
+    marginBottom: Dimensions.get('window').height * 0.04,
+    zIndex: 50,
   },
 });

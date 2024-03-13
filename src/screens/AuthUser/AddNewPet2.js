@@ -87,7 +87,6 @@ const AddNewPet2 = ({navigation}) => {
           setOpen={setBreedPickerOpen}
           zIndex={9}
           whichPage={'TesteeInfo'}
-          placeholderText={'선택'}
         />
       </View>
     );
@@ -105,7 +104,6 @@ const AddNewPet2 = ({navigation}) => {
           setOpen={setDeathCausePickerOpen}
           zIndex={8}
           whichPage={'TesteeInfo'}
-          placeholderText={'선택'}
         />
       </View>
     );
