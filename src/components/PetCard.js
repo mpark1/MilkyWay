@@ -48,9 +48,9 @@ const PetCard = ({item, isFamily}) => {
         ownerSinceBirth: item.ownerSinceBirth,
         ownershipPeriodInMonths: item.ownershipPeriodInMonths,
         careTakerType: item.careTakerType,
+        manager: item.managerID === userID,
       }),
     );
-    dispatch(setIsManager(item.owner === userID));
 
     await querySingleItem(getPetpageBackgroundImage, {petID: item.id}).then(
       async resFromDB => {

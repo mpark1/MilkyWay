@@ -30,15 +30,22 @@ const OtherUserPet = ({item, bottomSheetRef, navigation}) => {
         name: item.name,
         birthday: item.birthday,
         deathday: item.deathDay,
+        petType: item.petType,
         profilePic: item.profilePic,
+        deathCause: item.deathCause,
         lastWord: item.lastWord,
         accessLevel: item.accessLevel,
+        introductionMsg: item.introductionMsg,
+        manager: item.managerID === userID,
         profilePicS3Key: item.profilePicS3Key,
         s3UrlExpiredAt: item.s3UrlExpiredAt,
         identityId: item.identityId,
+        breed: item.breed,
+        ownerSinceBirth: item.ownerSinceBirth,
+        ownershipPeriodInMonths: item.ownershipPeriodInMonths,
+        careTakerType: item.careTakerType,
       }),
     );
-    dispatch(setIsManager(item.owner === userID));
 
     await querySingleItem(getPetpageBackgroundImage, {petID: item.id}).then(
       async resFromDB => {

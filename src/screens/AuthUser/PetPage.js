@@ -63,6 +63,7 @@ const PetPage = ({navigation, route}) => {
     backgroundPicS3UrlExpiredAt,
     identityId,
   } = useSelector(state => state.pet);
+  const userID = useSelector(state => state.user.cognitoUsername);
   const dispatch = useDispatch();
 
   const [newBackgroundPic, setNewBackgroundPic] = useState(backgroundPic);
@@ -103,9 +104,13 @@ const PetPage = ({navigation, route}) => {
         name: item.name,
         birthday: item.birthday,
         deathday: item.deathDay,
+        petType: item.petType,
         profilePic: item.profilePic,
+        deathCause: item.deathCause,
         lastWord: item.lastWord,
         accessLevel: item.accessLevel,
+        introductionMsg: item.introductionMsg,
+        manager: item.managerID === userID,
         profilePicS3Key: item.profilePicS3Key,
         s3UrlExpiredAt: item.s3UrlExpiredAt,
         identityId: item.identityId,
