@@ -88,10 +88,10 @@ const PetPage = ({navigation, route}) => {
       id,
     );
     console.log('update subscription is on for Pets table.');
-    return () => {
-      console.log('Petpage subscription is turned off!');
-      updatePetSub.unsubscribe();
-    };
+    // return () => {
+    //   console.log('Petpage subscription is turned off!');
+    //   updatePetSub.unsubscribe();
+    // };
   }, []);
 
   async function processSubscriptionData(mutationType, data) {

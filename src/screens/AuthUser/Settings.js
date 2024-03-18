@@ -20,6 +20,7 @@ import {updatePet} from '../../graphql/mutations';
 import {
   checkS3Url,
   deletePetPage,
+  mutationItem,
   updateProfilePic,
 } from '../../utils/amplifyUtil';
 import {
@@ -643,14 +644,14 @@ const Settings = ({navigation}) => {
       };
       console.log('newInput: ', newPetInput);
 
-      // await mutationItem(
-      //   isCallingUpdateAPI,
-      //   setIsCallingUpdateAPI,
-      //   newPetInput,
-      //   updatePet,
-      //   '정보가 성공적으로 변경되었습니다.',
-      //   popPage,
-      // );
+      await mutationItem(
+        isCallingUpdateAPI,
+        setIsCallingUpdateAPI,
+        newPetInput,
+        updatePet,
+        '정보가 성공적으로 변경되었습니다.',
+        popPage,
+      );
     } catch (error) {
       console.log('Error in onUpdatePetInfo: ', error);
     }

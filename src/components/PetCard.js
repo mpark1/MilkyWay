@@ -49,6 +49,7 @@ const PetCard = ({item, isFamily}) => {
         ownershipPeriodInMonths: item.ownershipPeriodInMonths,
         careTakerType: item.careTakerType,
         manager: item.managerID === userID,
+        introductionMsg: item.introductionMsg,
       }),
     );
 
